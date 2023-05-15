@@ -6,3 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tokio = {version = "1.28.1", features = ["full"]}
+torrent-search-client = {path = "../torrent-search-client", version = "0.1"}
