@@ -39,3 +39,28 @@ jobs:
               with:
                   name: api-server
                   path: target/release/api-server
+
+    docker:
+        runs-on: ubuntu-latest
+        needs: build
+
+        steps:
+            - name: Docker meta
+              id: meta
+              uses: docker/metadata-action@v4
+              with:
+                  images: |
+                      netfloex/torrent-api
+                  tags: |
+                      type=semver,pattern=v{{major}}.{{minor}}.{{patch}}
+                      type=semver,pattern=v{{major}}.{{minor}}
+                      type=semver,pattern=v{{major}}
+                      type=raw,value=latest
+
+            - name: Build and push to docker hub
+              uses: netfloex/actions/docker@master
+              with:
+                  username: netfloex
+                  token: ${{ secrets.DOCKERHUB_TOKEN }}
+                  tags: ${{ steps.meta.outputs.tags }}
+                  labels: ${{ steps.meta.outputs.labels }}
