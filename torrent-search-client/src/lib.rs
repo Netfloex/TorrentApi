@@ -5,7 +5,7 @@ mod torrent;
 use client::piratebay::PirateBay;
 use client::TorrentProvider;
 use http::HttpClient;
-use torrent::Torrent;
+pub use torrent::Torrent;
 
 pub struct TorrentClient {
     http: HttpClient,

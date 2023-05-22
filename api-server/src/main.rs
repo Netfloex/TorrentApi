@@ -1,13 +1,16 @@
-use torrent_search_client::TorrentClient;
+use rocket::serde::json::Json;
+use torrent_search_client::{Torrent, TorrentClient};
+#[macro_use]
+extern crate rocket;
 
-#[tokio::main]
-
-async fn main() {
+#[get("/search?<query>")]
+async fn search(query: String) -> Json<Vec<Torrent>> {
     let client = TorrentClient::new();
-    let torrents = client.search("Ubuntu Server").await;
+    let response = client.search(query);
+    Json(response.await)
+}
 
-    for torrent in torrents.iter() {
-        println!("Torrent: {}", torrent.name);
-        println!("Size: {}", torrent.size);
-    }
+#[launch]
+fn rocket() -> _ {
+    rocket::build().mount("/", routes![search])
 }
