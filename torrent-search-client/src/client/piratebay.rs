@@ -1,6 +1,7 @@
-use crate::{http::HttpClient, torrent::Torrent, TorrentProvider};
+use crate::{torrent::Torrent, TorrentProvider};
 use async_trait::async_trait;
 use reqwest::{Method, Url};
+use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
 use serde_json::from_slice;
 
@@ -34,7 +35,7 @@ impl PirateBay {
 
 #[async_trait]
 impl TorrentProvider for PirateBay {
-    async fn search(query: &str, http: &HttpClient) -> Vec<Torrent> {
+    async fn search(query: &str, http: &ClientWithMiddleware) -> Vec<Torrent> {
         let url = PirateBay::format_url(query);
 
         let response = http.request(Method::GET, url).send().await.unwrap();

@@ -4,11 +4,12 @@ mod torrent;
 
 use client::piratebay::PirateBay;
 use client::TorrentProvider;
-use http::HttpClient;
+use http::create_http_client;
+use reqwest_middleware::ClientWithMiddleware;
 pub use torrent::Torrent;
 
 pub struct TorrentClient {
-    http: HttpClient,
+    http: ClientWithMiddleware,
 }
 
 impl TorrentClient {
@@ -17,7 +18,7 @@ impl TorrentClient {
     }
 
     pub fn new() -> Self {
-        let http = HttpClient::new();
+        let http = create_http_client();
         Self { http }
     }
 }

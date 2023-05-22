@@ -1,17 +1,14 @@
-use reqwest::{Client, IntoUrl, Method, RequestBuilder};
+use reqwest::Client;
 
-pub struct HttpClient {
-    client: Client,
-}
+use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use reqwest_middleware::{ClientBuilder, ClientWithMiddleware};
 
-impl HttpClient {
-    pub fn new() -> Self {
-        let client = Client::builder().build().unwrap();
-
-        Self { client }
-    }
-
-    pub fn request<U: IntoUrl>(&self, method: Method, url: U) -> RequestBuilder {
-        self.client.request(method, url)
-    }
+pub fn create_http_client() -> ClientWithMiddleware {
+    ClientBuilder::new(Client::new())
+        .with(Cache(HttpCache {
+            mode: CacheMode::ForceCache,
+            manager: CACacheManager::default(),
+            options: None,
+        }))
+        .build()
 }
