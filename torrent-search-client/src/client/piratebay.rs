@@ -1,4 +1,4 @@
-use crate::{torrent::Torrent, TorrentProvider};
+use crate::{category::Category, torrent::Torrent, TorrentProvider};
 use async_trait::async_trait;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
@@ -25,9 +25,23 @@ const PIRATE_BAY_API: &str = "https://apibay.org/q.php";
 pub struct PirateBay {}
 
 impl PirateBay {
-    fn format_url(query: &str) -> Url {
+    fn format_category(category: Category) -> &'static str {
+        match category {
+            Category::All => "",
+            Category::Applications => "300",
+            Category::Audio => "100",
+            Category::Video => "200",
+            Category::Games => "400",
+            Category::Other => "600",
+        }
+    }
+
+    fn format_url(query: &str, category: Category) -> Url {
         let mut base_url = Url::parse(PIRATE_BAY_API).unwrap();
-        base_url.query_pairs_mut().append_pair("q", query);
+        base_url
+            .query_pairs_mut()
+            .append_pair("q", query)
+            .append_pair("cat", Self::format_category(category));
 
         base_url
     }
@@ -35,8 +49,8 @@ impl PirateBay {
 
 #[async_trait]
 impl TorrentProvider for PirateBay {
-    async fn search(query: &str, http: &ClientWithMiddleware) -> Vec<Torrent> {
-        let url = PirateBay::format_url(query);
+    async fn search(query: &str, category: Category, http: &ClientWithMiddleware) -> Vec<Torrent> {
+        let url = PirateBay::format_url(query, category);
 
         let response = http.request(Method::GET, url).send().await.unwrap();
 

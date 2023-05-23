@@ -1,7 +1,9 @@
+mod category;
 mod client;
 mod http;
 mod torrent;
 
+pub use category::Category;
 use client::piratebay::PirateBay;
 use client::TorrentProvider;
 use http::create_http_client;
@@ -13,8 +15,8 @@ pub struct TorrentClient {
 }
 
 impl TorrentClient {
-    pub async fn search<S: AsRef<str>>(&self, query: S) -> Vec<Torrent> {
-        PirateBay::search(query.as_ref(), &self.http).await
+    pub async fn search<S: AsRef<str>>(&self, query: S, category: Category) -> Vec<Torrent> {
+        PirateBay::search(query.as_ref(), category, &self.http).await
     }
 
     pub fn new() -> Self {
