@@ -1,5 +1,6 @@
 **
 
+!/.cargo
 !/api-server
 !/torrent-search-client
 !/Cargo.lock
