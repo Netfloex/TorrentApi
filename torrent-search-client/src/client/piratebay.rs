@@ -51,7 +51,7 @@ impl PirateBay {
 impl TorrentProvider for PirateBay {
     async fn search(query: &str, category: Category, http: &ClientWithMiddleware) -> Vec<Torrent> {
         let url = PirateBay::format_url(query, category);
-
+        println!("Request to: {}", url);
         let response = http.request(Method::GET, url).send().await.unwrap();
 
         let body = response.bytes().await.unwrap();
