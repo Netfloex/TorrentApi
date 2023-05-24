@@ -15,7 +15,7 @@ pub struct TorrentClient {
 }
 
 impl TorrentClient {
-    pub async fn search<S: AsRef<str>>(&self, query: S, category: Category) -> Vec<Torrent> {
+    pub async fn search<S: AsRef<str>>(&self, query: S, category: &Category) -> Vec<Torrent> {
         PirateBay::search(query.as_ref(), category, &self.http).await
     }
 

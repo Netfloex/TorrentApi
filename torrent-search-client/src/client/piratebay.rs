@@ -25,7 +25,7 @@ const PIRATE_BAY_API: &str = "https://apibay.org/q.php";
 pub struct PirateBay {}
 
 impl PirateBay {
-    fn format_category(category: Category) -> &'static str {
+    fn format_category(category: &Category) -> &'static str {
         match category {
             Category::All => "",
             Category::Applications => "300",
@@ -36,7 +36,7 @@ impl PirateBay {
         }
     }
 
-    fn format_url(query: &str, category: Category) -> Url {
+    fn format_url(query: &str, category: &Category) -> Url {
         let mut base_url = Url::parse(PIRATE_BAY_API).unwrap();
         base_url
             .query_pairs_mut()
@@ -49,7 +49,7 @@ impl PirateBay {
 
 #[async_trait]
 impl TorrentProvider for PirateBay {
-    async fn search(query: &str, category: Category, http: &ClientWithMiddleware) -> Vec<Torrent> {
+    async fn search(query: &str, category: &Category, http: &ClientWithMiddleware) -> Vec<Torrent> {
         let url = PirateBay::format_url(query, category);
         println!("Request to: {}", url);
         let response = http.request(Method::GET, url).send().await.unwrap();

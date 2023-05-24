@@ -14,7 +14,12 @@ async fn search(query: String, category: CategoryFormField) -> Json<Vec<Torrent>
     Json(response.await)
 }
 
+#[get("/search?<_query>&<_category>", rank = 1)]
+fn search_wrong_category(_query: String, _category: String) -> &'static str {
+    "Wrong Category"
+}
+
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![search])
+    rocket::build().mount("/", routes![search, search_wrong_category])
 }

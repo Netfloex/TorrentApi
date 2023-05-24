@@ -6,12 +6,11 @@ pub struct CategoryFormField {
 }
 
 impl CategoryFormField {
-    pub fn get(self) -> Category {
-        self.category
+    pub fn get(&self) -> &Category {
+        &self.category
     }
 }
 
-#[rocket::async_trait]
 impl<'r> FromFormField<'r> for CategoryFormField {
     fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
         let category = match field.value.to_ascii_lowercase().as_str() {
