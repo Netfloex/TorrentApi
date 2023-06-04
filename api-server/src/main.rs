@@ -1,25 +1,36 @@
-mod category_form_field;
-use category_form_field::CategoryFormField;
-use rocket::serde::json::Json;
-use torrent_search_client::{Torrent, TorrentClient};
+mod parse_category;
+use parse_category::parse_category;
+use rocket::{response::status::BadRequest, serde::json::Json};
+use torrent_search_client::{Category, Torrent, TorrentClient};
 
 #[macro_use]
 extern crate rocket;
 
-#[get("/search?<query>&<category>")]
-async fn search(query: String, category: CategoryFormField) -> Json<Vec<Torrent>> {
-    let client = TorrentClient::new();
-
-    let response = client.search(query, category.get());
-    Json(response.await)
+#[derive(FromForm)]
+struct SearchParams {
+    query: String,
+    category: Option<String>,
 }
 
-#[get("/search?<_query>&<_category>", rank = 1)]
-fn search_wrong_category(_query: String, _category: String) -> &'static str {
-    "Wrong Category"
+#[get("/search?<search_params..>")]
+async fn search(search_params: SearchParams) -> Result<Json<Vec<Torrent>>, BadRequest<()>> {
+    let client = TorrentClient::new();
+
+    let category = search_params
+        .category
+        .map_or_else(|| Some(Category::All), |c| parse_category(&c));
+
+    let category = match &category {
+        Some(category) => category,
+        None => return Err(BadRequest(None)),
+    };
+
+    let response = client.search(search_params.query, category);
+
+    Ok(Json(response.await))
 }
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![search, search_wrong_category])
+    rocket::build().mount("/", routes![search])
 }
