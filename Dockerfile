@@ -18,4 +18,7 @@ WORKDIR /app
 
 COPY --from=builder /src/target/release/api-server .
 
+ENV ROCKET_ADDRESS=0.0.0.0
+EXPOSE 8000
+
 CMD ["/app/api-server"]
