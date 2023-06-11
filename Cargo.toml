@@ -3,3 +3,7 @@ members = [
 	"api-server",
 	"torrent-search-client"
 ]
+
+
+[replace]
+"reflink:0.1.3" = { git = "https://github.com/nicokoch/reflink", rev = "e8d93b46" }
