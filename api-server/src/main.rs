@@ -1,6 +1,6 @@
 mod parse_category;
 use parse_category::parse_category;
-use rocket::{response::status::BadRequest, serde::json::Json};
+use rocket::{response::status::BadRequest, serde::json::Json, State};
 use torrent_search_client::{Category, Torrent, TorrentClient};
 
 #[macro_use]
@@ -13,9 +13,10 @@ struct SearchParams {
 }
 
 #[get("/search?<search_params..>")]
-async fn search(search_params: SearchParams) -> Result<Json<Vec<Torrent>>, BadRequest<()>> {
-    let client = TorrentClient::new();
-
+async fn search(
+    search_params: SearchParams,
+    client: &State<TorrentClient>,
+) -> Result<Json<Vec<Torrent>>, BadRequest<()>> {
     let category = search_params
         .category
         .map_or_else(|| Some(Category::All), |c| parse_category(&c));
@@ -32,5 +33,7 @@ async fn search(search_params: SearchParams) -> Result<Json<Vec<Torrent>>, BadRe
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![search])
+    rocket::build()
+        .manage(TorrentClient::new())
+        .mount("/", routes![search])
 }
