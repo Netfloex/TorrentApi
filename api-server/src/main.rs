@@ -25,9 +25,9 @@ async fn search(search_params: SearchParams) -> Result<Json<Vec<Torrent>>, BadRe
         None => return Err(BadRequest(None)),
     };
 
-    let response = client.search(search_params.query, category);
+    let response = client.search(search_params.query, category).await;
 
-    Ok(Json(response.await))
+    Ok(Json(response))
 }
 
 #[launch]

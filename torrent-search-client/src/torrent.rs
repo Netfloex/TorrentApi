@@ -1,10 +1,12 @@
+use chrono::NaiveDateTime;
 use serde::Serialize;
 
 use crate::client::piratebay::PirateBayTorrent;
 
 #[derive(Serialize, Debug)]
+
 pub struct Torrent {
-    pub added: usize,
+    pub added: String,
     pub category: String,
     pub file_count: usize,
     pub id: String,
@@ -13,15 +15,18 @@ pub struct Torrent {
     pub leechers: usize,
     pub name: String,
     pub seeders: usize,
-    pub size: usize,
+    pub size: u64,
     pub status: String,
     pub username: String,
+    pub provider: String,
 }
 
 impl From<PirateBayTorrent> for Torrent {
     fn from(value: PirateBayTorrent) -> Self {
         Self {
-            added: value.added.parse().unwrap_or(0),
+            added: NaiveDateTime::parse_from_str(&value.added, "%s")
+                .unwrap()
+                .to_string(),
             category: value.category,
             file_count: value.num_files.parse().unwrap_or(0),
             id: value.id,
@@ -33,6 +38,7 @@ impl From<PirateBayTorrent> for Torrent {
             size: value.size.parse().unwrap_or(0),
             status: value.status,
             username: value.username,
+            provider: String::from("piratebay"),
         }
     }
 }
