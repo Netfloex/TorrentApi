@@ -47,6 +47,14 @@ impl PirateBay {
 
         base_url
     }
+
+    fn is_empty_torrent(torrent: &PirateBayTorrent) -> bool {
+        torrent.id == "0"
+            && torrent.size == "0"
+            && torrent.category == "0"
+            && torrent.num_files == "0"
+            && torrent.added == "0"
+    }
 }
 
 #[async_trait]
@@ -63,6 +71,10 @@ impl TorrentProvider for PirateBay {
         let body = response.bytes().await?;
 
         let pb_torrents: Vec<PirateBayTorrent> = from_slice(&body)?;
+
+        if pb_torrents.len() == 1 && Self::is_empty_torrent(&pb_torrents[0]) {
+            return Ok(Vec::new());
+        }
 
         let torrents: Vec<Torrent> = pb_torrents.into_iter().map(Torrent::from).collect();
 
