@@ -5,6 +5,8 @@ use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
 use serde_json::from_slice;
 
+use super::Error;
+
 #[derive(Deserialize, Debug)]
 pub struct PirateBayTorrent {
     pub id: String,
@@ -49,17 +51,21 @@ impl PirateBay {
 
 #[async_trait]
 impl TorrentProvider for PirateBay {
-    async fn search(query: &str, category: &Category, http: &ClientWithMiddleware) -> Vec<Torrent> {
+    async fn search(
+        query: &str,
+        category: &Category,
+        http: &ClientWithMiddleware,
+    ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(query, category);
         println!("Request to: {}", url);
-        let response = http.request(Method::GET, url).send().await.unwrap();
+        let response = http.request(Method::GET, url).send().await?;
 
-        let body = response.bytes().await.unwrap();
+        let body = response.bytes().await?;
 
-        let pb_torrents: Vec<PirateBayTorrent> = from_slice(&body).unwrap();
+        let pb_torrents: Vec<PirateBayTorrent> = from_slice(&body)?;
 
-        let torrents = pb_torrents.into_iter().map(Torrent::from).collect();
+        let torrents: Vec<Torrent> = pb_torrents.into_iter().map(Torrent::from).collect();
 
-        torrents
+        Ok(torrents)
     }
 }

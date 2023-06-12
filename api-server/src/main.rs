@@ -1,4 +1,6 @@
 mod parse_category;
+use std::vec;
+
 use parse_category::parse_category;
 use rocket::{response::status::BadRequest, serde::json::Json, State};
 use torrent_search_client::{Category, Torrent, TorrentClient};
@@ -26,9 +28,18 @@ async fn search(
         None => return Err(BadRequest(None)),
     };
 
-    let response = client.search(search_params.query, category).await;
+    let response = client.search_all(search_params.query, category).await;
 
-    Ok(Json(response))
+    let mut torrents: Vec<Torrent> = vec![];
+
+    for result in response {
+        match result {
+            Ok(mut torrent) => torrents.append(&mut torrent),
+            Err(err) => eprintln!("Error:\n{:?}", err),
+        }
+    }
+
+    Ok(Json(torrents))
 }
 
 #[launch]

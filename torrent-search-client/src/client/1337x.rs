@@ -1,4 +1,9 @@
-use crate::{category::Category, torrent::Torrent, TorrentProvider};
+use crate::{
+    category::Category,
+    error::{Error, ErrorKind},
+    torrent::Torrent,
+    TorrentProvider,
+};
 use async_trait::async_trait;
 use bytesize::ByteSize;
 use chrono::NaiveDateTime;
@@ -53,12 +58,15 @@ impl X1137 {
 
 #[async_trait]
 impl TorrentProvider for X1137 {
-    async fn search(query: &str, category: &Category, http: &ClientWithMiddleware) -> Vec<Torrent> {
+    async fn search(
+        query: &str,
+        category: &Category,
+        http: &ClientWithMiddleware,
+    ) -> Result<Vec<Torrent>, Error> {
         let url = X1137::format_url(query, category);
         println!("Request to: {}", url);
-        let response = http.request(Method::GET, url).send().await.unwrap();
-        println!("Status: {}", response.status());
-        let body = response.text().await.unwrap();
+        let response = http.request(Method::GET, url).send().await?;
+        let body = response.text().await?;
 
         let parsed = Html::parse_document(&body);
 
@@ -70,26 +78,28 @@ impl TorrentProvider for X1137 {
         let size_selector = Selector::parse(".size").unwrap();
         let username_selector = Selector::parse(".coll-5").unwrap();
 
-        fn get_item<'a>(tr: ElementRef<'a>, selector: &'a Selector) -> ElementRef<'a> {
-            tr.select(&selector).next().unwrap()
+        let no_results_selector = Selector::parse(".box-info > .box-info-detail > p").unwrap();
+
+        fn get_item<'a>(tr: ElementRef<'a>, selector: &'a Selector) -> Option<ElementRef<'a>> {
+            tr.select(&selector).next()
         }
 
-        fn get_text(tr: ElementRef, selector: &Selector) -> String {
-            get_item(tr, selector).text().next().unwrap().to_string()
+        fn get_text<'a>(tr: ElementRef<'a>, selector: &'a Selector) -> String {
+            match get_item(tr, selector) {
+                Some(item) => item.text().collect::<Vec<_>>().join("").trim().to_string(),
+                None => String::new(),
+            }
         }
 
         let ordinal_regex = Regex::new(r#"st|nd|rd|th"#).unwrap();
 
-        let torrents = parsed.select(&table_selector).map(|tr| {
+        let table = parsed.select(&table_selector);
+
+        let torrents = table.map(|tr| {
             let date = get_text(tr, &date_selector);
             let date = ordinal_regex.replace_all(&date, "").to_string();
 
             let date = NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b. %e '%y %R");
-
-            match date {
-                Err(e) => println!("{}: {}", e, get_text(tr, &date_selector)),
-                Ok(_) => (),
-            }
 
             Torrent {
                 name: get_text(tr, &name_selector),
@@ -100,29 +110,41 @@ impl TorrentProvider for X1137 {
                     Ok(t) => t.to_string(),
                     Err(err) => err.to_string(),
                 },
-                size: get_text(tr, &size_selector).parse::<ByteSize>().unwrap().0,
+                size: get_text(tr, &size_selector)
+                    .parse::<ByteSize>()
+                    .unwrap_or(ByteSize(0))
+                    .0,
                 category: String::new(),
                 id: get_item(tr, &name_selector)
-                    .value()
-                    .attr("href")
-                    .unwrap()
-                    .split("/")
-                    .nth(2)
-                    .unwrap()
+                    .and_then(|id| {
+                        id.value()
+                            .attr("href")
+                            .and_then(|href| href.split("/").nth(2))
+                    })
+                    .unwrap_or("")
                     .to_string(),
                 imdb: String::new(),
                 info_hash: String::new(),
                 file_count: 0,
                 status: get_item(tr, &username_selector)
-                    .value()
-                    .classes()
-                    .nth(1)
-                    .unwrap()
+                    .and_then(|item| item.value().classes().nth(1))
+                    .unwrap_or("")
                     .to_string(),
                 provider: String::from("1337x"),
             }
         });
 
-        torrents.collect()
+        let torrents: Vec<Torrent> = torrents.collect();
+
+        let no_results = parsed.select(&no_results_selector).next().is_some();
+
+        if torrents.len() == 0 && !no_results {
+            return Err(Error::new(
+                ErrorKind::ScrapingError(),
+                "Could not find the table in the html response",
+            ));
+        }
+
+        Ok(torrents)
     }
 }
