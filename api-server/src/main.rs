@@ -1,17 +1,23 @@
+mod order;
 mod parse_category;
+mod sort_column;
 use std::vec;
 
+use order::Order;
 use parse_category::parse_category;
 use rocket::{response::status::BadRequest, serde::json::Json, State};
+use sort_column::SortColumn;
 use torrent_search_client::{Category, Torrent, TorrentClient};
 
 #[macro_use]
 extern crate rocket;
 
-#[derive(FromForm)]
+#[derive(FromForm, Debug)]
 struct SearchParams {
     query: String,
     category: Option<String>,
+    sort: Option<SortColumn>,
+    order: Option<Order>,
 }
 
 #[get("/search?<search_params..>")]

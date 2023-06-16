@@ -25,7 +25,7 @@ impl From<PirateBayTorrent> for Torrent {
     fn from(value: PirateBayTorrent) -> Self {
         Self {
             added: NaiveDateTime::parse_from_str(&value.added, "%s")
-                .unwrap()
+                .unwrap_or(NaiveDateTime::default())
                 .to_string(),
             category: value.category,
             file_count: value.num_files.parse().unwrap_or(0),
