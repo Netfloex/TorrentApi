@@ -2,6 +2,7 @@ mod category;
 mod client;
 mod error;
 mod http;
+mod search_options;
 mod torrent;
 use std::vec;
 
@@ -13,21 +14,22 @@ use error::Error;
 use futures::future::join_all;
 use http::create_http_client;
 use reqwest_middleware::ClientWithMiddleware;
+pub use search_options::Order;
+pub use search_options::SearchOptions;
+pub use search_options::SortColumn;
 pub use torrent::Torrent;
-
 pub struct TorrentClient {
     http: ClientWithMiddleware,
 }
 
 impl TorrentClient {
-    pub async fn search_all<S: AsRef<str>>(
+    pub async fn search_all(
         &self,
-        query: S,
-        category: &Category,
+        search_options: &SearchOptions,
     ) -> Vec<Result<Vec<Torrent>, Error>> {
         join_all(vec![
-            X1137::search(query.as_ref(), category, &self.http),
-            PirateBay::search(query.as_ref(), category, &self.http),
+            X1137::search(search_options, &self.http),
+            PirateBay::search(search_options, &self.http),
         ])
         .await
     }

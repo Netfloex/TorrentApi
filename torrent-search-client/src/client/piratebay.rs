@@ -1,4 +1,4 @@
-use crate::{category::Category, torrent::Torrent, TorrentProvider};
+use crate::{category::Category, search_options::SearchOptions, torrent::Torrent, TorrentProvider};
 use async_trait::async_trait;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
@@ -38,12 +38,12 @@ impl PirateBay {
         }
     }
 
-    fn format_url(query: &str, category: &Category) -> Url {
+    fn format_url(search_options: &SearchOptions) -> Url {
         let mut base_url = Url::parse(PIRATE_BAY_API).unwrap();
         base_url
             .query_pairs_mut()
-            .append_pair("q", query)
-            .append_pair("cat", Self::format_category(category));
+            .append_pair("q", search_options.query())
+            .append_pair("cat", Self::format_category(search_options.category()));
 
         base_url
     }
@@ -60,11 +60,10 @@ impl PirateBay {
 #[async_trait]
 impl TorrentProvider for PirateBay {
     async fn search(
-        query: &str,
-        category: &Category,
+        search_options: &SearchOptions,
         http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error> {
-        let url = PirateBay::format_url(query, category);
+        let url = PirateBay::format_url(search_options);
         println!("Request to: {}", url);
         let response = http.request(Method::GET, url).send().await?;
 

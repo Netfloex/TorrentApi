@@ -1,4 +1,4 @@
-use crate::{category::Category, error::Error, torrent::Torrent};
+use crate::{error::Error, search_options::SearchOptions, torrent::Torrent};
 use async_trait::async_trait;
 use reqwest_middleware::ClientWithMiddleware;
 
@@ -9,8 +9,7 @@ pub mod x1337;
 #[async_trait]
 pub trait TorrentProvider {
     async fn search(
-        query: &str,
-        category: &Category,
+        search_options: &SearchOptions,
         http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error>;
 }

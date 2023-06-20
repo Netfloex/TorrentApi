@@ -1,4 +1,6 @@
-use rocket::form::{self, FromFormField, ValueField};
+use std::str::FromStr;
+
+use crate::error::{Error, ErrorKind};
 
 #[derive(Debug)]
 pub enum SortColumn {
@@ -8,11 +10,13 @@ pub enum SortColumn {
     Seeders(),
 }
 
-#[rocket::async_trait]
-impl<'r> FromFormField<'r> for SortColumn {
-    fn from_value(field: ValueField<'r>) -> form::Result<'r, Self> {
-        let sort_column = match field.value.to_ascii_lowercase().as_str() {
+impl FromStr for SortColumn {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Error> {
+        let sort_column = match s.to_ascii_lowercase().as_str() {
             "time" => SortColumn::Added(),
+            "date" => SortColumn::Added(),
             "added" => SortColumn::Added(),
 
             "size" => SortColumn::Size(),
@@ -20,7 +24,7 @@ impl<'r> FromFormField<'r> for SortColumn {
             "leechers" => SortColumn::Leechers(),
             "seeders" => SortColumn::Seeders(),
 
-            _ => Err(form::Error::validation("Incorrect sort_column"))?,
+            _ => Err(Error::new(ErrorKind::InvalidString(), "Incorrect column"))?,
         };
 
         Ok(sort_column)
