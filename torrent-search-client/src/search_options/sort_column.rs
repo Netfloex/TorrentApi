@@ -2,12 +2,13 @@ use std::str::FromStr;
 
 use crate::error::{Error, ErrorKind};
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub enum SortColumn {
-    Added(),
-    Size(),
-    Leechers(),
-    Seeders(),
+    Added,
+    Size,
+    Leechers,
+    #[default]
+    Seeders,
 }
 
 impl FromStr for SortColumn {
@@ -15,14 +16,14 @@ impl FromStr for SortColumn {
 
     fn from_str(s: &str) -> Result<Self, Error> {
         let sort_column = match s.to_ascii_lowercase().as_str() {
-            "time" => SortColumn::Added(),
-            "date" => SortColumn::Added(),
-            "added" => SortColumn::Added(),
+            "time" => SortColumn::Added,
+            "date" => SortColumn::Added,
+            "added" => SortColumn::Added,
 
-            "size" => SortColumn::Size(),
+            "size" => SortColumn::Size,
 
-            "leechers" => SortColumn::Leechers(),
-            "seeders" => SortColumn::Seeders(),
+            "leechers" => SortColumn::Leechers,
+            "seeders" => SortColumn::Seeders,
 
             _ => Err(Error::new(ErrorKind::InvalidString(), "Incorrect column"))?,
         };

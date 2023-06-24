@@ -8,6 +8,7 @@ pub enum Order {
     Descending,
     Ascending,
 }
+
 impl FromStr for Order {
     type Err = Error;
 

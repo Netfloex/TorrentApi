@@ -1,4 +1,3 @@
-mod category;
 mod client;
 mod error;
 mod http;
@@ -6,14 +5,14 @@ mod search_options;
 mod torrent;
 use std::vec;
 
-pub use category::Category;
 use client::piratebay::PirateBay;
 use client::x1337::X1137;
 use client::TorrentProvider;
-use error::Error;
+pub use error::Error;
 use futures::future::join_all;
 use http::create_http_client;
 use reqwest_middleware::ClientWithMiddleware;
+pub use search_options::Category;
 pub use search_options::Order;
 pub use search_options::SearchOptions;
 pub use search_options::SortColumn;

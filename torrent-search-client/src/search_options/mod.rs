@@ -1,15 +1,15 @@
+mod category;
 mod order;
 mod sort_column;
 
-use crate::Category;
-
+pub use self::category::Category;
 pub use self::{order::Order, sort_column::SortColumn};
 
 pub struct SearchOptions {
     query: String,
     category: Category,
-    sort: Option<SortColumn>,
-    order: Option<Order>,
+    sort: SortColumn,
+    order: Order,
 }
 
 impl SearchOptions {
@@ -19,24 +19,19 @@ impl SearchOptions {
     pub fn category(&self) -> &Category {
         &self.category
     }
-    pub fn sort(&self) -> &Option<SortColumn> {
+    pub fn sort(&self) -> &SortColumn {
         &self.sort
     }
-    pub fn order(&self) -> &Option<Order> {
+    pub fn order(&self) -> &Order {
         &self.order
     }
 
-    pub fn new(
-        query: String,
-        category: Category,
-        sort: Option<SortColumn>,
-        order: Option<Order>,
-    ) -> Self {
+    pub fn new(query: String, category: Category, sort: SortColumn, order: Order) -> Self {
         Self {
             query,
             category,
-            sort,
-            order,
+            sort: sort,
+            order: order,
         }
     }
 }

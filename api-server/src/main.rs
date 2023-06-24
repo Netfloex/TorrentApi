@@ -1,9 +1,10 @@
-mod parse_category;
-use std::vec;
+mod http_error;
 
-use parse_category::parse_category;
-use rocket::{response::status::BadRequest, serde::json::Json, State};
-use torrent_search_client::{Category, SearchOptions, Torrent, TorrentClient};
+use rocket::{serde::json::Json, State};
+use std::vec;
+use torrent_search_client::{Category, Order, SearchOptions, SortColumn, Torrent, TorrentClient};
+
+use crate::http_error::HttpErrorKind;
 
 #[macro_use]
 extern crate rocket;
@@ -20,22 +21,20 @@ struct SearchParams {
 async fn search(
     search_params: SearchParams,
     client: &State<TorrentClient>,
-) -> Result<Json<Vec<Torrent>>, BadRequest<()>> {
-    let category = search_params
+) -> Result<Json<Vec<Torrent>>, HttpErrorKind> {
+    let category: Category = search_params
         .category
-        .map_or_else(|| Some(Category::All), |c| parse_category(&c));
+        .map_or_else(|| Ok(Category::default()), |c| c.parse())?;
 
-    let category = match category {
-        Some(category) => category,
-        None => return Err(BadRequest(None)),
-    };
+    let sort: SortColumn = search_params
+        .sort
+        .map_or_else(|| Ok(SortColumn::default()), |f| f.parse())?;
 
-    let options = SearchOptions::new(
-        search_params.query,
-        category,
-        search_params.sort.and_then(|s| s.parse().ok()),
-        search_params.order.and_then(|s| s.parse().ok()),
-    );
+    let order: Order = search_params
+        .order
+        .map_or_else(|| Ok(Order::default()), |f| f.parse())?;
+
+    let options = SearchOptions::new(search_params.query, category, sort, order);
 
     let response = client.search_all(&options).await;
 

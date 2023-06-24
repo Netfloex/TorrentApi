@@ -1,4 +1,8 @@
-use crate::{category::Category, search_options::SearchOptions, torrent::Torrent, TorrentProvider};
+use crate::{
+    search_options::{Category, SearchOptions},
+    torrent::Torrent,
+    TorrentProvider,
+};
 use async_trait::async_trait;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;

@@ -1,9 +1,8 @@
 use crate::{
-    category::Category,
     error::{Error, ErrorKind},
-    search_options::{SearchOptions, SortColumn},
+    search_options::{Category, SearchOptions, SortColumn},
     torrent::Torrent,
-    Order, TorrentProvider,
+    TorrentProvider,
 };
 use async_trait::async_trait;
 use bytesize::ByteSize;
@@ -28,14 +27,12 @@ impl X1137 {
         }
     }
 
-    fn format_sort(column: &Option<SortColumn>) -> &str {
-        let column = column.as_ref().unwrap_or(&SortColumn::Seeders());
-
+    fn format_sort(column: &SortColumn) -> &str {
         match column {
-            SortColumn::Added() => "time",
-            SortColumn::Leechers() => "leechers",
-            SortColumn::Size() => "size",
-            SortColumn::Seeders() => "seeders",
+            SortColumn::Added => "time",
+            SortColumn::Leechers => "leechers",
+            SortColumn::Size => "size",
+            SortColumn::Seeders => "seeders",
         }
     }
 
@@ -56,12 +53,7 @@ impl X1137 {
                 ""
             },
             Self::format_sort(&search_options.sort()),
-            search_options
-                .order()
-                .as_ref()
-                .unwrap_or(&Order::default())
-                .to_string()
-                .as_str(),
+            &search_options.order().to_string(),
             "1",
         ]
         .join("/")
