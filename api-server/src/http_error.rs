@@ -1,4 +1,4 @@
-use torrent_search_client::{Error, ErrorKind, InvalidOptionError, SearchOption, SearchOptions};
+use torrent_search_client::InvalidOptionError;
 
 #[derive(Debug, Responder)]
 pub enum HttpErrorKind {

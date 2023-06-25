@@ -15,6 +15,7 @@ struct SearchParams {
     category: Option<String>,
     sort: Option<String>,
     order: Option<String>,
+    limit: Option<usize>,
 }
 
 #[get("/search?<search_params..>")]
@@ -38,7 +39,7 @@ async fn search(
 
     let response = client.search_all(&options).await;
 
-    let mut torrents: Vec<Torrent> = vec![];
+    let mut torrents: Vec<Torrent> = Vec::new();
 
     for result in response {
         match result {
@@ -56,6 +57,10 @@ async fn search(
 
     if matches!(options.order(), Order::Descending) {
         torrents.reverse();
+    }
+
+    if let Some(limit) = search_params.limit {
+        torrents.truncate(limit);
     }
 
     Ok(Json(torrents))
