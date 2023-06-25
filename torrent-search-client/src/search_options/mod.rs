@@ -1,4 +1,5 @@
 mod category;
+mod invalid_option_error;
 mod order;
 mod sort_column;
 
@@ -6,6 +7,8 @@ use derive_getters::Getters;
 
 pub use self::category::Category;
 pub use self::{order::Order, sort_column::SortColumn};
+pub use invalid_option_error::InvalidOptionError;
+pub use invalid_option_error::SearchOption;
 
 #[derive(Getters)]
 pub struct SearchOptions {

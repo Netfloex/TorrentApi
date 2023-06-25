@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::error::{Error, ErrorKind};
+use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
 #[derive(Debug, Default)]
 pub enum SortColumn {
@@ -12,9 +12,9 @@ pub enum SortColumn {
 }
 
 impl FromStr for SortColumn {
-    type Err = Error;
+    type Err = InvalidOptionError;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self, InvalidOptionError> {
         let sort_column = match s.to_ascii_lowercase().as_str() {
             "time" => SortColumn::Added,
             "date" => SortColumn::Added,
@@ -25,7 +25,7 @@ impl FromStr for SortColumn {
             "leechers" => SortColumn::Leechers,
             "seeders" => SortColumn::Seeders,
 
-            _ => Err(Error::new(ErrorKind::InvalidString(), "Incorrect column"))?,
+            _ => Err(InvalidOptionError::new(SearchOption::Sort))?,
         };
 
         Ok(sort_column)

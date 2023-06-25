@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::error::{Error, ErrorKind};
+use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
 #[derive(Default, Debug)]
 pub enum Category {
@@ -14,9 +14,9 @@ pub enum Category {
 }
 
 impl FromStr for Category {
-    type Err = Error;
+    type Err = InvalidOptionError;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self, InvalidOptionError> {
         let order = match s.to_ascii_lowercase().as_str() {
             "all" => Category::All,
             "applications" => Category::Applications,
@@ -24,7 +24,8 @@ impl FromStr for Category {
             "games" => Category::Games,
             "other" => Category::Other,
             "video" => Category::Video,
-            _ => Err(Error::new(ErrorKind::InvalidString(), "Incorrect Category"))?,
+
+            _ => Err(InvalidOptionError::new(SearchOption::Order))?,
         };
 
         Ok(order)

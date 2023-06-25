@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::error::{Error, ErrorKind};
+use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
 #[derive(Debug, Default)]
 pub enum Order {
@@ -10,9 +10,9 @@ pub enum Order {
 }
 
 impl FromStr for Order {
-    type Err = Error;
+    type Err = InvalidOptionError;
 
-    fn from_str(s: &str) -> Result<Self, Error> {
+    fn from_str(s: &str) -> Result<Self, InvalidOptionError> {
         let order = match s.to_ascii_lowercase().as_str() {
             "asc" => Order::Ascending,
             "ascending" => Order::Ascending,
@@ -20,7 +20,7 @@ impl FromStr for Order {
             "desc" => Order::Descending,
             "descending" => Order::Descending,
 
-            _ => Err(Error::new(ErrorKind::InvalidString(), "Incorrect order"))?,
+            _ => Err(InvalidOptionError::new(SearchOption::Order))?,
         };
 
         Ok(order)

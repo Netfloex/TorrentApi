@@ -6,7 +6,6 @@ pub enum ErrorKind {
     HttpRequestMiddlewareError(reqwest_middleware::Error),
     ParsingError(serde_json::Error),
     ScrapingError(),
-    InvalidString(),
 }
 
 #[derive(Debug)]
@@ -55,7 +54,6 @@ impl error::Error for Error {
             ErrorKind::HttpRequestError(e) => e.source(),
             ErrorKind::HttpRequestMiddlewareError(e) => e.source(),
             ErrorKind::ParsingError(e) => e.source(),
-            ErrorKind::InvalidString() => None,
             ErrorKind::ScrapingError() => None,
         }
     }

@@ -1,4 +1,4 @@
-use torrent_search_client::Error;
+use torrent_search_client::{Error, ErrorKind, InvalidOptionError, SearchOption, SearchOptions};
 
 #[derive(Debug, Responder)]
 pub enum HttpErrorKind {
@@ -6,8 +6,8 @@ pub enum HttpErrorKind {
     InvalidParam(String),
 }
 
-impl From<Error> for HttpErrorKind {
-    fn from(err: Error) -> Self {
-        HttpErrorKind::InvalidParam(err.to_string())
+impl From<InvalidOptionError> for HttpErrorKind {
+    fn from(err: InvalidOptionError) -> Self {
+        HttpErrorKind::InvalidParam(format!("Incorrect param: {}", err.option().to_string()))
     }
 }
