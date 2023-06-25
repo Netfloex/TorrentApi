@@ -4,6 +4,7 @@ use crate::{
     TorrentProvider,
 };
 use async_trait::async_trait;
+use derive_getters::Getters;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
@@ -11,20 +12,20 @@ use serde_json::from_slice;
 
 use super::Error;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Getters)]
 pub struct PirateBayTorrent {
-    pub id: String,
-    pub name: String,
-    pub info_hash: String,
-    pub leechers: String,
-    pub seeders: String,
-    pub num_files: String,
-    pub size: String,
-    pub username: String,
-    pub added: String,
-    pub status: String,
-    pub category: String,
-    pub imdb: String,
+    id: String,
+    name: String,
+    info_hash: String,
+    leechers: String,
+    seeders: String,
+    num_files: String,
+    size: String,
+    username: String,
+    added: String,
+    status: String,
+    category: String,
+    imdb: String,
 }
 
 const PIRATE_BAY_API: &str = "https://apibay.org/q.php";

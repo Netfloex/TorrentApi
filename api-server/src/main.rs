@@ -48,10 +48,10 @@ async fn search(
     }
 
     torrents.sort_unstable_by(|a, b| match options.sort() {
-        SortColumn::Added => a.added.cmp(&b.added),
-        SortColumn::Leechers => a.leechers.cmp(&b.leechers),
-        SortColumn::Seeders => a.seeders.cmp(&b.seeders),
-        SortColumn::Size => a.size.cmp(&b.size),
+        SortColumn::Added => a.added().cmp(&b.added()),
+        SortColumn::Leechers => a.leechers().cmp(&b.leechers()),
+        SortColumn::Seeders => a.seeders().cmp(&b.seeders()),
+        SortColumn::Size => a.size().cmp(&b.size()),
     });
 
     if matches!(options.order(), Order::Descending) {
