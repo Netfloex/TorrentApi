@@ -1,13 +1,20 @@
-use chrono::NaiveDateTime;
+use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
-use serde::Serialize;
+use serde::{Serialize, Serializer};
 
 use crate::client::piratebay::PirateBayTorrent;
 
-#[derive(Serialize, Debug, Getters)]
+fn serialize_datetime<S>(datetime: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer,
+{
+    serializer.serialize_str(&datetime.to_rfc3339())
+}
 
+#[derive(Serialize, Debug, Getters)]
 pub struct Torrent {
-    pub added: String,
+    #[serde(serialize_with = "serialize_datetime")]
+    pub added: DateTime<Utc>,
     pub category: String,
     pub file_count: usize,
     pub id: String,
@@ -25,9 +32,10 @@ pub struct Torrent {
 impl From<PirateBayTorrent> for Torrent {
     fn from(value: PirateBayTorrent) -> Self {
         Self {
-            added: NaiveDateTime::parse_from_str(&value.added(), "%s")
-                .unwrap_or(NaiveDateTime::default())
-                .to_string(),
+            added: Utc
+                .timestamp_opt(value.added().parse().unwrap_or_default(), 0)
+                .single()
+                .unwrap_or_default(),
             category: value.category().to_owned(),
             file_count: value.num_files().parse().unwrap_or(0),
             id: value.id().to_owned(),

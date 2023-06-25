@@ -6,7 +6,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use bytesize::ByteSize;
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime, Utc};
 use regex::Regex;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
@@ -110,17 +110,18 @@ impl TorrentProvider for X1137 {
             let date = get_text(&tr, &date_selector);
             let date = ordinal_regex.replace_all(&date, "").to_string();
 
-            let date = NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b. %e '%y %R");
+            let date = DateTime::<Utc>::from_utc(
+                NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b. %e '%y %R")
+                    .unwrap_or_default(),
+                Utc,
+            );
 
             Torrent {
                 name: get_text(&tr, &name_selector),
                 seeders: get_text(&tr, &seeders_selector).parse().unwrap_or(0),
                 leechers: get_text(&tr, &leechers_selector).parse().unwrap_or(0),
                 username: get_text(&tr, &username_selector),
-                added: match date {
-                    Ok(t) => t.to_string(),
-                    Err(err) => err.to_string(),
-                },
+                added: date,
                 size: get_text(&tr, &size_selector)
                     .parse::<ByteSize>()
                     .unwrap_or(ByteSize(0))
