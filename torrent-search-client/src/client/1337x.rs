@@ -95,10 +95,11 @@ impl TorrentProvider for X1137 {
         }
 
         fn get_text<'a>(tr: &ElementRef<'a>, selector: &'a Selector) -> String {
-            match get_item(&tr, selector) {
-                Some(item) => item.text().collect::<Vec<_>>().join("").trim().to_string(),
-                None => String::new(),
-            }
+            get_item(&tr, selector)
+                .and_then(|i| i.text().next())
+                .unwrap_or("")
+                .trim()
+                .to_string()
         }
 
         let ordinal_regex = Regex::new(r#"st|nd|rd|th"#).unwrap();
