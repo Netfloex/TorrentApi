@@ -25,7 +25,7 @@ impl FromStr for Category {
             "other" => Category::Other,
             "video" => Category::Video,
 
-            _ => Err(InvalidOptionError::new(SearchOption::Order))?,
+            _ => Err(InvalidOptionError::new(SearchOption::Category))?,
         };
 
         Ok(order)

@@ -23,8 +23,8 @@ impl SearchOptions {
         Self {
             query,
             category,
-            sort: sort,
-            order: order,
+            sort,
+            order,
         }
     }
 }

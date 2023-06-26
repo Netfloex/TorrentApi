@@ -52,7 +52,7 @@ impl X1137 {
             } else {
                 ""
             },
-            Self::format_sort(&search_options.sort()),
+            Self::format_sort(search_options.sort()),
             &search_options.order().to_string(),
             "1",
         ]
@@ -91,11 +91,11 @@ impl TorrentProvider for X1137 {
         let no_results_selector = Selector::parse(".box-info > .box-info-detail > p").unwrap();
 
         fn get_item<'a>(tr: &'a ElementRef<'a>, selector: &'a Selector) -> Option<ElementRef<'a>> {
-            tr.select(&selector).next()
+            tr.select(selector).next()
         }
 
         fn get_text<'a>(tr: &ElementRef<'a>, selector: &'a Selector) -> String {
-            get_item(&tr, selector)
+            get_item(tr, selector)
                 .and_then(|i| i.text().next())
                 .unwrap_or("")
                 .trim()
@@ -131,7 +131,7 @@ impl TorrentProvider for X1137 {
                     .and_then(|id| {
                         id.value()
                             .attr("href")
-                            .and_then(|href| href.split("/").nth(2))
+                            .and_then(|href| href.split('/').nth(2))
                     })
                     .unwrap_or("")
                     .to_string(),
@@ -149,7 +149,7 @@ impl TorrentProvider for X1137 {
         let torrents: Vec<Torrent> = torrents.collect();
 
         let no_results = parsed.select(&no_results_selector).next().is_some();
-        if torrents.len() == 0 && !no_results {
+        if torrents.is_empty() && !no_results {
             return Err(Error::new(
                 ErrorKind::ScrapingError(),
                 "Could not find the table in the html response",

@@ -1,6 +1,5 @@
 mod client;
 mod error;
-mod http;
 mod search_options;
 mod torrent;
 use std::vec;
@@ -11,7 +10,9 @@ use client::TorrentProvider;
 pub use error::Error;
 pub use error::ErrorKind;
 use futures::future::join_all;
-use http::create_http_client;
+use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use reqwest::Client;
+use reqwest_middleware::ClientBuilder;
 use reqwest_middleware::ClientWithMiddleware;
 pub use search_options::Category;
 pub use search_options::InvalidOptionError;
@@ -20,6 +21,7 @@ pub use search_options::SearchOption;
 pub use search_options::SearchOptions;
 pub use search_options::SortColumn;
 pub use torrent::Torrent;
+
 pub struct TorrentClient {
     http: ClientWithMiddleware,
 }
@@ -37,7 +39,14 @@ impl TorrentClient {
     }
 
     pub fn new() -> Self {
-        let http = create_http_client();
-        Self { http }
+        Self {
+            http: ClientBuilder::new(Client::new())
+                .with(Cache(HttpCache {
+                    mode: CacheMode::ForceCache,
+                    manager: CACacheManager::default(),
+                    options: None,
+                }))
+                .build(),
+        }
     }
 }
