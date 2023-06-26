@@ -12,7 +12,7 @@ use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
 
-const X1137_API: &str = "https://www.1337x.to";
+const X1137_API: &str = "https://1337x.to";
 pub struct X1137 {}
 
 impl X1137 {
@@ -37,7 +37,8 @@ impl X1137 {
     }
 
     fn format_url(search_options: &SearchOptions) -> Url {
-        let mut base_url = Url::parse(X1137_API).unwrap();
+        let mut url: Url = X1137_API.parse().unwrap();
+
         let has_category = !matches!(search_options.category(), Category::All);
 
         let path = vec![
@@ -56,14 +57,15 @@ impl X1137 {
             &search_options.order().to_string(),
             "1",
         ]
+        .into_iter()
+        .filter(|i| !i.is_empty())
+        .collect::<Vec<&str>>()
         .join("/")
             + "/";
 
-        base_url.set_path(&path);
+        url.set_path(&path);
 
-        println!("{}", base_url);
-
-        base_url
+        url
     }
 }
 
@@ -75,7 +77,12 @@ impl TorrentProvider for X1137 {
     ) -> Result<Vec<Torrent>, Error> {
         let url = X1137::format_url(search_options);
         println!("Request to: {}", url);
-        let response = http.request(Method::GET, url).send().await?;
+        let response = http
+            .request(Method::GET, url)
+            .send()
+            .await?
+            .error_for_status()?;
+
         let body = response.text().await?;
 
         let parsed = Html::parse_document(&body);

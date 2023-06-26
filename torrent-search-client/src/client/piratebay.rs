@@ -44,13 +44,13 @@ impl PirateBay {
     }
 
     fn format_url(search_options: &SearchOptions) -> Url {
-        let mut base_url = Url::parse(PIRATE_BAY_API).unwrap();
-        base_url
-            .query_pairs_mut()
+        let mut url: Url = PIRATE_BAY_API.parse().unwrap();
+
+        url.query_pairs_mut()
             .append_pair("q", search_options.query())
             .append_pair("cat", Self::format_category(search_options.category()));
 
-        base_url
+        url
     }
 
     fn is_empty_torrent(torrent: &PirateBayTorrent) -> bool {
@@ -70,7 +70,11 @@ impl TorrentProvider for PirateBay {
     ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(search_options);
         println!("Request to: {}", url);
-        let response = http.request(Method::GET, url).send().await?;
+        let response = http
+            .request(Method::GET, url)
+            .send()
+            .await?
+            .error_for_status()?;
 
         let body = response.bytes().await?;
 
