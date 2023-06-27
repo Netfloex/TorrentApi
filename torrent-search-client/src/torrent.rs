@@ -2,7 +2,7 @@ use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
 use serde::{Serialize, Serializer};
 
-use crate::client::{piratebay::PirateBayTorrent, yts::YtsTorrent};
+use crate::client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider};
 
 fn serialize_datetime<S>(datetime: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -26,7 +26,7 @@ pub struct Torrent {
     pub size: u64,
     pub status: String,
     pub username: String,
-    pub provider: String,
+    pub provider: Provider,
 }
 
 impl From<PirateBayTorrent> for Torrent {
@@ -47,7 +47,7 @@ impl From<PirateBayTorrent> for Torrent {
             size: value.size().parse().unwrap_or(0),
             status: value.status().to_owned(),
             username: value.username().to_owned(),
-            provider: String::from("piratebay"),
+            provider: Provider::PirateBay,
         }
     }
 }
@@ -78,7 +78,7 @@ impl From<YtsTorrent> for Torrent {
             size: value.size_bytes().to_owned(),
             status: unsupported.clone(),
             username: unsupported.clone(),
-            provider: String::from("yts"),
+            provider: Provider::Yts,
         }
     }
 }

@@ -1,4 +1,5 @@
 use crate::{
+    client::Provider,
     error::{Error, ErrorKind},
     search_options::{Category, SearchOptions, SortColumn},
     torrent::Torrent,
@@ -123,6 +124,8 @@ impl TorrentProvider for X1137 {
                 Utc,
             );
 
+            let unsupported = String::from("unsupported");
+
             Torrent {
                 name: get_text(&tr, &name_selector),
                 seeders: get_text(&tr, &seeders_selector).parse().unwrap_or(0),
@@ -142,14 +145,14 @@ impl TorrentProvider for X1137 {
                     })
                     .unwrap_or("")
                     .to_string(),
-                imdb: String::new(),
-                info_hash: String::new(),
+                imdb: unsupported.clone(),
+                info_hash: unsupported.clone(),
                 file_count: 0,
                 status: get_item(&tr, &username_selector)
                     .and_then(|item| item.value().classes().nth(1))
                     .unwrap_or("")
                     .to_string(),
-                provider: String::from("1337x"),
+                provider: Provider::X1337,
             }
         });
 
