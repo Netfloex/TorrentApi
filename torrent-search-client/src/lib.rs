@@ -6,6 +6,7 @@ use std::vec;
 
 use client::piratebay::PirateBay;
 use client::x1337::X1137;
+use client::yts::Yts;
 use client::TorrentProvider;
 pub use error::Error;
 pub use error::ErrorKind;
@@ -34,6 +35,7 @@ impl TorrentClient {
         join_all(vec![
             X1137::search(search_options, &self.http),
             PirateBay::search(search_options, &self.http),
+            Yts::search(search_options, &self.http),
         ])
         .await
     }
