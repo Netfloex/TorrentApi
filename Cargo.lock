@@ -2546,6 +2546,7 @@ dependencies = [
  "scraper",
  "serde",
  "serde_json",
+ "task-local-extensions",
 ]
 
 [[package]]

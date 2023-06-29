@@ -1,8 +1,8 @@
 mod client;
 mod error;
+mod logging_middleware;
 mod search_options;
 mod torrent;
-use std::vec;
 
 use client::piratebay::PirateBay;
 use client::x1337::X1137;
@@ -12,6 +12,7 @@ pub use error::Error;
 pub use error::ErrorKind;
 use futures::future::join_all;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use logging_middleware::LoggingMiddleware;
 use reqwest::Client;
 use reqwest_middleware::ClientBuilder;
 use reqwest_middleware::ClientWithMiddleware;
@@ -21,6 +22,7 @@ pub use search_options::Order;
 pub use search_options::SearchOption;
 pub use search_options::SearchOptions;
 pub use search_options::SortColumn;
+use std::vec;
 pub use torrent::Torrent;
 
 pub struct TorrentClient {
@@ -43,6 +45,7 @@ impl TorrentClient {
     pub fn new() -> Self {
         Self {
             http: ClientBuilder::new(Client::new())
+                .with(LoggingMiddleware)
                 .with(Cache(HttpCache {
                     mode: CacheMode::ForceCache,
                     manager: CACacheManager::default(),

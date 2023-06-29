@@ -77,7 +77,7 @@ impl TorrentProvider for X1137 {
         http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error> {
         let url = X1137::format_url(search_options);
-        println!("Request to: {}", url);
+
         let response = http
             .request(Method::GET, url)
             .send()

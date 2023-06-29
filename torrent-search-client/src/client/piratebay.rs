@@ -69,7 +69,7 @@ impl TorrentProvider for PirateBay {
         http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(search_options);
-        println!("Request to: {}", url);
+
         let response = http
             .request(Method::GET, url)
             .send()

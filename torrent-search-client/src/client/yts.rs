@@ -89,7 +89,7 @@ impl TorrentProvider for Yts {
         }
 
         let url = Yts::format_url(search_options);
-        println!("Request to: {}", url);
+
         let response = http
             .request(Method::GET, url)
             .send()
@@ -122,8 +122,6 @@ impl TorrentProvider for Yts {
                     .collect::<Vec<YtsTorrent>>()
             })
             .collect();
-
-        println!("{:?}", yts_torrents);
 
         let torrents: Vec<Torrent> = yts_torrents.into_iter().map(Torrent::from).collect();
 
