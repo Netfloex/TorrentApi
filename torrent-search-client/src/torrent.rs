@@ -55,27 +55,28 @@ impl From<PirateBayTorrent> for Torrent {
 impl From<YtsTorrent> for Torrent {
     fn from(value: YtsTorrent) -> Self {
         let unsupported = String::from("unsupported");
+        let torrent = value.data();
 
         Self {
             added: Utc
-                .timestamp_opt(value.date_uploaded_unix().to_owned(), 0)
+                .timestamp_opt(torrent.date_uploaded_unix().to_owned(), 0)
                 .single()
                 .unwrap_or_default(),
             category: String::from("movies"),
             file_count: 1,
-            id: value.hash().to_owned(),
+            id: torrent.hash().to_owned(),
             imdb: value.imdb().to_owned(),
-            info_hash: value.hash().to_owned(),
-            leechers: value.peers().to_owned(),
+            info_hash: torrent.hash().to_owned(),
+            leechers: torrent.peers().to_owned(),
             name: format!(
                 "{} [{}] [{}] {}",
                 value.title(),
-                value.quality(),
-                value.kind(),
-                value.video_codec()
+                torrent.quality(),
+                torrent.kind(),
+                torrent.video_codec()
             ),
-            seeders: value.seeds().to_owned(),
-            size: value.size_bytes().to_owned(),
+            seeders: torrent.seeds().to_owned(),
+            size: torrent.size_bytes().to_owned(),
             status: unsupported.clone(),
             username: unsupported.clone(),
             provider: Provider::Yts,

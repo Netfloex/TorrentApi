@@ -9,7 +9,7 @@ use serde::Deserialize;
 
 use super::Error;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Getters)]
 pub struct YtsTorrentResponse {
     size_bytes: u64,
     peers: usize,
@@ -41,15 +41,7 @@ struct YtsResponse {
 
 #[derive(Deserialize, Debug, Getters)]
 pub struct YtsTorrent {
-    size_bytes: u64,
-    peers: usize,
-    seeds: usize,
-    date_uploaded_unix: i64,
-    quality: String,
-    hash: String,
-    video_codec: String,
-    kind: String,
-
+    data: YtsTorrentResponse,
     title: String,
     imdb: String,
 }
@@ -107,15 +99,7 @@ impl TorrentProvider for Yts {
                     .torrents
                     .into_iter()
                     .map(|torrent| YtsTorrent {
-                        size_bytes: torrent.size_bytes,
-                        peers: torrent.peers,
-                        seeds: torrent.seeds,
-                        date_uploaded_unix: torrent.date_uploaded_unix,
-                        hash: torrent.hash,
-                        quality: torrent.quality,
-                        video_codec: torrent.video_codec,
-                        kind: torrent.kind,
-
+                        data: torrent,
                         title: movie.title_long.to_string(),
                         imdb: movie.imdb_code.to_string(),
                     })
