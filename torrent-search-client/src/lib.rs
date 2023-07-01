@@ -1,5 +1,6 @@
 mod client;
 mod error;
+mod get_json;
 mod logging_middleware;
 mod search_options;
 mod torrent;

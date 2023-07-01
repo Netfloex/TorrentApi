@@ -1,9 +1,10 @@
 use crate::{
-    search_options::SearchOptions, torrent::Torrent, Category, SortColumn, TorrentProvider,
+    get_json::get_json, search_options::SearchOptions, torrent::Torrent, Category, SortColumn,
+    TorrentProvider,
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
-use reqwest::{Method, Url};
+use reqwest::Url;
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
 
@@ -82,13 +83,7 @@ impl TorrentProvider for Yts {
 
         let url = Yts::format_url(search_options);
 
-        let response = http
-            .request(Method::GET, url)
-            .send()
-            .await?
-            .error_for_status()?;
-
-        let json = response.json::<YtsResponse>().await?;
+        let json: YtsResponse = get_json(url, http).await?;
 
         let yts_torrents: Vec<YtsTorrent> = json
             .data

@@ -1,14 +1,14 @@
 use crate::{
+    get_json::get_json,
     search_options::{Category, SearchOptions},
     torrent::Torrent,
     TorrentProvider,
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
-use reqwest::{Method, Url};
+use reqwest::Url;
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
-use serde_json::from_slice;
 
 use super::Error;
 
@@ -70,15 +70,7 @@ impl TorrentProvider for PirateBay {
     ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(search_options);
 
-        let response = http
-            .request(Method::GET, url)
-            .send()
-            .await?
-            .error_for_status()?;
-
-        let body = response.bytes().await?;
-
-        let pb_torrents: Vec<PirateBayTorrent> = from_slice(&body)?;
+        let pb_torrents: Vec<PirateBayTorrent> = get_json(url, http).await?;
 
         if pb_torrents.len() == 1 && Self::is_empty_torrent(&pb_torrents[0]) {
             return Ok(Vec::new());
