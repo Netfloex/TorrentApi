@@ -153,6 +153,7 @@ impl TorrentProvider for X1137 {
                     .unwrap_or("")
                     .to_string(),
                 provider: Provider::X1337,
+                magnet: unsupported.clone(),
             }
         });
 

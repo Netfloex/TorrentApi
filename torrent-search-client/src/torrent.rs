@@ -1,8 +1,8 @@
+use crate::client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider};
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
 use serde::{Serialize, Serializer};
-
-use crate::client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider};
+use urlencoding::encode;
 
 fn serialize_datetime<S>(datetime: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -27,6 +27,11 @@ pub struct Torrent {
     pub status: String,
     pub username: String,
     pub provider: Provider,
+    pub magnet: String,
+}
+
+fn format_magnet(hash: &str, name: &str) -> String {
+    format!("magnet:?xt=urn:btih:{}&dn={}", hash, encode(name))
 }
 
 impl From<PirateBayTorrent> for Torrent {
@@ -48,6 +53,7 @@ impl From<PirateBayTorrent> for Torrent {
             status: value.status().to_owned(),
             username: value.username().to_owned(),
             provider: Provider::PirateBay,
+            magnet: format_magnet(value.info_hash(), value.name()),
         }
     }
 }
@@ -56,7 +62,13 @@ impl From<YtsTorrent> for Torrent {
     fn from(value: YtsTorrent) -> Self {
         let unsupported = String::from("unsupported");
         let torrent = value.data();
-
+        let name = format!(
+            "{} [{}] [{}] {}",
+            value.title(),
+            torrent.quality(),
+            torrent.kind(),
+            torrent.video_codec()
+        );
         Self {
             added: Utc
                 .timestamp_opt(torrent.date_uploaded_unix().to_owned(), 0)
@@ -68,18 +80,13 @@ impl From<YtsTorrent> for Torrent {
             imdb: value.imdb().to_owned(),
             info_hash: torrent.hash().to_owned(),
             leechers: torrent.peers().to_owned(),
-            name: format!(
-                "{} [{}] [{}] {}",
-                value.title(),
-                torrent.quality(),
-                torrent.kind(),
-                torrent.video_codec()
-            ),
+            name: name.clone(),
             seeders: torrent.seeds().to_owned(),
             size: torrent.size_bytes().to_owned(),
             status: unsupported.clone(),
             username: unsupported.clone(),
             provider: Provider::Yts,
+            magnet: format_magnet(torrent.hash(), &name),
         }
     }
 }
