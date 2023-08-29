@@ -1,6 +1,8 @@
 use crate::{
-    get_json::get_json, search_options::SearchOptions, torrent::Torrent, Category, SortColumn,
-    TorrentProvider,
+    get_json::get_json,
+    search_options::{MovieOptions, SearchOptions},
+    torrent::Torrent,
+    Category, SortColumn, TorrentProvider,
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
@@ -31,13 +33,13 @@ struct YtsMovie {
 }
 
 #[derive(Deserialize, Debug)]
-struct YtsData {
+struct YtsSearchData {
     movies: Vec<YtsMovie>,
 }
 
 #[derive(Deserialize, Debug)]
-struct YtsResponse {
-    data: YtsData,
+struct YtsSearchResponse {
+    data: YtsSearchData,
 }
 
 #[derive(Deserialize, Debug, Getters)]
@@ -47,7 +49,17 @@ pub struct YtsTorrent {
     imdb: String,
 }
 
-const YTS_API: &str = "https://yts.mx/api/v2/list_movies.json";
+#[derive(Deserialize, Debug)]
+struct YtsMovieSearchData {
+    movie: YtsMovie,
+}
+
+#[derive(Deserialize, Debug)]
+struct YtsMovieSearchResponse {
+    data: YtsMovieSearchData,
+}
+
+const YTS_API: &str = "https://yts.mx/api/v2";
 pub struct Yts {}
 
 impl Yts {
@@ -60,14 +72,40 @@ impl Yts {
         }
     }
 
-    fn format_url(search_options: &SearchOptions) -> Url {
+    fn format_search_url(search_options: &SearchOptions) -> Url {
         let mut url: Url = YTS_API.parse().unwrap();
+
+        url.path_segments_mut().unwrap().push("list_movies.json");
 
         url.query_pairs_mut()
             .append_pair("query_term", search_options.query())
             .append_pair("sort_by", Self::format_sort(search_options.sort()))
             .append_pair("order_by", &search_options.order().to_string());
+
         url
+    }
+
+    fn format_movie_url(movie_options: &MovieOptions) -> Url {
+        let mut url: Url = YTS_API.parse().unwrap();
+
+        url.path_segments_mut().unwrap().push("movie_details.json");
+
+        url.query_pairs_mut()
+            .append_pair("imdb_id", &movie_options.imdb());
+
+        url
+    }
+
+    fn movie_to_torrents(movie: YtsMovie) -> Vec<YtsTorrent> {
+        movie
+            .torrents
+            .into_iter()
+            .map(|torrent| YtsTorrent {
+                data: torrent,
+                title: movie.title_long.to_string(),
+                imdb: movie.imdb_code.to_string(),
+            })
+            .collect::<Vec<YtsTorrent>>()
     }
 }
 
@@ -81,26 +119,30 @@ impl TorrentProvider for Yts {
             return Ok(Vec::new());
         }
 
-        let url = Yts::format_url(search_options);
+        let url = Yts::format_search_url(search_options);
 
-        let json: YtsResponse = get_json(url, http).await?;
+        let json: YtsSearchResponse = get_json(url, http).await?;
 
         let yts_torrents: Vec<YtsTorrent> = json
             .data
             .movies
             .into_iter()
-            .flat_map(|movie| {
-                movie
-                    .torrents
-                    .into_iter()
-                    .map(|torrent| YtsTorrent {
-                        data: torrent,
-                        title: movie.title_long.to_string(),
-                        imdb: movie.imdb_code.to_string(),
-                    })
-                    .collect::<Vec<YtsTorrent>>()
-            })
+            .flat_map(Yts::movie_to_torrents)
             .collect();
+
+        let torrents: Vec<Torrent> = yts_torrents.into_iter().map(Torrent::from).collect();
+
+        Ok(torrents)
+    }
+
+    async fn search_movie(
+        movie_options: &MovieOptions,
+        http: &ClientWithMiddleware,
+    ) -> Result<Vec<Torrent>, Error> {
+        let url = Yts::format_movie_url(&movie_options);
+        let json: YtsMovieSearchResponse = get_json(url, http).await?;
+
+        let yts_torrents = Yts::movie_to_torrents(json.data.movie);
 
         let torrents: Vec<Torrent> = yts_torrents.into_iter().map(Torrent::from).collect();
 

@@ -19,6 +19,7 @@ use reqwest_middleware::ClientBuilder;
 use reqwest_middleware::ClientWithMiddleware;
 pub use search_options::Category;
 pub use search_options::InvalidOptionError;
+pub use search_options::MovieOptions;
 pub use search_options::Order;
 pub use search_options::SearchOption;
 pub use search_options::SearchOptions;
@@ -39,6 +40,18 @@ impl TorrentClient {
             X1137::search(search_options, &self.http),
             PirateBay::search(search_options, &self.http),
             Yts::search(search_options, &self.http),
+        ])
+        .await
+    }
+
+    pub async fn search_movie_all(
+        &self,
+        movie_options: &MovieOptions,
+    ) -> Vec<Result<Vec<Torrent>, Error>> {
+        join_all(vec![
+            // X1137::search_movie(movie_options, &self.http),
+            PirateBay::search_movie(movie_options, &self.http),
+            Yts::search_movie(movie_options, &self.http),
         ])
         .await
     }

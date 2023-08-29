@@ -1,7 +1,7 @@
 use crate::{
     client::Provider,
     error::{Error, ErrorKind},
-    search_options::{Category, SearchOptions, SortColumn},
+    search_options::{Category, MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
     TorrentProvider,
 };
@@ -168,5 +168,12 @@ impl TorrentProvider for X1137 {
         }
 
         Ok(torrents)
+    }
+
+    async fn search_movie(
+        movie_options: &MovieOptions,
+        http: &ClientWithMiddleware,
+    ) -> Result<Vec<Torrent>, Error> {
+        todo!()
     }
 }

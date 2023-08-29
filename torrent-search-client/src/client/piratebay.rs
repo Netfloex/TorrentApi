@@ -1,6 +1,6 @@
 use crate::{
     get_json::get_json,
-    search_options::{Category, SearchOptions},
+    search_options::{Category, MovieOptions, SearchOptions},
     torrent::Torrent,
     TorrentProvider,
 };
@@ -53,12 +53,32 @@ impl PirateBay {
         url
     }
 
+    fn format_movie_url(movie_options: &MovieOptions) -> Url {
+        let mut url: Url = PIRATE_BAY_API.parse().unwrap();
+
+        url.query_pairs_mut().append_pair("q", movie_options.imdb());
+
+        url
+    }
+
     fn is_empty_torrent(torrent: &PirateBayTorrent) -> bool {
         torrent.id == "0"
             && torrent.size == "0"
             && torrent.category == "0"
             && torrent.num_files == "0"
             && torrent.added == "0"
+    }
+
+    async fn search_request(url: Url, http: &ClientWithMiddleware) -> Result<Vec<Torrent>, Error> {
+        let pb_torrents: Vec<PirateBayTorrent> = get_json(url, http).await?;
+
+        if pb_torrents.len() == 1 && Self::is_empty_torrent(&pb_torrents[0]) {
+            return Ok(Vec::new());
+        }
+
+        let torrents: Vec<Torrent> = pb_torrents.into_iter().map(Torrent::from).collect();
+
+        Ok(torrents)
     }
 }
 
@@ -70,13 +90,18 @@ impl TorrentProvider for PirateBay {
     ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(search_options);
 
-        let pb_torrents: Vec<PirateBayTorrent> = get_json(url, http).await?;
+        let torrents = PirateBay::search_request(url, http).await?;
 
-        if pb_torrents.len() == 1 && Self::is_empty_torrent(&pb_torrents[0]) {
-            return Ok(Vec::new());
-        }
+        Ok(torrents)
+    }
 
-        let torrents: Vec<Torrent> = pb_torrents.into_iter().map(Torrent::from).collect();
+    async fn search_movie(
+        movie_options: &MovieOptions,
+        http: &ClientWithMiddleware,
+    ) -> Result<Vec<Torrent>, Error> {
+        let url = PirateBay::format_movie_url(movie_options);
+
+        let torrents = PirateBay::search_request(url, http).await?;
 
         Ok(torrents)
     }
