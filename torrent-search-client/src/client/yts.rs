@@ -1,3 +1,5 @@
+use std::vec;
+
 use crate::{
     get_json::get_json,
     search_options::{MovieOptions, SearchOptions},
@@ -29,7 +31,7 @@ pub struct YtsTorrentResponse {
 struct YtsMovie {
     title_long: String,
     imdb_code: String,
-    torrents: Vec<YtsTorrentResponse>,
+    torrents: Option<Vec<YtsTorrentResponse>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -97,15 +99,18 @@ impl Yts {
     }
 
     fn movie_to_torrents(movie: YtsMovie) -> Vec<YtsTorrent> {
-        movie
-            .torrents
-            .into_iter()
-            .map(|torrent| YtsTorrent {
-                data: torrent,
-                title: movie.title_long.to_string(),
-                imdb: movie.imdb_code.to_string(),
-            })
-            .collect::<Vec<YtsTorrent>>()
+        if let Some(torrents) = movie.torrents {
+            torrents
+                .into_iter()
+                .map(|torrent| YtsTorrent {
+                    data: torrent,
+                    title: movie.title_long.to_string(),
+                    imdb: movie.imdb_code.to_string(),
+                })
+                .collect::<Vec<YtsTorrent>>()
+        } else {
+            vec![]
+        }
     }
 }
 
