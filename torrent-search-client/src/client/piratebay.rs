@@ -101,7 +101,12 @@ impl TorrentProvider for PirateBay {
     ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_movie_url(movie_options);
 
-        let torrents = PirateBay::search_request(url, http).await?;
+        let mut torrents = PirateBay::search_request(url, http).await?;
+
+        torrents = torrents
+            .into_iter()
+            .filter(|torrent| torrent.imdb() == movie_options.imdb())
+            .collect();
 
         Ok(torrents)
     }
