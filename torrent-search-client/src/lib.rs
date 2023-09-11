@@ -5,6 +5,7 @@ mod logging_middleware;
 mod search_options;
 mod torrent;
 
+use client::bitsearch::BitSearch;
 use client::piratebay::PirateBay;
 use client::x1337::X1137;
 use client::yts::Yts;
@@ -40,6 +41,7 @@ impl TorrentClient {
             X1137::search(search_options, &self.http),
             PirateBay::search(search_options, &self.http),
             Yts::search(search_options, &self.http),
+            BitSearch::search(search_options, &self.http),
         ])
         .await
     }

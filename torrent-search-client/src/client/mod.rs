@@ -7,6 +7,7 @@ use async_trait::async_trait;
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Serialize;
 
+pub mod bitsearch;
 pub mod piratebay;
 #[path = "1337x.rs"]
 pub mod x1337;
@@ -31,4 +32,5 @@ pub enum Provider {
     #[serde(rename = "1337x")]
     X1337,
     Yts,
+    BitSearch,
 }
