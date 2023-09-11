@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub enum Order {
     #[default]
     Descending,

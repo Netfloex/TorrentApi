@@ -1,8 +1,11 @@
 mod http_error;
 
+use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
 use std::vec;
-use torrent_search_client::{Category, Order, SearchOptions, SortColumn, Torrent, TorrentClient};
+use torrent_search_client::{
+    Category, MovieOptions, Order, SearchOptions, SortColumn, Torrent, TorrentClient,
+};
 
 use crate::http_error::HttpErrorKind;
 
@@ -11,11 +14,21 @@ extern crate rocket;
 
 #[derive(FromForm, Debug)]
 struct SearchParams {
-    query: String,
+    query: Option<String>,
+    #[field(validate= xor(&self.query))]
+    imdb: Option<String>,
     category: Option<String>,
     sort: Option<String>,
     order: Option<String>,
     limit: Option<usize>,
+}
+
+fn xor<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, ()> {
+    match (first, second) {
+        (Some(_), Some(_)) => Err(Error::validation("Not both"))?,
+        (None, None) => Err(Error::validation("Both none"))?,
+        _ => Ok(()),
+    }
 }
 
 #[get("/search?<search_params..>")]
@@ -23,6 +36,7 @@ async fn search(
     search_params: SearchParams,
     client: &State<TorrentClient>,
 ) -> Result<Json<Vec<Torrent>>, HttpErrorKind> {
+    println!("{:?}", search_params);
     let category: Category = search_params
         .category
         .map_or_else(|| Ok(Category::default()), |c| c.parse())?;
@@ -35,9 +49,15 @@ async fn search(
         .order
         .map_or_else(|| Ok(Order::default()), |f| f.parse())?;
 
-    let options = SearchOptions::new(search_params.query, category, sort, order);
-
-    let response = client.search_all(&options).await;
+    let response = if let Some(query) = search_params.query {
+        let options = SearchOptions::new(query, category, sort.clone(), order.clone());
+        client.search_all(&options).await
+    } else if let Some(imdb) = search_params.imdb {
+        let options = MovieOptions::new(imdb, sort.clone(), order.clone());
+        client.search_movie_all(&options).await
+    } else {
+        unreachable!();
+    };
 
     let mut torrents: Vec<Torrent> = Vec::new();
 
@@ -48,14 +68,14 @@ async fn search(
         }
     }
 
-    torrents.sort_unstable_by(|a, b| match options.sort() {
+    torrents.sort_unstable_by(|a, b| match sort {
         SortColumn::Added => a.added().cmp(b.added()),
         SortColumn::Leechers => a.leechers().cmp(b.leechers()),
         SortColumn::Seeders => a.seeders().cmp(b.seeders()),
         SortColumn::Size => a.size().cmp(b.size()),
     });
 
-    if matches!(options.order(), Order::Descending) {
+    if matches!(order, Order::Descending) {
         torrents.reverse();
     }
 

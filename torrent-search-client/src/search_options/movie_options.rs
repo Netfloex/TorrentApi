@@ -1,30 +1,16 @@
 use derive_getters::Getters;
 
-use crate::{Category, Order, SortColumn};
+use crate::{Order, SortColumn};
 
 #[derive(Getters)]
 pub struct MovieOptions {
-    title: String,
     imdb: String,
-    category: Category,
     sort: SortColumn,
     order: Order,
 }
 
 impl MovieOptions {
-    pub fn new(
-        title: String,
-        imdb: String,
-        category: Category,
-        sort: SortColumn,
-        order: Order,
-    ) -> Self {
-        Self {
-            title,
-            imdb,
-            category,
-            sort,
-            order,
-        }
+    pub fn new(imdb: String, sort: SortColumn, order: Order) -> Self {
+        Self { imdb, sort, order }
     }
 }
