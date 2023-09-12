@@ -26,7 +26,7 @@ pub trait TorrentProvider {
     ) -> Result<Vec<Torrent>, Error>;
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, Clone)]
 pub enum Provider {
     PirateBay,
     #[serde(rename = "1337x")]

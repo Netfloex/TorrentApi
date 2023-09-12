@@ -2,6 +2,7 @@ mod http_error;
 
 use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
+use std::collections::HashMap;
 use std::vec;
 use torrent_search_client::{
     Category, MovieOptions, Order, SearchOptions, SortColumn, Torrent, TorrentClient,
@@ -59,14 +60,23 @@ async fn search(
         unreachable!();
     };
 
-    let mut torrents: Vec<Torrent> = Vec::new();
+    let mut grouped: HashMap<String, Torrent> = HashMap::new();
 
     for result in response {
         match result {
-            Ok(mut torrent) => torrents.append(&mut torrent),
+            Ok(provider_torrents) => {
+                for torrent in provider_torrents {
+                    grouped
+                        .entry(torrent.info_hash.to_string())
+                        .and_modify(|existing| existing.merge(torrent.clone()))
+                        .or_insert(torrent);
+                }
+            }
             Err(err) => eprintln!("Error:\n{:?}", err),
         }
     }
+
+    let mut torrents: Vec<Torrent> = grouped.into_iter().map(|(_, v)| v).collect();
 
     torrents.sort_unstable_by(|a, b| match sort {
         SortColumn::Added => a.added().cmp(b.added()),

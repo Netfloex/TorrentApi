@@ -11,7 +11,7 @@ where
     serializer.serialize_str(&datetime.to_rfc3339())
 }
 
-#[derive(Serialize, Debug, Getters)]
+#[derive(Serialize, Debug, Getters, Clone)]
 pub struct Torrent {
     #[serde(serialize_with = "serialize_datetime")]
     pub added: DateTime<Utc>,
@@ -28,6 +28,39 @@ pub struct Torrent {
     pub username: String,
     pub provider: Provider,
     pub magnet: String,
+}
+
+impl Torrent {
+    pub fn merge(&mut self, other: Self) {
+        if self.added.timestamp_millis() == 0 {
+            self.added = other.added
+        };
+        if self.category.is_empty() {
+            self.category = other.category
+        }
+        self.file_count = self.file_count | other.file_count;
+        if self.id.is_empty() {
+            self.id = other.id
+        }
+        if self.imdb.is_empty() {
+            self.imdb = other.imdb
+        }
+        self.leechers = self.leechers | other.leechers;
+        if self.name.is_empty() {
+            self.name = other.name
+        }
+        self.seeders = self.seeders | other.seeders;
+        self.size = self.size | other.size;
+        if self.status.is_empty() {
+            self.status = other.status
+        }
+        if self.username.is_empty() {
+            self.username = other.username
+        }
+        if self.magnet.is_empty() {
+            self.magnet = other.magnet
+        }
+    }
 }
 
 fn format_magnet(hash: &str, name: &str) -> String {
