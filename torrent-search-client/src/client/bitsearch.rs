@@ -143,8 +143,6 @@ impl TorrentProvider for BitSearch {
                 leechers: leechers.parse().unwrap(),
                 seeders: seeders.parse().unwrap(),
                 size: size.parse::<ByteSize>().unwrap().0,
-                status: String::new(),
-                username: String::new(),
                 provider: Provider::BitSearch,
                 magnet,
             })

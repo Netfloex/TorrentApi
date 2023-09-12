@@ -24,8 +24,6 @@ pub struct Torrent {
     pub name: String,
     pub seeders: usize,
     pub size: u64,
-    pub status: String,
-    pub username: String,
     pub provider: Provider,
     pub magnet: String,
 }
@@ -51,12 +49,6 @@ impl Torrent {
         }
         self.seeders = self.seeders | other.seeders;
         self.size = self.size | other.size;
-        if self.status.is_empty() {
-            self.status = other.status
-        }
-        if self.username.is_empty() {
-            self.username = other.username
-        }
         if self.magnet.is_empty() {
             self.magnet = other.magnet
         }
@@ -83,8 +75,6 @@ impl From<PirateBayTorrent> for Torrent {
             name: value.name().to_owned(),
             seeders: value.seeders().parse().unwrap_or(0),
             size: value.size().parse().unwrap_or(0),
-            status: value.status().to_owned(),
-            username: value.username().to_owned(),
             provider: Provider::PirateBay,
             magnet: format_magnet(value.info_hash(), value.name()),
         }
@@ -93,7 +83,6 @@ impl From<PirateBayTorrent> for Torrent {
 
 impl From<YtsTorrent> for Torrent {
     fn from(value: YtsTorrent) -> Self {
-        let unsupported = String::from("unsupported");
         let torrent = value.data();
         let name = format!(
             "{} [{}] [{}] {}",
@@ -108,7 +97,7 @@ impl From<YtsTorrent> for Torrent {
                 .single()
                 .unwrap_or_default(),
             category: String::from("movies"),
-            file_count: 1,
+            file_count: 0,
             id: torrent.hash().to_owned(),
             imdb: value.imdb().to_owned(),
             info_hash: torrent.hash().to_owned(),
@@ -116,8 +105,6 @@ impl From<YtsTorrent> for Torrent {
             name: name.clone(),
             seeders: torrent.seeds().to_owned(),
             size: torrent.size_bytes().to_owned(),
-            status: unsupported.clone(),
-            username: unsupported.clone(),
             provider: Provider::Yts,
             magnet: format_magnet(torrent.hash(), &name),
         }

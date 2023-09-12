@@ -94,7 +94,6 @@ impl TorrentProvider for X1137 {
         let leechers_selector = Selector::parse(".leeches").unwrap();
         let date_selector = Selector::parse(".coll-date").unwrap();
         let size_selector = Selector::parse(".size").unwrap();
-        let username_selector = Selector::parse(".coll-5").unwrap();
 
         let no_results_selector = Selector::parse(".box-info > .box-info-detail > p").unwrap();
 
@@ -130,7 +129,6 @@ impl TorrentProvider for X1137 {
                 name: get_text(&tr, &name_selector),
                 seeders: get_text(&tr, &seeders_selector).parse().unwrap_or(0),
                 leechers: get_text(&tr, &leechers_selector).parse().unwrap_or(0),
-                username: get_text(&tr, &username_selector),
                 added: date,
                 size: get_text(&tr, &size_selector)
                     .parse::<ByteSize>()
@@ -148,10 +146,6 @@ impl TorrentProvider for X1137 {
                 imdb: unsupported.clone(),
                 info_hash: unsupported.clone(),
                 file_count: 0,
-                status: get_item(&tr, &username_selector)
-                    .and_then(|item| item.value().classes().nth(1))
-                    .unwrap_or("")
-                    .to_string(),
                 provider: Provider::X1337,
                 magnet: unsupported.clone(),
             }
