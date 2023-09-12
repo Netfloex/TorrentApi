@@ -18,6 +18,8 @@ struct SearchParams {
     query: Option<String>,
     #[field(validate= xor(&self.query))]
     imdb: Option<String>,
+    #[field(validate= or(&self.query))]
+    title: Option<String>,
     category: Option<String>,
     sort: Option<String>,
     order: Option<String>,
@@ -28,6 +30,13 @@ fn xor<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, 
     match (first, second) {
         (Some(_), Some(_)) => Err(Error::validation("Not both"))?,
         (None, None) => Err(Error::validation("Both none"))?,
+        _ => Ok(()),
+    }
+}
+
+fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, ()> {
+    match (first, second) {
+        (Some(_), Some(_)) => Err(Error::validation("Not both"))?,
         _ => Ok(()),
     }
 }
@@ -54,7 +63,7 @@ async fn search(
         let options = SearchOptions::new(query, category, sort.clone(), order.clone());
         client.search_all(&options).await
     } else if let Some(imdb) = search_params.imdb {
-        let options = MovieOptions::new(imdb, sort.clone(), order.clone());
+        let options = MovieOptions::new(imdb, search_params.title, sort.clone(), order.clone());
         client.search_movie_all(&options).await
     } else {
         unreachable!();

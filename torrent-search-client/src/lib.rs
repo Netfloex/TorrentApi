@@ -53,6 +53,7 @@ impl TorrentClient {
         join_all(vec![
             // X1137::search_movie(movie_options, &self.http),
             PirateBay::search_movie(movie_options, &self.http),
+            BitSearch::search_movie(movie_options, &self.http),
             Yts::search_movie(movie_options, &self.http),
         ])
         .await

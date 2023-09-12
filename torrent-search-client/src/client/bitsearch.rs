@@ -3,7 +3,7 @@ use crate::{
     error::Error,
     search_options::{MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
-    TorrentProvider,
+    Category, TorrentProvider,
 };
 use async_trait::async_trait;
 use bytesize::ByteSize;
@@ -17,16 +17,16 @@ const BITSEARCH_API: &str = "https://bitsearch.to/search";
 pub struct BitSearch {}
 
 impl BitSearch {
-    // fn format_category(category: &Category) -> &'static str {
-    //     match category {
-    //         Category::All => "",
-    //         Category::Applications => "Apps",
-    //         Category::Audio => "Music",
-    //         Category::Video => "Movies",
-    //         Category::Games => "Games",
-    //         Category::Other => "Other",
-    //     }
-    // }
+    fn format_category(category: &Category) -> &'static str {
+        match category {
+            Category::All => "",
+            Category::Applications => "5",
+            Category::Audio => "7",
+            Category::Video => "1",
+            Category::Games => "6",
+            Category::Other => "",
+        }
+    }
 
     fn expand_number(number: &str) -> String {
         if number.contains("K") {
@@ -54,7 +54,8 @@ impl BitSearch {
         url.query_pairs_mut()
             .append_pair("q", search_options.query())
             .append_pair("sort", Self::format_sort(search_options.sort()))
-            .append_pair("order", &search_options.order().to_string());
+            .append_pair("order", &search_options.order().to_string())
+            .append_pair("category", Self::format_category(search_options.category()));
 
         url
     }
@@ -82,6 +83,7 @@ impl TorrentProvider for BitSearch {
 
         let name_selector = Selector::parse("h5 a").unwrap();
         let magnet_selector = Selector::parse(".dl-magnet").unwrap();
+        let category_selector = Selector::parse(".category").unwrap();
         let stats_selector = Selector::parse(".stats div").unwrap();
 
         let info_hash_regex = Regex::new("urn:btih:([A-F\\d]+)").unwrap();
@@ -132,10 +134,10 @@ impl TorrentProvider for BitSearch {
 
             torrents.push(Torrent {
                 name: row.select(&name_selector).next().unwrap().text().collect(),
-                category: String::new(),
+                category: get_text(row.select(&category_selector).next()),
                 added: date,
                 file_count: 0,
-                id: String::new(),
+                id: info_hash.to_string(),
                 imdb: String::new(),
                 info_hash,
                 leechers: leechers.parse().unwrap(),
@@ -155,6 +157,17 @@ impl TorrentProvider for BitSearch {
         movie_options: &MovieOptions,
         http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error> {
-        todo!()
+        if let Some(title) = movie_options.title() {
+            let options = SearchOptions::new(
+                title.to_string(),
+                Category::Video,
+                movie_options.sort().clone(),
+                movie_options.order().clone(),
+            );
+
+            return Self::search(&options, http).await;
+        }
+
+        Ok(Vec::new())
     }
 }
