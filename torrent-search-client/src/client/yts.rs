@@ -8,6 +8,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
+use lazy_static::lazy_static;
 use reqwest::Url;
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
@@ -62,6 +63,9 @@ struct YtsMovieSearchResponse {
 }
 
 const YTS_API: &str = "https://yts.mx/api/v2";
+lazy_static! {
+    static ref YTS_URL: Url = YTS_API.parse().unwrap();
+}
 pub struct Yts {}
 
 impl Yts {
@@ -75,7 +79,7 @@ impl Yts {
     }
 
     fn format_search_url(search_options: &SearchOptions) -> Url {
-        let mut url: Url = YTS_API.parse().unwrap();
+        let mut url = YTS_URL.clone();
 
         url.path_segments_mut().unwrap().push("list_movies.json");
 
@@ -88,7 +92,7 @@ impl Yts {
     }
 
     fn format_movie_url(movie_options: &MovieOptions) -> Url {
-        let mut url: Url = YTS_API.parse().unwrap();
+        let mut url = YTS_URL.clone();
 
         url.path_segments_mut().unwrap().push("movie_details.json");
 

@@ -8,14 +8,24 @@ use crate::{
 use async_trait::async_trait;
 use bytesize::ByteSize;
 use chrono::{DateTime, NaiveDateTime, Utc};
+use lazy_static::lazy_static;
 use regex::Regex;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
 
 const BITSEARCH_API: &str = "https://bitsearch.to/search";
-pub struct BitSearch {}
+lazy_static! {
+    static ref BITSEARCH_URL: Url = BITSEARCH_API.parse().unwrap();
+    static ref ROW_SELECTOR: Selector = Selector::parse(".search-result").unwrap();
+    static ref NAME_SELECTOR: Selector = Selector::parse("h5 a").unwrap();
+    static ref MAGNET_SELECTOR: Selector = Selector::parse(".dl-magnet").unwrap();
+    static ref CATEGORY_SELECTOR: Selector = Selector::parse(".category").unwrap();
+    static ref STATS_SELECTOR: Selector = Selector::parse(".stats div").unwrap();
+    static ref INFO_HASH_REGEX: Regex = Regex::new("urn:btih:([A-F\\d]+)").unwrap();
+}
 
+pub struct BitSearch {}
 impl BitSearch {
     fn format_category(category: &Category) -> &'static str {
         match category {
@@ -79,16 +89,7 @@ impl TorrentProvider for BitSearch {
 
         let parsed = Html::parse_document(&body);
 
-        let row_selector = Selector::parse(".search-result").unwrap();
-
-        let name_selector = Selector::parse("h5 a").unwrap();
-        let magnet_selector = Selector::parse(".dl-magnet").unwrap();
-        let category_selector = Selector::parse(".category").unwrap();
-        let stats_selector = Selector::parse(".stats div").unwrap();
-
-        let info_hash_regex = Regex::new("urn:btih:([A-F\\d]+)").unwrap();
-
-        let rows = parsed.select(&row_selector);
+        let rows = parsed.select(&ROW_SELECTOR);
 
         fn get_text(item: Option<ElementRef>) -> String {
             item.and_then(|i| Some(i.text().collect::<Vec<&str>>().join("")))
@@ -100,7 +101,7 @@ impl TorrentProvider for BitSearch {
         let mut torrents = vec![];
 
         rows.for_each(|row| {
-            let mut stats = row.select(&stats_selector);
+            let mut stats = row.select(&STATS_SELECTOR);
             let size = get_text(stats.nth(1));
             let seeders = BitSearch::expand_number(&get_text(stats.next()));
             let leechers = BitSearch::expand_number(&get_text(stats.next()));
@@ -117,7 +118,7 @@ impl TorrentProvider for BitSearch {
             }
 
             let magnet = row
-                .select(&magnet_selector)
+                .select(&MAGNET_SELECTOR)
                 .next()
                 .unwrap()
                 .value()
@@ -126,15 +127,15 @@ impl TorrentProvider for BitSearch {
                 .to_string()
                 .replace("dn=%5BBitsearch.to%5D+", "dn=");
 
-            let info_hash = info_hash_regex
+            let info_hash = INFO_HASH_REGEX
                 .find(&magnet)
                 .unwrap()
                 .as_str()
                 .replace("urn:btih:", "");
 
             torrents.push(Torrent {
-                name: row.select(&name_selector).next().unwrap().text().collect(),
-                category: get_text(row.select(&category_selector).next()),
+                name: row.select(&NAME_SELECTOR).next().unwrap().text().collect(),
+                category: get_text(row.select(&CATEGORY_SELECTOR).next()),
                 added: date,
                 file_count: 0,
                 id: info_hash.to_string(),

@@ -8,14 +8,26 @@ use crate::{
 use async_trait::async_trait;
 use bytesize::ByteSize;
 use chrono::{DateTime, NaiveDateTime, Utc};
+use lazy_static::lazy_static;
 use regex::Regex;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
 
 const X1137_API: &str = "https://1337x.to";
-pub struct X1137 {}
+lazy_static! {
+    static ref X1137_URL: Url = X1137_API.parse().unwrap();
+    static ref TABLE_SELECTOR: Selector = Selector::parse("tbody tr").unwrap();
+    static ref NAME_SELECTOR: Selector = Selector::parse(".name a:nth-child(2)").unwrap();
+    static ref SEEDERS_SELECTOR: Selector = Selector::parse(".seeds").unwrap();
+    static ref LEECHERS_SELECTOR: Selector = Selector::parse(".leeches").unwrap();
+    static ref DATE_SELECTOR: Selector = Selector::parse(".coll-date").unwrap();
+    static ref SIZE_SELECTOR: Selector = Selector::parse(".size").unwrap();
+    static ref NO_RESULTS_SELECTOR: Selector =
+        Selector::parse(".box-info > .box-info-detail > p").unwrap();
+}
 
+pub struct X1137 {}
 impl X1137 {
     fn format_category(category: &Category) -> &'static str {
         match category {
@@ -38,7 +50,7 @@ impl X1137 {
     }
 
     fn format_url(search_options: &SearchOptions) -> Url {
-        let mut url: Url = X1137_API.parse().unwrap();
+        let mut url = X1137_URL.clone();
 
         let has_category = !matches!(search_options.category(), Category::All);
 
@@ -88,15 +100,6 @@ impl TorrentProvider for X1137 {
 
         let parsed = Html::parse_document(&body);
 
-        let table_selector = Selector::parse("tbody tr").unwrap();
-        let name_selector = Selector::parse(".name a:nth-child(2)").unwrap();
-        let seeders_selector = Selector::parse(".seeds").unwrap();
-        let leechers_selector = Selector::parse(".leeches").unwrap();
-        let date_selector = Selector::parse(".coll-date").unwrap();
-        let size_selector = Selector::parse(".size").unwrap();
-
-        let no_results_selector = Selector::parse(".box-info > .box-info-detail > p").unwrap();
-
         fn get_item<'a>(tr: &'a ElementRef<'a>, selector: &'a Selector) -> Option<ElementRef<'a>> {
             tr.select(selector).next()
         }
@@ -111,10 +114,10 @@ impl TorrentProvider for X1137 {
 
         let ordinal_regex = Regex::new(r#"st|nd|rd|th"#).unwrap();
 
-        let table = parsed.select(&table_selector);
+        let table = parsed.select(&TABLE_SELECTOR);
 
         let torrents = table.map(|tr| {
-            let date = get_text(&tr, &date_selector);
+            let date = get_text(&tr, &DATE_SELECTOR);
             let date = ordinal_regex.replace_all(&date, "").to_string();
 
             let date = DateTime::<Utc>::from_utc(
@@ -126,16 +129,16 @@ impl TorrentProvider for X1137 {
             let unsupported = String::from("unsupported");
 
             Torrent {
-                name: get_text(&tr, &name_selector),
-                seeders: get_text(&tr, &seeders_selector).parse().unwrap_or(0),
-                leechers: get_text(&tr, &leechers_selector).parse().unwrap_or(0),
+                name: get_text(&tr, &NAME_SELECTOR),
+                seeders: get_text(&tr, &SEEDERS_SELECTOR).parse().unwrap_or(0),
+                leechers: get_text(&tr, &LEECHERS_SELECTOR).parse().unwrap_or(0),
                 added: date,
-                size: get_text(&tr, &size_selector)
+                size: get_text(&tr, &SIZE_SELECTOR)
                     .parse::<ByteSize>()
                     .unwrap_or(ByteSize(0))
                     .0,
                 category: String::new(),
-                id: get_item(&tr, &name_selector)
+                id: get_item(&tr, &NAME_SELECTOR)
                     .and_then(|id| {
                         id.value()
                             .attr("href")
@@ -153,7 +156,7 @@ impl TorrentProvider for X1137 {
 
         let torrents: Vec<Torrent> = torrents.collect();
 
-        let no_results = parsed.select(&no_results_selector).next().is_some();
+        let no_results = parsed.select(&NO_RESULTS_SELECTOR).next().is_some();
         if torrents.is_empty() && !no_results {
             return Err(Error::new(
                 ErrorKind::ScrapingError(),

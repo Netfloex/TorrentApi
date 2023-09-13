@@ -1,3 +1,4 @@
+use super::Error;
 use crate::{
     get_json::get_json,
     search_options::{Category, MovieOptions, SearchOptions},
@@ -6,11 +7,10 @@ use crate::{
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
+use lazy_static::lazy_static;
 use reqwest::Url;
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
-
-use super::Error;
 
 #[derive(Deserialize, Debug, Getters)]
 pub struct PirateBayTorrent {
@@ -29,6 +29,10 @@ pub struct PirateBayTorrent {
 }
 
 const PIRATE_BAY_API: &str = "https://apibay.org/q.php";
+lazy_static! {
+    static ref PIRATE_BAY_URL: Url = PIRATE_BAY_API.parse().unwrap();
+}
+
 pub struct PirateBay {}
 
 impl PirateBay {
@@ -44,7 +48,7 @@ impl PirateBay {
     }
 
     fn format_url(search_options: &SearchOptions) -> Url {
-        let mut url: Url = PIRATE_BAY_API.parse().unwrap();
+        let mut url = PIRATE_BAY_URL.clone();
 
         url.query_pairs_mut()
             .append_pair("q", search_options.query())
@@ -54,7 +58,7 @@ impl PirateBay {
     }
 
     fn format_movie_url(movie_options: &MovieOptions) -> Url {
-        let mut url: Url = PIRATE_BAY_API.parse().unwrap();
+        let mut url = PIRATE_BAY_URL.clone();
 
         url.query_pairs_mut().append_pair("q", movie_options.imdb());
 

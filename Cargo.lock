@@ -2672,6 +2672,7 @@ dependencies = [
  "derive-getters",
  "futures",
  "http-cache-reqwest",
+ "lazy_static",
  "regex",
  "reqwest",
  "reqwest-middleware",
