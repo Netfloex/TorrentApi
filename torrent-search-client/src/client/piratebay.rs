@@ -107,10 +107,7 @@ impl TorrentProvider for PirateBay {
 
         let mut torrents = PirateBay::search_request(url, http).await?;
 
-        torrents = torrents
-            .into_iter()
-            .filter(|torrent| torrent.imdb() == movie_options.imdb())
-            .collect();
+        torrents.retain(|torrent| torrent.imdb() == movie_options.imdb());
 
         Ok(torrents)
     }

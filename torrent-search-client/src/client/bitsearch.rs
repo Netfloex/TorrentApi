@@ -7,7 +7,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use bytesize::ByteSize;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{NaiveDateTime, Utc};
 use lazy_static::lazy_static;
 use regex::Regex;
 use reqwest::{Method, Url};
@@ -39,11 +39,11 @@ impl BitSearch {
     }
 
     fn expand_number(number: &str) -> String {
-        if number.contains("K") {
-            return number.replace("K", "000").replace(".", "");
+        if number.contains('K') {
+            return number.replace('K', "000").replace('.', "");
         }
-        if number.contains("M") {
-            return number.replace("M", "000000").replace(".", "");
+        if number.contains('M') {
+            return number.replace('M', "000000").replace('.', "");
         }
 
         number.to_owned()
@@ -92,7 +92,7 @@ impl TorrentProvider for BitSearch {
         let rows = parsed.select(&ROW_SELECTOR);
 
         fn get_text(item: Option<ElementRef>) -> String {
-            item.and_then(|i| Some(i.text().collect::<Vec<&str>>().join("")))
+            item.map(|i| i.text().collect::<Vec<&str>>().join(""))
                 .unwrap_or(String::new())
                 .trim()
                 .to_string()
@@ -107,11 +107,10 @@ impl TorrentProvider for BitSearch {
             let leechers = BitSearch::expand_number(&get_text(stats.next()));
             let date = get_text(stats.next());
 
-            let date = DateTime::<Utc>::from_utc(
-                NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b %d, %Y %R")
-                    .unwrap_or_default(),
-                Utc,
-            );
+            let date = NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b %d, %Y %R")
+                .unwrap_or_default()
+                .and_local_timezone(Utc)
+                .unwrap();
 
             if size.is_empty() {
                 return;

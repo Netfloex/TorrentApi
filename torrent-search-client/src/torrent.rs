@@ -36,19 +36,19 @@ impl Torrent {
         if self.category.is_empty() {
             self.category = other.category
         }
-        self.file_count = self.file_count | other.file_count;
+        self.file_count |= other.file_count;
         if self.id.is_empty() {
             self.id = other.id
         }
         if self.imdb.is_empty() {
             self.imdb = other.imdb
         }
-        self.leechers = self.leechers | other.leechers;
+        self.leechers |= other.leechers;
         if self.name.is_empty() {
             self.name = other.name
         }
-        self.seeders = self.seeders | other.seeders;
-        self.size = self.size | other.size;
+        self.seeders |= other.seeders;
+        self.size |= other.size;
         if self.magnet.is_empty() {
             self.magnet = other.magnet
         }

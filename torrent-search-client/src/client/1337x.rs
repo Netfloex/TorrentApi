@@ -7,7 +7,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use bytesize::ByteSize;
-use chrono::{DateTime, NaiveDateTime, Utc};
+use chrono::{NaiveDateTime, Utc};
 use lazy_static::lazy_static;
 use regex::Regex;
 use reqwest::{Method, Url};
@@ -120,11 +120,10 @@ impl TorrentProvider for X1137 {
             let date = get_text(&tr, &DATE_SELECTOR);
             let date = ordinal_regex.replace_all(&date, "").to_string();
 
-            let date = DateTime::<Utc>::from_utc(
-                NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b. %e '%y %R")
-                    .unwrap_or_default(),
-                Utc,
-            );
+            let date = NaiveDateTime::parse_from_str(&format!("{date} 00:00"), "%b. %e '%y %R")
+                .unwrap_or_default()
+                .and_local_timezone(Utc)
+                .unwrap();
 
             let unsupported = String::from("unsupported");
 
@@ -168,8 +167,8 @@ impl TorrentProvider for X1137 {
     }
 
     async fn search_movie(
-        movie_options: &MovieOptions,
-        http: &ClientWithMiddleware,
+        _movie_options: &MovieOptions,
+        _http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error> {
         todo!()
     }

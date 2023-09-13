@@ -13,7 +13,6 @@ impl Middleware for LoggingMiddleware {
         next: Next<'_>,
     ) -> Result<Response> {
         println!("Request to {}", req.url().as_str());
-        let res = next.run(req, extensions).await;
-        res
+        next.run(req, extensions).await
     }
 }

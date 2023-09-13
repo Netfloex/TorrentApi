@@ -85,7 +85,7 @@ async fn search(
         }
     }
 
-    let mut torrents: Vec<Torrent> = grouped.into_iter().map(|(_, v)| v).collect();
+    let mut torrents: Vec<Torrent> = grouped.into_values().collect();
 
     torrents.sort_unstable_by(|a, b| match sort {
         SortColumn::Added => a.added().cmp(b.added()),

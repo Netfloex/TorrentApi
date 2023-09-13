@@ -97,7 +97,7 @@ impl Yts {
         url.path_segments_mut().unwrap().push("movie_details.json");
 
         url.query_pairs_mut()
-            .append_pair("imdb_id", &movie_options.imdb());
+            .append_pair("imdb_id", movie_options.imdb());
 
         url
     }
@@ -148,7 +148,7 @@ impl TorrentProvider for Yts {
         movie_options: &MovieOptions,
         http: &ClientWithMiddleware,
     ) -> Result<Vec<Torrent>, Error> {
-        let url = Yts::format_movie_url(&movie_options);
+        let url = Yts::format_movie_url(movie_options);
         let json: YtsMovieSearchResponse = get_json(url, http).await?;
 
         let yts_torrents = Yts::movie_to_torrents(json.data.movie);
