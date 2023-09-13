@@ -138,13 +138,13 @@ impl TorrentProvider for BitSearch {
                 added: date,
                 file_count: 0,
                 id: info_hash.to_string(),
-                imdb: String::new(),
                 info_hash,
                 leechers: leechers.parse().unwrap(),
                 seeders: seeders.parse().unwrap(),
                 size: size.parse::<ByteSize>().unwrap().0,
                 provider: Provider::BitSearch,
                 magnet,
+                movie_properties: None,
             })
         });
 

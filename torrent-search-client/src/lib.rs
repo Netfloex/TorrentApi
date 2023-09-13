@@ -2,6 +2,7 @@ mod client;
 mod error;
 mod get_json;
 mod logging_middleware;
+mod movie_properties;
 mod search_options;
 mod torrent;
 

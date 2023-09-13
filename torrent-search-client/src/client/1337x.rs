@@ -145,11 +145,11 @@ impl TorrentProvider for X1137 {
                     })
                     .unwrap_or("")
                     .to_string(),
-                imdb: unsupported.clone(),
                 info_hash: unsupported.clone(),
                 file_count: 0,
                 provider: Provider::X1337,
                 magnet: unsupported.clone(),
+                movie_properties: None,
             }
         });
 

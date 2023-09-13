@@ -1,4 +1,7 @@
-use crate::client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider};
+use crate::{
+    client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
+    movie_properties::MovieProperties,
+};
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
 use serde::{Serialize, Serializer};
@@ -18,7 +21,6 @@ pub struct Torrent {
     pub category: String,
     pub file_count: usize,
     pub id: String,
-    pub imdb: String,
     pub info_hash: String,
     pub leechers: usize,
     pub name: String,
@@ -26,6 +28,7 @@ pub struct Torrent {
     pub size: u64,
     pub provider: Provider,
     pub magnet: String,
+    pub movie_properties: Option<MovieProperties>,
 }
 
 impl Torrent {
@@ -40,8 +43,12 @@ impl Torrent {
         if self.id.is_empty() {
             self.id = other.id
         }
-        if self.imdb.is_empty() {
-            self.imdb = other.imdb
+        if let Some(props) = self.movie_properties.as_mut() {
+            if let Some(other_props) = other.movie_properties {
+                props.merge(other_props);
+            }
+        } else {
+            self.movie_properties = other.movie_properties
         }
         self.leechers |= other.leechers;
         if self.name.is_empty() {
@@ -69,7 +76,6 @@ impl From<PirateBayTorrent> for Torrent {
             category: value.category().to_owned(),
             file_count: value.num_files().parse().unwrap_or(0),
             id: value.id().to_owned(),
-            imdb: value.imdb().to_owned(),
             info_hash: value.info_hash().to_owned(),
             leechers: value.leechers().parse().unwrap_or(0),
             name: value.name().to_owned(),
@@ -77,6 +83,11 @@ impl From<PirateBayTorrent> for Torrent {
             size: value.size().parse().unwrap_or(0),
             provider: Provider::PirateBay,
             magnet: format_magnet(value.info_hash(), value.name()),
+            movie_properties: if value.imdb().is_empty() {
+                None
+            } else {
+                Some(MovieProperties::new(value.imdb().to_owned()))
+            },
         }
     }
 }
@@ -99,7 +110,6 @@ impl From<YtsTorrent> for Torrent {
             category: String::from("movies"),
             file_count: 0,
             id: torrent.hash().to_owned(),
-            imdb: value.imdb().to_owned(),
             info_hash: torrent.hash().to_owned(),
             leechers: torrent.peers().to_owned(),
             name: name.clone(),
@@ -107,6 +117,7 @@ impl From<YtsTorrent> for Torrent {
             size: torrent.size_bytes().to_owned(),
             provider: Provider::Yts,
             magnet: format_magnet(torrent.hash(), &name),
+            movie_properties: Some(MovieProperties::new(value.imdb().to_owned())),
         }
     }
 }
