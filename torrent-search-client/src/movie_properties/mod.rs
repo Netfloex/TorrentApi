@@ -1,23 +1,10 @@
 use derive_getters::Getters;
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize, Default)]
-pub enum Quality {
-    #[default]
-    Unknown,
-}
-
-#[derive(Debug, Clone, Serialize, Default)]
-pub enum VideoCodec {
-    #[default]
-    Unknown,
-}
-
-#[derive(Debug, Clone, Serialize, Default)]
-pub enum Source {
-    #[default]
-    Unknown,
-}
+pub use self::{codec::VideoCodec, quality::Quality, source::Source};
+mod codec;
+mod quality;
+mod source;
 
 #[derive(Debug, Clone, Serialize, Getters)]
 pub struct MovieProperties {
@@ -43,11 +30,20 @@ impl MovieProperties {
         }
     }
 
-    pub fn new(imdb: String) -> Self {
+    pub fn from_imdb(imdb: String) -> Self {
         Self {
             quality: Quality::default(),
             codec: VideoCodec::default(),
             source: Source::default(),
+            imdb,
+        }
+    }
+
+    pub fn new(imdb: String, quality: Quality, codec: VideoCodec, source: Source) -> Self {
+        Self {
+            quality,
+            codec,
+            source,
             imdb,
         }
     }

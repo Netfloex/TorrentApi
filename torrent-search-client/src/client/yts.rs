@@ -25,7 +25,7 @@ pub struct YtsTorrentResponse {
     hash: String,
     video_codec: String,
     #[serde(rename = "type")]
-    kind: String,
+    source: String,
 }
 
 #[derive(Deserialize, Debug)]

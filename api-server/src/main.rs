@@ -46,7 +46,6 @@ async fn search(
     search_params: SearchParams,
     client: &State<TorrentClient>,
 ) -> Result<Json<Vec<Torrent>>, HttpErrorKind> {
-    println!("{:?}", search_params);
     let category: Category = search_params
         .category
         .map_or_else(|| Ok(Category::default()), |c| c.parse())?;

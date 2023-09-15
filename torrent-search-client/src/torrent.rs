@@ -1,6 +1,6 @@
 use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
-    movie_properties::MovieProperties,
+    movie_properties::{MovieProperties, Quality},
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
@@ -86,7 +86,7 @@ impl From<PirateBayTorrent> for Torrent {
             movie_properties: if value.imdb().is_empty() {
                 None
             } else {
-                Some(MovieProperties::new(value.imdb().to_owned()))
+                Some(MovieProperties::from_imdb(value.imdb().to_owned()))
             },
         }
     }
@@ -99,9 +99,10 @@ impl From<YtsTorrent> for Torrent {
             "{} [{}] [{}] {}",
             value.title(),
             torrent.quality(),
-            torrent.kind(),
+            torrent.source(),
             torrent.video_codec()
         );
+
         Self {
             added: Utc
                 .timestamp_opt(torrent.date_uploaded_unix().to_owned(), 0)
@@ -117,7 +118,15 @@ impl From<YtsTorrent> for Torrent {
             size: torrent.size_bytes().to_owned(),
             provider: Provider::Yts,
             magnet: format_magnet(torrent.hash(), &name),
-            movie_properties: Some(MovieProperties::new(value.imdb().to_owned())),
+            movie_properties: Some(MovieProperties::new(
+                value.imdb().to_owned(),
+                torrent.quality().parse().expect("Should not return error"),
+                torrent
+                    .video_codec()
+                    .parse()
+                    .expect("Should not return error"),
+                torrent.source().parse().expect("Should not return error"),
+            )),
         }
     }
 }
