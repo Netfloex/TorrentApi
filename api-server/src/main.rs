@@ -5,7 +5,7 @@ use rocket::{serde::json::Json, State};
 use std::collections::HashMap;
 use std::vec;
 use torrent_search_client::{
-    Category, MovieOptions, Order, SearchOptions, SortColumn, Torrent, TorrentClient,
+    Category, MovieOptions, Order, Quality, SearchOptions, SortColumn, Torrent, TorrentClient,
 };
 
 use crate::http_error::HttpErrorKind;
@@ -24,6 +24,7 @@ struct SearchParams {
     sort: Option<String>,
     order: Option<String>,
     limit: Option<usize>,
+    quality: Option<String>,
 }
 
 fn xor<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, ()> {
@@ -85,6 +86,22 @@ async fn search(
     }
 
     let mut torrents: Vec<Torrent> = grouped.into_values().collect();
+
+    if let Some(quality) = search_params.quality {
+        let quality = quality.parse::<Quality>().expect("Should not return error");
+
+        if !matches!(quality, Quality::Unknown) {
+            torrents.retain(|torrent| {
+                if let Some(props) = torrent.movie_properties() {
+                    quality == props.quality().to_owned()
+                } else {
+                    false
+                }
+            })
+        } else {
+            return Err(HttpErrorKind::param(String::from("quality")));
+        }
+    }
 
     torrents.sort_unstable_by(|a, b| match sort {
         SortColumn::Added => a.added().cmp(b.added()),

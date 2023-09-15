@@ -16,6 +16,7 @@ pub use error::ErrorKind;
 use futures::future::join_all;
 use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
 use logging_middleware::LoggingMiddleware;
+pub use movie_properties::Quality;
 use reqwest::Client;
 use reqwest_middleware::ClientBuilder;
 use reqwest_middleware::ClientWithMiddleware;
@@ -39,7 +40,7 @@ impl TorrentClient {
         search_options: &SearchOptions,
     ) -> Vec<Result<Vec<Torrent>, Error>> {
         join_all(vec![
-            // X1137::search(search_options, &self.http),
+            X1137::search(search_options, &self.http),
             PirateBay::search(search_options, &self.http),
             Yts::search(search_options, &self.http),
             BitSearch::search(search_options, &self.http),

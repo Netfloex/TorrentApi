@@ -1,6 +1,6 @@
 use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
-    movie_properties::{MovieProperties, Quality},
+    movie_properties::MovieProperties,
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
