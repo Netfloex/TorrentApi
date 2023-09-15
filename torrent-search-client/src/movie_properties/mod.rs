@@ -44,7 +44,11 @@ impl MovieProperties {
             quality,
             codec,
             source,
-            imdb,
+            imdb: if imdb.is_empty() {
+                String::from("Unknown")
+            } else {
+                imdb
+            },
         }
     }
 }

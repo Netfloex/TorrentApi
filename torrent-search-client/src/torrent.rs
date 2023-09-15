@@ -83,11 +83,12 @@ impl From<PirateBayTorrent> for Torrent {
             size: value.size().parse().unwrap_or(0),
             provider: Provider::PirateBay,
             magnet: format_magnet(value.info_hash(), value.name()),
-            movie_properties: if value.imdb().is_empty() {
-                None
-            } else {
-                Some(MovieProperties::from_imdb(value.imdb().to_owned()))
-            },
+            movie_properties: Some(MovieProperties::new(
+                value.imdb().to_owned(),
+                value.name().parse().expect("Should not return error"),
+                value.name().parse().expect("Should not return error"),
+                value.name().parse().expect("Should not return error"),
+            )),
         }
     }
 }

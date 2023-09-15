@@ -39,7 +39,7 @@ impl TorrentClient {
         search_options: &SearchOptions,
     ) -> Vec<Result<Vec<Torrent>, Error>> {
         join_all(vec![
-            X1137::search(search_options, &self.http),
+            // X1137::search(search_options, &self.http),
             PirateBay::search(search_options, &self.http),
             Yts::search(search_options, &self.http),
             BitSearch::search(search_options, &self.http),

@@ -1,6 +1,7 @@
 use crate::{
     client::Provider,
     error::Error,
+    movie_properties::MovieProperties,
     search_options::{MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
     Category, TorrentProvider,
@@ -131,9 +132,10 @@ impl TorrentProvider for BitSearch {
                 .unwrap()
                 .as_str()
                 .replace("urn:btih:", "");
+            let name: String = row.select(&NAME_SELECTOR).next().unwrap().text().collect();
 
             torrents.push(Torrent {
-                name: row.select(&NAME_SELECTOR).next().unwrap().text().collect(),
+                name: name.to_owned(),
                 category: get_text(row.select(&CATEGORY_SELECTOR).next()),
                 added: date,
                 file_count: 0,
@@ -144,7 +146,12 @@ impl TorrentProvider for BitSearch {
                 size: size.parse::<ByteSize>().unwrap().0,
                 provider: Provider::BitSearch,
                 magnet,
-                movie_properties: None,
+                movie_properties: Some(MovieProperties::new(
+                    String::new(),
+                    name.parse().expect("Should not return error"),
+                    name.parse().expect("Should not return error"),
+                    name.parse().expect("Should not return error"),
+                )),
             })
         });
 
