@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize, Default)]
+#[derive(Debug, Clone, Serialize, Default, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum VideoCodec {
     #[default]

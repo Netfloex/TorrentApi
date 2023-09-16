@@ -5,7 +5,8 @@ use rocket::{serde::json::Json, State};
 use std::collections::HashMap;
 use std::vec;
 use torrent_search_client::{
-    Category, MovieOptions, Order, Quality, SearchOptions, SortColumn, Torrent, TorrentClient,
+    Category, MovieOptions, MovieProperties, Order, Quality, SearchOptions, SortColumn, Source,
+    Torrent, TorrentClient, VideoCodec,
 };
 
 use crate::http_error::HttpErrorKind;
@@ -25,6 +26,8 @@ struct SearchParams {
     order: Option<String>,
     limit: Option<usize>,
     quality: Option<String>,
+    codec: Option<String>,
+    source: Option<String>,
 }
 
 fn xor<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, ()> {
@@ -42,6 +45,35 @@ fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, (
     }
 }
 
+fn filter_movie_torrents<T>(
+    torrents: &mut Vec<Torrent>,
+    param: Option<String>,
+    unknown: T,
+
+    prop_extractor: impl Fn(&MovieProperties) -> &T,
+) -> Result<(), HttpErrorKind>
+where
+    T: PartialEq + std::str::FromStr + std::fmt::Debug,
+    <T as std::str::FromStr>::Err: std::fmt::Debug,
+{
+    if let Some(param) = param {
+        let value = param.parse::<T>().expect("Should not return error");
+
+        if value != unknown {
+            torrents.retain(|torrent| {
+                if let Some(props) = torrent.movie_properties() {
+                    &value == prop_extractor(props)
+                } else {
+                    false
+                }
+            });
+        } else {
+            return Err(HttpErrorKind::param(String::from("quality")));
+        }
+    }
+    Ok(())
+}
+
 #[get("/search?<search_params..>")]
 async fn search(
     search_params: SearchParams,
@@ -49,14 +81,17 @@ async fn search(
 ) -> Result<Json<Vec<Torrent>>, HttpErrorKind> {
     let category: Category = search_params
         .category
+        .as_ref()
         .map_or_else(|| Ok(Category::default()), |c| c.parse())?;
 
     let sort: SortColumn = search_params
         .sort
+        .as_ref()
         .map_or_else(|| Ok(SortColumn::default()), |f| f.parse())?;
 
     let order: Order = search_params
         .order
+        .as_ref()
         .map_or_else(|| Ok(Order::default()), |f| f.parse())?;
 
     let response = if let Some(query) = search_params.query {
@@ -87,21 +122,24 @@ async fn search(
 
     let mut torrents: Vec<Torrent> = grouped.into_values().collect();
 
-    if let Some(quality) = search_params.quality {
-        let quality = quality.parse::<Quality>().expect("Should not return error");
-
-        if !matches!(quality, Quality::Unknown) {
-            torrents.retain(|torrent| {
-                if let Some(props) = torrent.movie_properties() {
-                    quality == props.quality().to_owned()
-                } else {
-                    false
-                }
-            })
-        } else {
-            return Err(HttpErrorKind::param(String::from("quality")));
-        }
-    }
+    filter_movie_torrents(
+        &mut torrents,
+        search_params.quality,
+        Quality::default(),
+        |props| props.quality(),
+    )?;
+    filter_movie_torrents(
+        &mut torrents,
+        search_params.source,
+        Source::default(),
+        |props| props.source(),
+    )?;
+    filter_movie_torrents(
+        &mut torrents,
+        search_params.codec,
+        VideoCodec::default(),
+        |props| props.codec(),
+    )?;
 
     torrents.sort_unstable_by(|a, b| match sort {
         SortColumn::Added => a.added().cmp(b.added()),
