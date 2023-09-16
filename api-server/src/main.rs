@@ -21,6 +21,7 @@ struct SearchParams {
     imdb: Option<String>,
     #[field(validate= or(&self.query))]
     title: Option<String>,
+    #[field(validate = or(&self.imdb))]
     category: Option<String>,
     sort: Option<String>,
     order: Option<String>,
