@@ -18,9 +18,7 @@ impl FromStr for SortColumn {
 
     fn from_str(s: &str) -> Result<Self, InvalidOptionError> {
         let sort_column = match s.to_ascii_lowercase().as_str() {
-            "time" => SortColumn::Added,
-            "date" => SortColumn::Added,
-            "added" => SortColumn::Added,
+            "time" | "date" | "added" => SortColumn::Added,
 
             "size" => SortColumn::Size,
 

@@ -16,11 +16,9 @@ impl FromStr for Order {
 
     fn from_str(s: &str) -> Result<Self, InvalidOptionError> {
         let order = match s.to_ascii_lowercase().as_str() {
-            "asc" => Order::Ascending,
-            "ascending" => Order::Ascending,
+            "a" | "asc" | "ascending" => Order::Ascending,
 
-            "desc" => Order::Descending,
-            "descending" => Order::Descending,
+            "d" | "desc" | "descending" => Order::Descending,
 
             _ => Err(InvalidOptionError::new(SearchOption::Order))?,
         };
