@@ -37,7 +37,7 @@ struct YtsMovie {
 
 #[derive(Deserialize, Debug)]
 struct YtsSearchData {
-    movies: Vec<YtsMovie>,
+    movies: Option<Vec<YtsMovie>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -135,6 +135,7 @@ impl TorrentProvider for Yts {
         let yts_torrents: Vec<YtsTorrent> = json
             .data
             .movies
+            .unwrap_or_default()
             .into_iter()
             .flat_map(Yts::movie_to_torrents)
             .collect();
