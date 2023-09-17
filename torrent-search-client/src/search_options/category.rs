@@ -1,8 +1,10 @@
 use std::str::FromStr;
 
+use juniper::GraphQLEnum;
+
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, GraphQLEnum)]
 pub enum Category {
     #[default]
     All,

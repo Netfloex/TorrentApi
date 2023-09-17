@@ -135,7 +135,7 @@ impl TorrentProvider for X1137 {
                 size: get_text(&tr, &SIZE_SELECTOR)
                     .parse::<ByteSize>()
                     .unwrap_or(ByteSize(0))
-                    .0,
+                    .0 as i32,
                 category: String::new(),
                 id: get_item(&tr, &NAME_SELECTOR)
                     .and_then(|id| {

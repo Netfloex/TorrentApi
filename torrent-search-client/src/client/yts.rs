@@ -17,9 +17,9 @@ use super::Error;
 
 #[derive(Deserialize, Debug, Getters)]
 pub struct YtsTorrentResponse {
-    size_bytes: u64,
-    peers: usize,
-    seeds: usize,
+    size_bytes: i32,
+    peers: i32,
+    seeds: i32,
     date_uploaded_unix: i64,
     quality: String,
     hash: String,

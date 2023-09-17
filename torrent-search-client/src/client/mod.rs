@@ -4,6 +4,7 @@ use crate::{
     torrent::Torrent,
 };
 use async_trait::async_trait;
+use juniper::GraphQLEnum;
 use reqwest_middleware::ClientWithMiddleware;
 use serde::Serialize;
 
@@ -26,7 +27,7 @@ pub trait TorrentProvider {
     ) -> Result<Vec<Torrent>, Error>;
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, GraphQLEnum)]
 pub enum Provider {
     PirateBay,
     #[serde(rename = "1337x")]

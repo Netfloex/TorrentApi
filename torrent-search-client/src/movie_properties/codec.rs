@@ -1,8 +1,9 @@
 use std::str::FromStr;
 
+use juniper::GraphQLEnum;
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize, Default, PartialEq)]
+#[derive(Debug, Clone, Serialize, Default, PartialEq, GraphQLEnum)]
 #[serde(rename_all = "lowercase")]
 pub enum VideoCodec {
     #[default]

@@ -1,14 +1,16 @@
 use std::str::FromStr;
 
+use juniper::GraphQLEnum;
+
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, GraphQLEnum)]
 pub enum SortColumn {
+    #[default]
+    Seeders,
     Added,
     Size,
     Leechers,
-    #[default]
-    Seeders,
 }
 
 impl FromStr for SortColumn {

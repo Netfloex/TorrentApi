@@ -4,6 +4,7 @@ use crate::{
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
+use juniper::GraphQLObject;
 use serde::{Serialize, Serializer};
 use urlencoding::encode;
 
@@ -14,18 +15,18 @@ where
     serializer.serialize_str(&datetime.to_rfc3339())
 }
 
-#[derive(Serialize, Debug, Getters, Clone)]
+#[derive(Serialize, Debug, Getters, Clone, GraphQLObject)]
 pub struct Torrent {
     #[serde(serialize_with = "serialize_datetime")]
     pub added: DateTime<Utc>,
     pub category: String,
-    pub file_count: usize,
+    pub file_count: i32,
     pub id: String,
     pub info_hash: String,
-    pub leechers: usize,
+    pub leechers: i32,
     pub name: String,
-    pub seeders: usize,
-    pub size: u64,
+    pub seeders: i32,
+    pub size: i32,
     pub provider: Provider,
     pub magnet: String,
     pub movie_properties: Option<MovieProperties>,
