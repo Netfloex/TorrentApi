@@ -15,7 +15,9 @@ pub enum Source {
     Dvd,
     Hdtv,
     Hdrip,
+    #[graphql(name = "WEBRIP")]
     WebRip,
+    #[graphql(name = "BLURAY")]
     BluRay,
 }
 
@@ -30,7 +32,7 @@ lazy_static! {
             .unwrap();
     static ref WEBRIP_REGEX: Regex = Regex::new(r"\b(?:web|webdl|webrip)\b").unwrap();
     static ref BLURAY_REGEX: Regex =
-        Regex::new(r"\b(?:blu-ray|bluray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv)\b").unwrap();
+        Regex::new(r"\b(?:blu-ray|bluray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv|bdremux)\b").unwrap();
 }
 
 impl FromStr for Source {

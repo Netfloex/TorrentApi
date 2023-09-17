@@ -29,9 +29,11 @@ pub trait TorrentProvider {
 
 #[derive(Serialize, Debug, Clone, GraphQLEnum)]
 pub enum Provider {
+    #[graphql(name = "PIRATEBAY")]
     PirateBay,
     #[serde(rename = "1337x")]
     X1337,
     Yts,
+    #[graphql(name = "BITSEARCH")]
     BitSearch,
 }

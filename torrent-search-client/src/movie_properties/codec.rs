@@ -16,8 +16,8 @@ pub enum VideoCodec {
 }
 
 lazy_static! {
-    static ref X264_REGEX: Regex = Regex::new(r"\b([xh].?264)\b").unwrap();
-    static ref X265_REGEX: Regex = Regex::new(r"\b([xh].?265)\b").unwrap();
+    static ref X264_REGEX: Regex = Regex::new(r"\b([xh].?264|avc)\b").unwrap();
+    static ref X265_REGEX: Regex = Regex::new(r"\b([xh].?265|hevc)\b").unwrap();
 }
 impl FromStr for VideoCodec {
     type Err = String;
