@@ -12,7 +12,7 @@ pub struct MovieProperties {
     quality: Quality,
     codec: VideoCodec,
     source: Source,
-    imdb: String,
+    imdb: Option<String>,
 }
 
 impl MovieProperties {
@@ -26,17 +26,8 @@ impl MovieProperties {
         if matches!(self.source, Source::Unknown) {
             self.source = other.source
         }
-        if self.imdb().is_empty() {
+        if self.imdb().is_none() {
             self.imdb = other.imdb
-        }
-    }
-
-    pub fn from_imdb(imdb: String) -> Self {
-        Self {
-            quality: Quality::default(),
-            codec: VideoCodec::default(),
-            source: Source::default(),
-            imdb,
         }
     }
 
@@ -45,11 +36,7 @@ impl MovieProperties {
             quality,
             codec,
             source,
-            imdb: if imdb.is_empty() {
-                String::from("Unknown")
-            } else {
-                imdb
-            },
+            imdb: if imdb.is_empty() { None } else { Some(imdb) },
         }
     }
 }

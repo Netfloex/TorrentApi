@@ -109,7 +109,11 @@ impl TorrentProvider for PirateBay {
 
         torrents.retain(|torrent| {
             if let Some(torrent_properties) = &torrent.movie_properties {
-                torrent_properties.imdb() == movie_options.imdb()
+                if let Some(imdb) = torrent_properties.imdb() {
+                    imdb == movie_options.imdb()
+                } else {
+                    false
+                }
             } else {
                 false
             }

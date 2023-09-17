@@ -92,7 +92,7 @@ pub async fn search_handler(
         SortColumn::Size => a.size().cmp(b.size()),
     });
 
-    if &order == &Order::Descending {
+    if order == Order::Descending {
         torrents.reverse();
     }
 
