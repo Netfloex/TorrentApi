@@ -1,19 +1,19 @@
-use juniper::{graphql_object, EmptyMutation, EmptySubscription, RootNode};
-use juniper_rocket::graphiql_source;
-use rocket::{response::content::RawHtml, State};
-use torrent_search_client::{Torrent, TorrentClient};
-
 use crate::{
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams},
+    torrent::ApiTorrent,
 };
+use juniper::{graphql_object, EmptyMutation, EmptySubscription, RootNode};
+use juniper_rocket::graphiql_source;
+use rocket::{response::content::RawHtml, State};
+use torrent_search_client::TorrentClient;
 pub struct Query;
 #[graphql_object(context = TorrentClient)]
 impl Query {
     async fn search(
         #[graphql(context)] client: &TorrentClient,
         params: SearchHandlerParams,
-    ) -> Result<Vec<Torrent>, HttpErrorKind> {
+    ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
         let torrents = search_handler(params, client).await?;
         Ok(torrents)
     }

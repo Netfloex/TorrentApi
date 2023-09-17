@@ -143,7 +143,7 @@ impl TorrentProvider for BitSearch {
                 info_hash,
                 leechers: leechers.parse().unwrap(),
                 seeders: seeders.parse().unwrap(),
-                size: size.parse::<ByteSize>().unwrap().0 as i32,
+                size: size.parse::<ByteSize>().unwrap().0,
                 provider: Provider::BitSearch,
                 magnet,
                 movie_properties: Some(MovieProperties::new(

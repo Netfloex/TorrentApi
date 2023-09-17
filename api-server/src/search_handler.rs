@@ -1,11 +1,11 @@
 use juniper::GraphQLInputObject;
 use std::collections::HashMap;
 use torrent_search_client::{
-    Category, MovieOptions, Order, Quality, SearchOptions, SortColumn, Source, Torrent,
-    TorrentClient, VideoCodec,
+    Category, MovieOptions, Order, Quality, SearchOptions, SortColumn, Source, TorrentClient,
+    VideoCodec,
 };
 
-use crate::http_error::HttpErrorKind;
+use crate::{http_error::HttpErrorKind, torrent::ApiTorrent};
 
 #[derive(GraphQLInputObject)]
 pub struct SearchHandlerParams {
@@ -24,7 +24,7 @@ pub struct SearchHandlerParams {
 pub async fn search_handler(
     search_params: SearchHandlerParams,
     client: &TorrentClient,
-) -> Result<Vec<Torrent>, HttpErrorKind> {
+) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
     let sort = search_params.sort.unwrap_or_default();
     let category = search_params.category.unwrap_or_default();
     let order = search_params.order.unwrap_or_default();
@@ -40,7 +40,7 @@ pub async fn search_handler(
         return Err(HttpErrorKind::missing_query());
     };
 
-    let mut grouped: HashMap<String, Torrent> = HashMap::new();
+    let mut grouped: HashMap<String, ApiTorrent> = HashMap::new();
 
     for result in response {
         match result {
@@ -48,18 +48,18 @@ pub async fn search_handler(
                 for torrent in provider_torrents {
                     grouped
                         .entry(torrent.info_hash.to_string())
-                        .and_modify(|existing| existing.merge(torrent.clone()))
-                        .or_insert(torrent);
+                        .and_modify(|existing| existing.merge(torrent.clone().into()))
+                        .or_insert(torrent.into());
                 }
             }
             Err(err) => eprintln!("Error:\n{:?}", err),
         }
     }
 
-    let mut torrents: Vec<Torrent> = grouped.into_values().collect();
+    let mut torrents: Vec<ApiTorrent> = grouped.into_values().collect();
 
     torrents.retain(|torrent| {
-        if let Some(props) = &torrent.movie_properties {
+        if let Some(props) = torrent.movie_properties() {
             if let Some(source) = &search_params.source {
                 if source == &Source::default() {
                 } else if source != props.source() {
@@ -89,7 +89,7 @@ pub async fn search_handler(
         SortColumn::Added => a.added().cmp(b.added()),
         SortColumn::Leechers => a.leechers().cmp(b.leechers()),
         SortColumn::Seeders => a.seeders().cmp(b.seeders()),
-        SortColumn::Size => a.size().cmp(b.size()),
+        SortColumn::Size => a.size().get().cmp(b.size().get()),
     });
 
     if order == Order::Descending {

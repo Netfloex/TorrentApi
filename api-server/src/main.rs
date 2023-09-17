@@ -1,6 +1,8 @@
 mod graphql;
 mod http_error;
+mod int_scalar;
 mod search_handler;
+mod torrent;
 
 use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Query, Schema};
 use juniper::{EmptyMutation, EmptySubscription, GraphQLInputObject};
@@ -8,7 +10,8 @@ use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
 use std::vec;
-use torrent_search_client::{Category, Order, SortColumn, Torrent, TorrentClient};
+use torrent::ApiTorrent;
+use torrent_search_client::{Category, Order, SortColumn, TorrentClient};
 
 use crate::http_error::HttpErrorKind;
 
@@ -43,7 +46,7 @@ fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, (
 async fn search(
     search_params: SearchParams,
     client: &State<TorrentClient>,
-) -> Result<Json<Vec<Torrent>>, HttpErrorKind> {
+) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
     let category: Category = search_params
         .category
         .as_ref()

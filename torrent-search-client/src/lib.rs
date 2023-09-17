@@ -10,6 +10,7 @@ use client::bitsearch::BitSearch;
 use client::piratebay::PirateBay;
 use client::x1337::X1137;
 use client::yts::Yts;
+pub use client::Provider;
 use client::TorrentProvider;
 pub use error::Error;
 pub use error::ErrorKind;
