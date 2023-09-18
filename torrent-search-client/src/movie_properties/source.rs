@@ -30,6 +30,7 @@ lazy_static! {
     static ref HDTV_REGEX: Regex =
         Regex::new(r"\b(?:hdtv|pdtv|dsr|dsrrip|satrip|dthrip|dvbrip|dtvrip|tvrip|hdtvrip)\b")
             .unwrap();
+    static ref HDRIP_REGEX: Regex = Regex::new(r"\b(?:hdrip|web-?dlrip)\b").unwrap();
     static ref WEBRIP_REGEX: Regex = Regex::new(r"\b(?:web|webdl|webrip)\b").unwrap();
     static ref BLURAY_REGEX: Regex =
         Regex::new(r"\b(?:blu-ray|bluray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv|bdremux)\b").unwrap();
@@ -45,6 +46,7 @@ impl FromStr for Source {
             s if TELECINE_REGEX.is_match(s) => Source::Telecine,
             s if DVD_REGEX.is_match(s) => Source::Dvd,
             s if HDTV_REGEX.is_match(s) => Source::Hdtv,
+            s if HDRIP_REGEX.is_match(s) => Source::Hdrip,
             s if WEBRIP_REGEX.is_match(s) => Source::WebRip,
             s if BLURAY_REGEX.is_match(s) => Source::BluRay,
 
