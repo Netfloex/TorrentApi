@@ -1,12 +1,12 @@
 use std::str::FromStr;
 
-use juniper::GraphQLEnum;
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize, Default, PartialEq, GraphQLEnum)]
+#[derive(Debug, Clone, Serialize, Default, PartialEq)]
 #[serde(rename_all = "lowercase")]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 pub enum VideoCodec {
     #[default]
     #[serde(rename = "Unknown")]

@@ -1,10 +1,9 @@
 use std::str::FromStr;
 
-use juniper::GraphQLEnum;
-
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
-#[derive(PartialEq, Debug, Default, Clone, GraphQLEnum)]
+#[derive(PartialEq, Debug, Default, Clone)]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 pub enum Order {
     #[default]
     Descending,

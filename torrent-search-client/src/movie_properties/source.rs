@@ -1,11 +1,12 @@
 use std::str::FromStr;
 
-use juniper::GraphQLEnum;
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize, Default, PartialEq, GraphQLEnum)]
+#[derive(Debug, Clone, Serialize, Default, PartialEq)]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+
 pub enum Source {
     #[default]
     Unknown,
@@ -15,9 +16,9 @@ pub enum Source {
     Dvd,
     Hdtv,
     Hdrip,
-    #[graphql(name = "WEBRIP")]
+    #[cfg_attr(feature = "graphql", graphql(name = "WEBRIP"))]
     WebRip,
-    #[graphql(name = "BLURAY")]
+    #[cfg_attr(feature = "graphql", graphql(name = "BLURAY"))]
     BluRay,
 }
 

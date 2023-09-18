@@ -1,10 +1,9 @@
 use std::str::FromStr;
 
-use juniper::GraphQLEnum;
-
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
-#[derive(Default, Debug, GraphQLEnum)]
+#[derive(Default, Debug)]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 pub enum Category {
     #[default]
     All,
