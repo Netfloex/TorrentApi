@@ -1,6 +1,9 @@
+use std::sync::Mutex;
+
 use crate::{
     client::Provider,
     error::{Error, ErrorKind},
+    round_robin::RoundRobin,
     search_options::{Category, MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
     TorrentProvider,
@@ -14,9 +17,12 @@ use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
 
-const X1137_API: &str = "https://1337x.to";
+const X1137_APIS: [&str; 1] = [
+    "https://1337x.to",
+    // "https://1337x.so", // cloudflare
+];
+
 lazy_static! {
-    static ref X1137_URL: Url = X1137_API.parse().unwrap();
     static ref TABLE_SELECTOR: Selector = Selector::parse("tbody tr").unwrap();
     static ref NAME_SELECTOR: Selector = Selector::parse(".name a:nth-child(2)").unwrap();
     static ref SEEDERS_SELECTOR: Selector = Selector::parse(".seeds").unwrap();
@@ -25,6 +31,9 @@ lazy_static! {
     static ref SIZE_SELECTOR: Selector = Selector::parse(".size").unwrap();
     static ref NO_RESULTS_SELECTOR: Selector =
         Selector::parse(".box-info > .box-info-detail > p").unwrap();
+    static ref ROUND_ROBIN: Mutex<RoundRobin> = Mutex::new(RoundRobin::new(
+        X1137_APIS.map(|url| url.parse::<Url>().unwrap()).to_vec()
+    ));
 }
 
 pub struct X1137 {}
@@ -50,7 +59,7 @@ impl X1137 {
     }
 
     fn format_url(search_options: &SearchOptions) -> Url {
-        let mut url = X1137_URL.clone();
+        let mut url = ROUND_ROBIN.lock().unwrap().get();
 
         let has_category = !matches!(search_options.category(), Category::All);
 

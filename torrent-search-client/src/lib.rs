@@ -3,6 +3,7 @@ mod error;
 mod get_json;
 mod logging_middleware;
 mod movie_properties;
+mod round_robin;
 mod search_options;
 mod torrent;
 

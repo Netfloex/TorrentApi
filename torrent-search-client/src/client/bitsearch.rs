@@ -2,6 +2,7 @@ use crate::{
     client::Provider,
     error::Error,
     movie_properties::MovieProperties,
+    round_robin::RoundRobin,
     search_options::{MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
     Category, TorrentProvider,
@@ -14,20 +15,33 @@ use regex::Regex;
 use reqwest::{Method, Url};
 use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
+use std::sync::Mutex;
 
-const BITSEARCH_API: &str = "https://bitsearch.to/search";
+const BITSEARCH_APIS: [&str; 2] = [
+    "https://bitsearch.to/search",
+    "https://solidtorrents.to/search",
+];
+
 lazy_static! {
-    static ref BITSEARCH_URL: Url = BITSEARCH_API.parse().unwrap();
     static ref ROW_SELECTOR: Selector = Selector::parse(".search-result").unwrap();
     static ref NAME_SELECTOR: Selector = Selector::parse("h5 a").unwrap();
     static ref MAGNET_SELECTOR: Selector = Selector::parse(".dl-magnet").unwrap();
     static ref CATEGORY_SELECTOR: Selector = Selector::parse(".category").unwrap();
     static ref STATS_SELECTOR: Selector = Selector::parse(".stats div").unwrap();
     static ref INFO_HASH_REGEX: Regex = Regex::new("urn:btih:([A-F\\d]+)").unwrap();
+    static ref ROUND_ROBIN: Mutex<RoundRobin> = Mutex::new(RoundRobin::new(
+        BITSEARCH_APIS
+            .map(|url| url.parse::<Url>().unwrap())
+            .to_vec()
+    ));
 }
 
 pub struct BitSearch {}
 impl BitSearch {
+    fn get_url() -> Url {
+        ROUND_ROBIN.lock().unwrap().get()
+    }
+
     fn format_category(category: &Category) -> &'static str {
         match category {
             Category::All => "",
@@ -60,7 +74,7 @@ impl BitSearch {
     }
 
     fn format_url(search_options: &SearchOptions) -> Url {
-        let mut url: Url = BITSEARCH_API.parse().unwrap();
+        let mut url: Url = BitSearch::get_url();
 
         url.query_pairs_mut()
             .append_pair("q", search_options.query())
