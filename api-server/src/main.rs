@@ -11,7 +11,7 @@ use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
 use std::vec;
 use torrent::ApiTorrent;
-use torrent_search_client::{Category, Order, SortColumn, TorrentClient};
+use torrent_search_client::{Category, Order, Quality, SortColumn, TorrentClient};
 
 use crate::http_error::HttpErrorKind;
 
@@ -30,9 +30,9 @@ pub struct SearchParams {
     sort: Option<String>,
     order: Option<String>,
     limit: Option<i32>,
-    quality: Option<String>,
-    codec: Option<String>,
-    source: Option<String>,
+    quality: Option<Vec<String>>,
+    codec: Option<Vec<String>>,
+    source: Option<Vec<String>>,
 }
 
 fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, ()> {
@@ -47,6 +47,7 @@ async fn search(
     search_params: SearchParams,
     client: &State<TorrentClient>,
 ) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
+    println!("{:?}", search_params.quality);
     let category: Category = search_params
         .category
         .as_ref()
@@ -75,22 +76,25 @@ async fn search(
                 search_params
                     .quality
                     .unwrap_or_default()
-                    .parse()
-                    .expect("Can not give error"),
+                    .into_iter()
+                    .map(|q| q.parse::<Quality>().expect("Can not give error"))
+                    .collect(),
             ),
             codec: Some(
                 search_params
                     .codec
                     .unwrap_or_default()
-                    .parse()
-                    .expect("Can not give error"),
+                    .into_iter()
+                    .map(|c| c.parse().expect("Can not give error"))
+                    .collect(),
             ),
             source: Some(
                 search_params
                     .source
                     .unwrap_or_default()
-                    .parse()
-                    .expect("Can not give error"),
+                    .into_iter()
+                    .map(|s| s.parse().expect("Can not give error"))
+                    .collect(),
             ),
         },
         client,

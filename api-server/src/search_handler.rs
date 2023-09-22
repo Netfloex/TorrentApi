@@ -16,15 +16,16 @@ pub struct SearchHandlerParams {
     pub sort: Option<SortColumn>,
     pub order: Option<Order>,
     pub limit: Option<i32>,
-    pub quality: Option<Quality>,
-    pub codec: Option<VideoCodec>,
-    pub source: Option<Source>,
+    pub quality: Option<Vec<Quality>>,
+    pub codec: Option<Vec<VideoCodec>>,
+    pub source: Option<Vec<Source>>,
 }
 
 pub async fn search_handler(
     search_params: SearchHandlerParams,
     client: &TorrentClient,
 ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
+    println!("{:?}", search_params.quality);
     let sort = search_params.sort.unwrap_or_default();
     let category = search_params.category.unwrap_or_default();
     let order = search_params.order.unwrap_or_default();
@@ -61,20 +62,20 @@ pub async fn search_handler(
     torrents.retain(|torrent| {
         if let Some(props) = torrent.movie_properties() {
             if let Some(source) = &search_params.source {
-                if source == &Source::default() {
-                } else if source != props.source() {
+                if source.is_empty() || source.contains(&Source::default()) {
+                } else if !source.contains(props.source()) {
                     return false;
                 }
             };
             if let Some(codec) = &search_params.codec {
-                if codec == &VideoCodec::default() {
-                } else if codec != props.codec() {
+                if codec.is_empty() || codec.contains(&VideoCodec::default()) {
+                } else if !codec.contains(props.codec()) {
                     return false;
                 }
             };
             if let Some(quality) = &search_params.quality {
-                if quality == &Quality::default() {
-                } else if quality != props.quality() {
+                if quality.is_empty() || quality.contains(&Quality::default()) {
+                } else if !quality.contains(props.quality()) {
                     return false;
                 }
             };
