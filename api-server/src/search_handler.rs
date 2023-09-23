@@ -62,19 +62,19 @@ pub async fn search_handler(
     torrents.retain(|torrent| {
         if let Some(props) = torrent.movie_properties() {
             if let Some(source) = &search_params.source {
-                if source.is_empty() || source.contains(&Source::default()) {
+                if source.is_empty() {
                 } else if !source.contains(props.source()) {
                     return false;
                 }
             };
             if let Some(codec) = &search_params.codec {
-                if codec.is_empty() || codec.contains(&VideoCodec::default()) {
+                if codec.is_empty() {
                 } else if !codec.contains(props.codec()) {
                     return false;
                 }
             };
             if let Some(quality) = &search_params.quality {
-                if quality.is_empty() || quality.contains(&Quality::default()) {
+                if quality.is_empty() {
                 } else if !quality.contains(props.quality()) {
                     return false;
                 }
