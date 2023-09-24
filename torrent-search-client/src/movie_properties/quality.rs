@@ -26,7 +26,8 @@ lazy_static! {
     static ref P480_REGEX: Regex = Regex::new(r"\b(?:480p|640x480|848x480)\b").unwrap();
     static ref P540_REGEX: Regex = Regex::new(r"\b(?:540p)\b").unwrap();
     static ref P576_REGEX: Regex = Regex::new(r"\b(?:576p)\b").unwrap();
-    static ref P720_REGEX: Regex = Regex::new(r"\b(?:720p|1280x720|960p)\b").unwrap();
+    static ref P720_REGEX: Regex =
+        Regex::new(r"\b(?:720p|1280x720|960p|hdcam(?:rip)?|hdt[cs])\b").unwrap();
     static ref P1080_REGEX: Regex =
         Regex::new(r"\b(?:1080p|1920x1080|1440p|FHD|1080i|4kto1080p)\b").unwrap();
     static ref P2160_REGEX: Regex = Regex::new(

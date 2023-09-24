@@ -18,6 +18,8 @@ pub enum Source {
     Hdrip,
     #[cfg_attr(feature = "graphql", graphql(name = "WEBRIP"))]
     WebRip,
+    #[cfg_attr(feature = "graphql", graphql(name = "WEBDL"))]
+    WebDL,
     #[cfg_attr(feature = "graphql", graphql(name = "BLURAY"))]
     BluRay,
 }
@@ -32,9 +34,10 @@ lazy_static! {
         Regex::new(r"\b(?:hdtv|pdtv|dsr|dsrrip|satrip|dthrip|dvbrip|dtvrip|tvrip|hdtvrip)\b")
             .unwrap();
     static ref HDRIP_REGEX: Regex = Regex::new(r"\b(?:hdrip|web-?dlrip)\b").unwrap();
-    static ref WEBRIP_REGEX: Regex = Regex::new(r"\b(?:web|webdl|webrip)\b").unwrap();
+    static ref WEBRIP_REGEX: Regex = Regex::new(r"\b(?:web-?rip)\b").unwrap();
+    static ref WEBDL_REGEX: Regex = Regex::new(r"\b(?:web|web-?dl|webrip)\b").unwrap();
     static ref BLURAY_REGEX: Regex =
-        Regex::new(r"\b(?:blu-ray|bluray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv|bdremux)\b").unwrap();
+        Regex::new(r"\b(?:blu-?ray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv|bdremux)\b").unwrap();
 }
 
 impl FromStr for Source {
@@ -49,6 +52,7 @@ impl FromStr for Source {
             s if HDTV_REGEX.is_match(s) => Source::Hdtv,
             s if HDRIP_REGEX.is_match(s) => Source::Hdrip,
             s if WEBRIP_REGEX.is_match(s) => Source::WebRip,
+            s if WEBDL_REGEX.is_match(s) => Source::WebDL,
             s if BLURAY_REGEX.is_match(s) => Source::BluRay,
 
             _ => Self::Unknown,

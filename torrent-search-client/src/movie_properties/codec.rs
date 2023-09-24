@@ -11,20 +11,23 @@ pub enum VideoCodec {
     #[default]
     #[serde(rename = "Unknown")]
     Unknown,
-    X264,
-    X265,
+    AVC,
+    HEVC,
+    XVid,
 }
 
 lazy_static! {
-    static ref X264_REGEX: Regex = Regex::new(r"\b([xh].?264|avc)\b").unwrap();
-    static ref X265_REGEX: Regex = Regex::new(r"\b([xh].?265|hevc)\b").unwrap();
+    static ref AVC_REGEX: Regex = Regex::new(r"\b([xh].?264|avc)\b").unwrap();
+    static ref HEVC_REGEX: Regex = Regex::new(r"\b([xh].?265|hevc)\b").unwrap();
+    static ref XVID_REGEX: Regex = Regex::new(r"\bx-?vid(?:hd)?\b").unwrap();
 }
 impl FromStr for VideoCodec {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let codec = match s.to_ascii_lowercase().as_str() {
-            s if X264_REGEX.is_match(s) => VideoCodec::X264,
-            s if X265_REGEX.is_match(s) => VideoCodec::X265,
+            s if AVC_REGEX.is_match(s) => VideoCodec::AVC,
+            s if HEVC_REGEX.is_match(s) => VideoCodec::HEVC,
+            s if XVID_REGEX.is_match(s) => VideoCodec::XVid,
 
             _ => Self::Unknown,
         };
