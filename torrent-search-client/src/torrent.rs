@@ -1,6 +1,7 @@
 use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
     movie_properties::MovieProperties,
+    utils::normalize_title,
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
@@ -68,6 +69,7 @@ fn format_magnet(hash: &str, name: &str) -> String {
 
 impl From<PirateBayTorrent> for Torrent {
     fn from(value: PirateBayTorrent) -> Self {
+        let name = normalize_title(value.name());
         Self {
             added: Utc
                 .timestamp_opt(value.added().parse().unwrap_or_default(), 0)
@@ -78,11 +80,11 @@ impl From<PirateBayTorrent> for Torrent {
             id: value.id().to_owned(),
             info_hash: value.info_hash().to_owned(),
             leechers: value.leechers().parse().unwrap_or(0),
-            name: value.name().to_owned(),
+            name: name.to_string(),
             seeders: value.seeders().parse().unwrap_or(0),
             size: value.size().parse().unwrap_or(0),
             provider: Provider::PirateBay,
-            magnet: format_magnet(value.info_hash(), value.name()),
+            magnet: format_magnet(value.info_hash(), &name),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
                 value.name().parse().expect("Should not return error"),

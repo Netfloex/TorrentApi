@@ -5,7 +5,7 @@ use crate::{
     error::{Error, ErrorKind},
     search_options::{Category, MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
-    utils::RoundRobin,
+    utils::{normalize_title, RoundRobin},
     TorrentProvider,
 };
 use async_trait::async_trait;
@@ -137,7 +137,7 @@ impl TorrentProvider for X1137 {
             let unsupported = String::from("unsupported");
 
             Torrent {
-                name: get_text(&tr, &NAME_SELECTOR),
+                name: normalize_title(&get_text(&tr, &NAME_SELECTOR)),
                 seeders: get_text(&tr, &SEEDERS_SELECTOR).parse().unwrap_or(0),
                 leechers: get_text(&tr, &LEECHERS_SELECTOR).parse().unwrap_or(0),
                 added: date,
