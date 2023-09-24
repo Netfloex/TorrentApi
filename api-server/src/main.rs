@@ -47,7 +47,6 @@ async fn search(
     search_params: SearchParams,
     client: &State<TorrentClient>,
 ) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
-    println!("{:?}", search_params.quality);
     let category: Category = search_params
         .category
         .as_ref()

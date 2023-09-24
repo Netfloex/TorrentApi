@@ -25,7 +25,6 @@ pub async fn search_handler(
     search_params: SearchHandlerParams,
     client: &TorrentClient,
 ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
-    println!("{:?}", search_params.quality);
     let sort = search_params.sort.unwrap_or_default();
     let category = search_params.category.unwrap_or_default();
     let order = search_params.order.unwrap_or_default();

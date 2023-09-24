@@ -1,11 +1,10 @@
 mod client;
 mod error;
-mod get_json;
 mod logging_middleware;
 mod movie_properties;
-mod round_robin;
 mod search_options;
 mod torrent;
+mod utils;
 
 use client::bitsearch::BitSearch;
 use client::piratebay::PirateBay;

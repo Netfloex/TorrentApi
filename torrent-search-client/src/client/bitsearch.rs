@@ -2,9 +2,9 @@ use crate::{
     client::Provider,
     error::Error,
     movie_properties::MovieProperties,
-    round_robin::RoundRobin,
     search_options::{MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
+    utils::{is_title_match, RoundRobin},
     Category, TorrentProvider,
 };
 use async_trait::async_trait;
@@ -184,7 +184,11 @@ impl TorrentProvider for BitSearch {
                 movie_options.order().clone(),
             );
 
-            return Self::search(&options, http).await;
+            let mut torrents = Self::search(&options, http).await?;
+
+            torrents.retain(|t| is_title_match(title, t.name()));
+
+            return Ok(torrents);
         }
 
         Ok(Vec::new())

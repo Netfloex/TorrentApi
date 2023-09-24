@@ -3,9 +3,9 @@ use std::sync::Mutex;
 use crate::{
     client::Provider,
     error::{Error, ErrorKind},
-    round_robin::RoundRobin,
     search_options::{Category, MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
+    utils::RoundRobin,
     TorrentProvider,
 };
 use async_trait::async_trait;

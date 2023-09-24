@@ -1,9 +1,9 @@
 use std::vec;
 
 use crate::{
-    get_json::get_json,
     search_options::{MovieOptions, SearchOptions},
     torrent::Torrent,
+    utils::get_json,
     Category, SortColumn, TorrentProvider,
 };
 use async_trait::async_trait;

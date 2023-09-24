@@ -1,8 +1,8 @@
 use super::Error;
 use crate::{
-    get_json::get_json,
     search_options::{Category, MovieOptions, SearchOptions},
     torrent::Torrent,
+    utils::get_json,
     TorrentProvider,
 };
 use async_trait::async_trait;
