@@ -1,0 +1,10 @@
+[package]
+name = "qbittorrent-api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1.68"
+serde = "1.0.188"
+serde_json = "1.0.107"
+surf = "2.3.2"
