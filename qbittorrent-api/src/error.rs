@@ -7,6 +7,8 @@ pub enum ErrorKind {
     HttpRequestError(surf::Error),
     IncorrectLogin,
     TorrentAddError,
+    BadParameters(String),
+    CategoryAddError,
 }
 
 #[derive(Debug)]

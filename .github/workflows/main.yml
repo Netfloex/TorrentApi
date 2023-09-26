@@ -23,6 +23,7 @@ jobs:
                   workspaces: |
                       api-server
                       torrent-search-client
+                      qbittorrent-api
 
             - name: Cargo Fetch
               run: cargo fetch --locked

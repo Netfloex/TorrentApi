@@ -3,7 +3,9 @@ mod error;
 use auth_middleware::AuthMiddleware;
 use error::Error;
 use error::ErrorKind;
+use serde::Deserialize;
 use serde::Serialize;
+use std::collections::HashMap;
 use std::fmt::Debug;
 use surf::Body;
 use surf::Client;
@@ -16,6 +18,26 @@ pub struct QbittorrentClient {
 #[derive(Serialize)]
 struct AddTorrentOptions {
     urls: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Category {
+    name: String,
+    #[serde(rename = "savePath")]
+    save_path: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Categories {
+    #[serde(flatten)]
+    categories: HashMap<String, Category>,
+}
+
+#[derive(Serialize)]
+struct AddCategoryOptions {
+    category: String,
+    #[serde(rename = "savePath")]
+    save_path: String,
 }
 
 impl QbittorrentClient {
@@ -63,5 +85,45 @@ impl QbittorrentClient {
                 "Could not add torrent",
             ))
         }
+    }
+
+    pub async fn categories(&self) -> Result<Vec<Category>, Error> {
+        let resp: Categories = self
+            .http
+            .get("/api/v2/torrents/categories")
+            .recv_json()
+            .await?;
+
+        Ok(resp.categories.into_values().collect())
+    }
+
+    pub async fn add_category(&self, name: &str, save_path: &str) -> Result<(), Error> {
+        if name.is_empty() {
+            return Err(Error::new(
+                ErrorKind::BadParameters("name".to_string()),
+                "Name is empty",
+            ));
+        }
+
+        let form = AddCategoryOptions {
+            category: name.to_string(),
+            save_path: save_path.to_string(),
+        };
+        let body = Body::from_form(&form).unwrap();
+
+        let mut resp = self
+            .http
+            .post("/api/v2/torrents/createCategory")
+            .body(body)
+            .await?;
+
+        if resp.status() != 200 {
+            return Err(Error::new(
+                ErrorKind::CategoryAddError,
+                resp.body_string().await?,
+            ));
+        }
+
+        Ok(())
     }
 }
