@@ -40,6 +40,13 @@ impl AuthMiddleware {
             .send()
             .await?;
 
+        if !resp.status().is_success() {
+            return Err(Error::from_str(
+                resp.status(),
+                resp.status().canonical_reason(),
+            ));
+        }
+
         if let Some(cookie) = resp.header("set-cookie").map(|c| c.get(0)).flatten() {
             let session_id = cookie.as_str().split(";").next().unwrap().to_string();
             *self.session_id.lock().unwrap() = Some(session_id.clone());

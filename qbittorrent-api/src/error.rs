@@ -38,6 +38,7 @@ impl fmt::Display for Error {
 
 impl From<surf::Error> for Error {
     fn from(request_error: surf::Error) -> Self {
+        println!("{}", request_error);
         if request_error.status() == StatusCode::Unauthorized {
             return Self::new(ErrorKind::IncorrectLogin, "Incorrect login");
         }
