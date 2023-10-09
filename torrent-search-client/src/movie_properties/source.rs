@@ -25,7 +25,7 @@ pub enum Source {
 }
 
 lazy_static! {
-    static ref CAM_REGEX: Regex = Regex::new(r"\b(?:cam|hqcam|hdcam|camrip)\b").unwrap();
+    static ref CAM_REGEX: Regex = Regex::new(r"\b(?:cam|hqcam|hdcam|camrip|hdcamrip)\b").unwrap();
     static ref TELESYNC_REGEX: Regex =
         Regex::new(r"\b(?:telesync|hd-?ts|ts|pdvd|predvdrip)\b").unwrap();
     static ref TELECINE_REGEX: Regex = Regex::new(r"\b(?:telecine|hd-?tc|tc)\b").unwrap();
