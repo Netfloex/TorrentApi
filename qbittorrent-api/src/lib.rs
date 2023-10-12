@@ -46,9 +46,91 @@ struct AddCategoryOptions {
 pub struct Torrent {
     added_on: i64,
     amount_left: i64,
+    auto_tmm: bool,
+    availability: f64,
     category: String,
+    completed: i64,
+    completion_on: i64,
+    content_path: String,
+    dl_limit: i64,
+    dlspeed: i64,
+    downloaded: i64,
+    downloaded_session: i64,
+    eta: i64,
+    f_l_piece_prio: bool,
+    force_start: bool,
     hash: String,
+    last_activity: i64,
+    magnet_uri: String,
+    max_ratio: f64,
+    max_seeding_time: i64,
     name: String,
+    num_complete: i64,
+    num_incomplete: i64,
+    num_leechs: i64,
+    num_seeds: i64,
+    priority: i64,
+    progress: f64,
+    ratio: f64,
+    ratio_limit: f64,
+    save_path: String,
+    seeding_time_limit: i64,
+    seen_complete: i64,
+    seq_dl: bool,
+    size: i64,
+    state: TorrentState,
+    super_seeding: bool,
+    tags: String,
+    time_active: i64,
+    total_size: i64,
+    tracker: String,
+    up_limit: i64,
+    uploaded: i64,
+    uploaded_session: i64,
+    upspeed: i64,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub enum TorrentState {
+    /// Some error occurred, applies to paused torrents
+    Error,
+    /// Torrent data files is missing
+    MissingFiles,
+    /// Torrent is being seeded and data is being transferred
+    Uploading,
+    /// Torrent is paused and has finished downloading
+    PausedUP,
+    /// Queuing is enabled and torrent is queued for upload
+    QueuedUP,
+    /// Torrent is being seeded, but no connection were made
+    StalledUP,
+    /// Torrent has finished downloading and is being checked
+    CheckingUP,
+    /// Torrent is forced to uploading and ignore queue limit
+    ForcedUP,
+    /// Torrent is allocating disk space for download
+    Allocating,
+    /// Torrent is being downloaded and data is being transferred
+    Downloading,
+    /// Torrent has just started downloading and is fetching metadata
+    MetaDL,
+    /// Torrent is paused and has NOT finished downloading
+    PausedDL,
+    /// Queuing is enabled and torrent is queued for download
+    QueuedDL,
+    /// Torrent is being downloaded, but no connection were made
+    StalledDL,
+    /// Same as checkingUP, but torrent has NOT finished downloading
+    CheckingDL,
+    /// Torrent is forced to downloading to ignore queue limit
+    ForcedDL,
+    /// Checking resume data on qBt startup
+    CheckingResumeData,
+    /// Torrent is moving to another location
+    Moving,
+    /// Unknown status
+    Unknown,
 }
 
 impl QbittorrentClient {
@@ -198,7 +280,6 @@ impl QbittorrentClient {
     pub async fn torrents(&self, category: Option<String>) -> Result<Vec<Torrent>, Error> {
         let query = json!({"category": category});
         let query = query.as_object().unwrap();
-        println!("{:?}", query);
         let resp: Vec<Torrent> = self
             .http
             .get("/api/v2/torrents/info")

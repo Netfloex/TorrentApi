@@ -9,6 +9,7 @@ edition = "2021"
 torrent-search-client = { path = "../torrent-search-client", version = "0.1", features = [
 	"graphql",
 ] }
+qbittorrent-api = { path = "../qbittorrent-api", version = "0.1" }
 rocket = { version = "=0.5.0-rc.2", features = ["json"] }
 juniper = "0.15.11"
 juniper_rocket = "0.8.2"
