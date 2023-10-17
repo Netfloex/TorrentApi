@@ -6,6 +6,7 @@ pub enum HttpErrorKind {
     #[response(status = 400)]
     InvalidParam(String),
     MissingQuery(String),
+    QbittorrentError(String),
 }
 
 impl HttpErrorKind {
@@ -38,6 +39,18 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "MISSING_QUERY"
                 }),
             ),
+            HttpErrorKind::QbittorrentError(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "QBITTORRENT_ERROR",
+                }),
+            ),
         }
+    }
+}
+
+impl From<qbittorrent_api::Error> for HttpErrorKind {
+    fn from(err: qbittorrent_api::Error) -> Self {
+        Self::QbittorrentError(err.kind().to_string())
     }
 }

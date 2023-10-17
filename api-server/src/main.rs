@@ -4,8 +4,11 @@ mod int_scalar;
 mod search_handler;
 mod torrent;
 
-use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Query, Schema};
-use juniper::{EmptyMutation, EmptySubscription, GraphQLInputObject};
+use graphql::{
+    get_graphql_handler, graphiql, post_graphql_handler, Context, Mutation, Query, Schema,
+};
+use juniper::{EmptySubscription, GraphQLInputObject};
+use qbittorrent_api::QbittorrentClient;
 use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
@@ -45,7 +48,7 @@ fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, (
 #[get("/search?<search_params..>")]
 async fn search(
     search_params: SearchParams,
-    client: &State<TorrentClient>,
+    context: &State<Context>,
 ) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
     let category: Category = search_params
         .category
@@ -96,7 +99,7 @@ async fn search(
                     .collect(),
             ),
         },
-        client,
+        context.torrent_client(),
     )
     .await?;
     Ok(Json(torrents))
@@ -105,11 +108,14 @@ async fn search(
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .manage(TorrentClient::new())
+        .manage(Context::new(
+            TorrentClient::new(),
+            QbittorrentClient::new("admin", "adminadmin", "http://localhost:8080"),
+        ))
         .manage(Schema::new(
             Query,
-            EmptyMutation::<TorrentClient>::new(),
-            EmptySubscription::<TorrentClient>::new(),
+            Mutation,
+            EmptySubscription::<Context>::new(),
         ))
         .mount(
             "/",

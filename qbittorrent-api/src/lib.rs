@@ -3,7 +3,7 @@ mod error;
 use auth_middleware::AuthMiddleware;
 use derive_getters::Getters;
 use derive_setters::Setters;
-use error::Error;
+pub use error::Error;
 use error::ErrorKind;
 use serde::Deserialize;
 use serde::Serialize;

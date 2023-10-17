@@ -10,6 +10,17 @@ pub enum ErrorKind {
     BadParameters(String),
     RequestError,
 }
+impl ToString for ErrorKind {
+    fn to_string(&self) -> String {
+        match self {
+            ErrorKind::HttpRequestError(error) => format!("RequestError: {}", error),
+            ErrorKind::IncorrectLogin => "IncorrectLogin".into(),
+            ErrorKind::TorrentAddError => "TorrentAddError".into(),
+            ErrorKind::BadParameters(param) => format!("Bad Parameter: {}", param),
+            ErrorKind::RequestError => "RequestError".into(),
+        }
+    }
+}
 
 #[derive(Debug)]
 pub struct Error {
