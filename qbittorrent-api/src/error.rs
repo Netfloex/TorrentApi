@@ -8,7 +8,7 @@ pub enum ErrorKind {
     IncorrectLogin,
     TorrentAddError,
     BadParameters(String),
-    CategoryAddError,
+    RequestError,
 }
 
 #[derive(Debug)]

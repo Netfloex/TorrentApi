@@ -2,11 +2,11 @@ mod auth_middleware;
 mod error;
 use auth_middleware::AuthMiddleware;
 use derive_getters::Getters;
+use derive_setters::Setters;
 use error::Error;
 use error::ErrorKind;
 use serde::Deserialize;
 use serde::Serialize;
-use serde_json::json;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use surf::Body;
@@ -133,6 +133,55 @@ pub enum TorrentState {
     Unknown,
 }
 
+fn serialize_hashes<S>(hashes: &Option<Vec<String>>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match hashes {
+        None => serializer.serialize_none(),
+        Some(hashes) => hashes.join("|").serialize(serializer),
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Setters)]
+#[setters(strip_option = true)]
+pub struct GetTorrentsParameters {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    filter: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    category: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    tag: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sort: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reverse: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    limit: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    offset: Option<i64>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        serialize_with = "serialize_hashes"
+    )]
+    hashes: Option<Vec<String>>,
+}
+
+impl GetTorrentsParameters {
+    pub fn new() -> Self {
+        Self {
+            filter: None,
+            category: None,
+            tag: None,
+            sort: None,
+            reverse: None,
+            limit: None,
+            offset: None,
+            hashes: None,
+        }
+    }
+}
+
 impl QbittorrentClient {
     pub fn new<S: Into<String>, P: Into<String>, U: TryInto<Url>>(
         username: S,
@@ -220,9 +269,9 @@ impl QbittorrentClient {
             .body(body)
             .await?;
 
-        if resp.status() != 200 {
+        if !resp.status().is_success() {
             return Err(Error::new(
-                ErrorKind::CategoryAddError,
+                ErrorKind::RequestError,
                 resp.body_string().await?,
             ));
         }
@@ -250,9 +299,9 @@ impl QbittorrentClient {
             .body(body)
             .await?;
 
-        if resp.status() != 200 {
+        if !resp.status().is_success() {
             return Err(Error::new(
-                ErrorKind::CategoryAddError,
+                ErrorKind::RequestError,
                 resp.body_string().await?,
             ));
         }
@@ -277,17 +326,26 @@ impl QbittorrentClient {
         Ok(())
     }
 
-    pub async fn torrents(&self, category: Option<String>) -> Result<Vec<Torrent>, Error> {
-        let query = json!({"category": category});
-        let query = query.as_object().unwrap();
-        let resp: Vec<Torrent> = self
+    pub async fn torrents(&self, options: GetTorrentsParameters) -> Result<Vec<Torrent>, Error> {
+        let mut resp = self
             .http
             .get("/api/v2/torrents/info")
-            .query(query)
+            .query(&options)
             .unwrap()
-            .recv_json()
             .await?;
 
-        Ok(resp)
+        if resp.status().is_success() {
+            Ok(resp.body_json().await?)
+        } else {
+            let body = resp.body_string().await?;
+            if body.ends_with("parameter is invalid") {
+                Err(Error::new(
+                    ErrorKind::BadParameters(body.replace(" parameter is invalid", "")),
+                    "message",
+                ))
+            } else {
+                Err(Error::new(ErrorKind::RequestError, body))
+            }
+        }
     }
 }
