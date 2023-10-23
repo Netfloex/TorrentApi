@@ -1,3 +1,4 @@
+mod add_torrent_options;
 mod graphql;
 mod http_error;
 mod int_scalar;

@@ -1,4 +1,5 @@
 use crate::{
+    add_torrent_options::ApiAddTorrentOptions,
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams},
     torrent::ApiTorrent,
@@ -36,14 +37,31 @@ impl Query {
         Ok(torrents)
     }
 }
+
 pub struct Mutation;
 #[graphql_object(context = Context)]
 impl Mutation {
     async fn add_torrent(
         #[graphql(context)] context: &Context,
         url: String,
+        options: Option<ApiAddTorrentOptions>,
     ) -> Result<String, HttpErrorKind> {
-        context.qbittorrent_client().add_torrent(&url, None).await?;
+        context
+            .qbittorrent_client()
+            .add_torrent(url, options.unwrap_or_default().into())
+            .await?;
+        Ok("Ok".into())
+    }
+
+    async fn add_torrents(
+        #[graphql(context)] context: &Context,
+        urls: Vec<String>,
+        options: Option<ApiAddTorrentOptions>,
+    ) -> Result<String, HttpErrorKind> {
+        context
+            .qbittorrent_client()
+            .add_torrents(&urls, options.unwrap_or_default().into())
+            .await?;
         Ok("Ok".into())
     }
 }

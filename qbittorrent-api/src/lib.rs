@@ -17,12 +17,6 @@ pub struct QbittorrentClient {
     http: Client,
 }
 
-#[derive(Serialize)]
-struct AddTorrentOptions {
-    urls: String,
-    category: Option<String>,
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Category {
     name: String,
@@ -167,6 +161,60 @@ pub struct GetTorrentsParameters {
     hashes: Option<Vec<String>>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Setters)]
+#[setters(strip_option = true)]
+pub struct AddTorrentOptions {
+    #[setters(skip)]
+    urls: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    savepath: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    cookie: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    category: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    tags: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    skip_checking: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    paused: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    root_folder: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    rename: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "upLimit")]
+    up_limit: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "dlLimit")]
+    dl_limit: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "autoTMM")]
+    auto_tmm: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "sequentialDownload")]
+    sequential_download: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none", rename = "firstLastPiecePrio")]
+    first_last_piece_prio: Option<bool>,
+}
+
+impl AddTorrentOptions {
+    pub fn new() -> Self {
+        Self {
+            urls: "".to_string(),
+            savepath: None,
+            cookie: None,
+            category: None,
+            tags: None,
+            skip_checking: None,
+            paused: None,
+            root_folder: None,
+            rename: None,
+            up_limit: None,
+            dl_limit: None,
+            auto_tmm: None,
+            sequential_download: None,
+            first_last_piece_prio: None,
+        }
+    }
+}
+
 impl GetTorrentsParameters {
     pub fn new() -> Self {
         Self {
@@ -209,14 +257,11 @@ impl QbittorrentClient {
 
     pub async fn add_torrents(
         &self,
-        urls: &Vec<&str>,
-        category: Option<String>,
+        urls: &Vec<String>,
+        mut options: AddTorrentOptions,
     ) -> Result<(), Error> {
-        let form = AddTorrentOptions {
-            urls: urls.join("\n"),
-            category,
-        };
-        let body = Body::from_form(&form).unwrap();
+        options.urls = urls.join("\n");
+        let body = Body::from_form(&options).unwrap();
         let resp = self
             .http
             .post("/api/v2/torrents/add")
@@ -234,9 +279,9 @@ impl QbittorrentClient {
         }
     }
 
-    pub async fn add_torrent(&self, url: &str, category: Option<String>) -> Result<(), Error> {
+    pub async fn add_torrent(&self, url: String, options: AddTorrentOptions) -> Result<(), Error> {
         let urls = vec![url];
-        self.add_torrents(&urls, category).await
+        self.add_torrents(&urls, options).await
     }
 
     pub async fn categories(&self) -> Result<Vec<Category>, Error> {
