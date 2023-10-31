@@ -108,10 +108,24 @@ async fn search(
 
 #[launch]
 fn rocket() -> _ {
+    // Load .env file if in debug mode
+    #[cfg(debug_assertions)]
+    dotenvy::dotenv().ok();
+
+    let qbittorrent_username =
+        std::env::var("QBITTORRENT_USERNAME").expect("QBITTORRENT_USERNAME is not set");
+    let qbittorrent_password =
+        std::env::var("QBITTORRENT_PASSWORD").expect("QBITTORRENT_PASSWORD is not set");
+    let qbittorrent_url = std::env::var("QBITTORRENT_URL").expect("QBITTORRENT_URL is not set");
+    println!("{}", qbittorrent_password);
     rocket::build()
         .manage(Context::new(
             TorrentClient::new(),
-            QbittorrentClient::new("admin", "adminadmin", "http://localhost:8080"),
+            QbittorrentClient::new(
+                qbittorrent_username,
+                qbittorrent_password,
+                qbittorrent_url.as_str(),
+            ),
         ))
         .manage(Schema::new(
             Query,

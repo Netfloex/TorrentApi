@@ -16,6 +16,7 @@ juniper_rocket = "0.8.2"
 derive-getters = "0.3.0"
 serde = "1.0.188"
 chrono = "0.4.31"
+dotenvy = "0.15.7"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = [
