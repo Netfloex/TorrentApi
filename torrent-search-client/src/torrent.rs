@@ -1,6 +1,9 @@
+use std::borrow::Cow;
+
 use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
     movie_properties::MovieProperties,
+    r#static::{PIRATEBAY_TRACKERS, YTS_TRACKERS},
     utils::normalize_title,
 };
 use chrono::{DateTime, TimeZone, Utc};
@@ -63,8 +66,20 @@ impl Torrent {
     }
 }
 
-fn format_magnet(hash: &str, name: &str) -> String {
-    format!("magnet:?xt=urn:btih:{}&dn={}", hash, encode(name))
+fn format_magnet(hash: &str, name: &str, trackers: &[&str]) -> String {
+    let trackers = trackers
+        .into_iter()
+        .map(|tr| encode(&tr))
+        .collect::<Vec<Cow<str>>>()
+        .join("&tr=");
+
+    println!("trackers: {:?}", trackers);
+    format!(
+        "magnet:?xt=urn:btih:{}&tr={}&dn={}",
+        hash,
+        trackers,
+        encode(name)
+    )
 }
 
 impl From<PirateBayTorrent> for Torrent {
@@ -84,7 +99,7 @@ impl From<PirateBayTorrent> for Torrent {
             seeders: value.seeders().parse().unwrap_or(0),
             size: value.size().parse().unwrap_or(0),
             provider: Provider::PirateBay,
-            magnet: format_magnet(value.info_hash(), &name),
+            magnet: format_magnet(value.info_hash(), &name, PIRATEBAY_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
                 value.name().parse().expect("Should not return error"),
@@ -120,7 +135,7 @@ impl From<YtsTorrent> for Torrent {
             seeders: torrent.seeds().to_owned(),
             size: torrent.size_bytes().to_owned(),
             provider: Provider::Yts,
-            magnet: format_magnet(torrent.hash(), &name),
+            magnet: format_magnet(torrent.hash(), &name, YTS_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
                 torrent.quality().parse().expect("Should not return error"),

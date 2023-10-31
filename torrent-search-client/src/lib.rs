@@ -3,6 +3,7 @@ mod error;
 mod logging_middleware;
 mod movie_properties;
 mod search_options;
+mod r#static;
 mod torrent;
 mod utils;
 
