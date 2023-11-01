@@ -117,7 +117,7 @@ fn rocket() -> _ {
     let qbittorrent_password =
         std::env::var("QBITTORRENT_PASSWORD").expect("QBITTORRENT_PASSWORD is not set");
     let qbittorrent_url = std::env::var("QBITTORRENT_URL").expect("QBITTORRENT_URL is not set");
-    println!("{}", qbittorrent_password);
+
     rocket::build()
         .manage(Context::new(
             TorrentClient::new(),

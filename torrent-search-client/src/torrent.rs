@@ -73,7 +73,6 @@ fn format_magnet(hash: &str, name: &str, trackers: &[&str]) -> String {
         .collect::<Vec<Cow<str>>>()
         .join("&tr=");
 
-    println!("trackers: {:?}", trackers);
     format!(
         "magnet:?xt=urn:btih:{}&tr={}&dn={}",
         hash,

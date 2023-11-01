@@ -29,7 +29,6 @@ pub struct AuthMiddleware {
 
 impl AuthMiddleware {
     pub async fn login(&self, client: &Client) -> Result<String> {
-        println!("Logging in");
         let form = Credentials::new(&self.username, &self.password);
         let body = Body::from_form(&form).unwrap();
 
