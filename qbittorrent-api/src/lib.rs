@@ -1,6 +1,9 @@
 mod auth_middleware;
+mod datetime;
 mod error;
 use auth_middleware::AuthMiddleware;
+use chrono::DateTime;
+use chrono::Utc;
 use derive_getters::Getters;
 use derive_setters::Setters;
 pub use error::Error;
@@ -12,7 +15,6 @@ use std::fmt::Debug;
 use surf::Body;
 use surf::Client;
 use surf::{Config, Url};
-
 pub struct QbittorrentClient {
     http: Client,
 }
@@ -36,56 +38,64 @@ struct AddCategoryOptions {
     #[serde(rename = "savePath")]
     save_path: String,
 }
+
 #[derive(Serialize, Deserialize, Debug, Getters)]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+
 pub struct Torrent {
-    added_on: i64,
-    amount_left: i64,
+    #[serde(with = "datetime")]
+    added_on: DateTime<Utc>,
+    amount_left: i32,
     auto_tmm: bool,
     availability: f64,
     category: String,
-    completed: i64,
-    completion_on: i64,
+    completed: i32,
+    #[serde(with = "datetime")]
+    completion_on: DateTime<Utc>,
     content_path: String,
-    dl_limit: i64,
-    dlspeed: i64,
-    downloaded: i64,
-    downloaded_session: i64,
-    eta: i64,
+    dl_limit: i32,
+    dlspeed: i32,
+    downloaded: i32,
+    downloaded_session: i32,
+    eta: i32,
     f_l_piece_prio: bool,
     force_start: bool,
     hash: String,
-    last_activity: i64,
+    #[serde(with = "datetime")]
+    last_activity: DateTime<Utc>,
     magnet_uri: String,
     max_ratio: f64,
-    max_seeding_time: i64,
+    max_seeding_time: i32,
     name: String,
-    num_complete: i64,
-    num_incomplete: i64,
-    num_leechs: i64,
-    num_seeds: i64,
-    priority: i64,
+    num_complete: i32,
+    num_incomplete: i32,
+    num_leechs: i32,
+    num_seeds: i32,
+    priority: i32,
     progress: f64,
     ratio: f64,
     ratio_limit: f64,
     save_path: String,
-    seeding_time_limit: i64,
-    seen_complete: i64,
+    seeding_time_limit: i32,
+    #[serde(with = "datetime")]
+    seen_complete: DateTime<Utc>,
     seq_dl: bool,
-    size: i64,
+    size: i32,
     state: TorrentState,
     super_seeding: bool,
     tags: String,
-    time_active: i64,
-    total_size: i64,
+    time_active: i32,
+    total_size: i32,
     tracker: String,
-    up_limit: i64,
-    uploaded: i64,
-    uploaded_session: i64,
-    upspeed: i64,
+    up_limit: i32,
+    uploaded: i32,
+    uploaded_session: i32,
+    upspeed: i32,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 pub enum TorrentState {
     /// Some error occurred, applies to paused torrents
     Error,
@@ -139,6 +149,7 @@ where
 
 #[derive(Serialize, Deserialize, Debug, Setters)]
 #[setters(strip_option = true)]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLInputObject))]
 pub struct GetTorrentsParameters {
     #[serde(skip_serializing_if = "Option::is_none")]
     filter: Option<String>,
@@ -151,9 +162,9 @@ pub struct GetTorrentsParameters {
     #[serde(skip_serializing_if = "Option::is_none")]
     reverse: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    limit: Option<i64>,
+    limit: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    offset: Option<i64>,
+    offset: Option<i32>,
     #[serde(
         skip_serializing_if = "Option::is_none",
         serialize_with = "serialize_hashes"

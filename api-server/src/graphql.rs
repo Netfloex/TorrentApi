@@ -7,7 +7,7 @@ use crate::{
 use derive_getters::Getters;
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
-use qbittorrent_api::QbittorrentClient;
+use qbittorrent_api::{GetTorrentsParameters, QbittorrentClient, Torrent};
 use rocket::{response::content::RawHtml, State};
 use torrent_search_client::TorrentClient;
 
@@ -34,6 +34,17 @@ impl Query {
         params: SearchHandlerParams,
     ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
         let torrents = search_handler(params, context.torrent_client()).await?;
+        Ok(torrents)
+    }
+
+    async fn torrents(
+        #[graphql(context)] context: &Context,
+        params: GetTorrentsParameters,
+    ) -> Result<Vec<Torrent>, HttpErrorKind> {
+        let torrents = context.qbittorrent_client().torrents(params).await?;
+
+        println!("{:?}", torrents);
+
         Ok(torrents)
     }
 }

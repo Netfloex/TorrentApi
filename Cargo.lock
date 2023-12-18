@@ -2314,8 +2314,10 @@ name = "qbittorrent-api"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "chrono",
  "derive-getters",
  "derive_setters",
+ "juniper",
  "serde",
  "serde_json",
  "surf",

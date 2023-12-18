@@ -10,3 +10,8 @@ derive_setters = "0.1.6"
 serde = "1.0.188"
 serde_json = "1.0.107"
 surf = "2.3.2"
+juniper = { version = "0.15.11", optional = true }
+chrono = "0.4.31"
+
+[features]
+graphql = ["dep:juniper"]
