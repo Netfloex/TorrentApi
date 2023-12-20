@@ -4,7 +4,7 @@ use crate::{
     movie_properties::MovieProperties,
     search_options::{MovieOptions, SearchOptions, SortColumn},
     torrent::Torrent,
-    utils::{is_title_match, normalize_title, RoundRobin},
+    utils::{is_title_match, RoundRobin},
     Category, TorrentProvider,
 };
 use async_trait::async_trait;
@@ -147,7 +147,6 @@ impl TorrentProvider for BitSearch {
                 .as_str()
                 .replace("urn:btih:", "");
             let name: String = row.select(&NAME_SELECTOR).next().unwrap().text().collect();
-            let name = normalize_title(&name);
 
             torrents.push(Torrent {
                 name: name.to_owned(),

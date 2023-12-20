@@ -9,10 +9,11 @@ lazy_static! {
     static ref REMOVE_TAGS_REGEX: Regex = Regex::new(r"\[.*\]|\(.*\)").unwrap();
     static ref YEAR_REGEX: Regex = Regex::new(r"19|20\d\d").unwrap();
     static ref SITE_REGEX: Regex = Regex::new(r"(www\.)?\w+\.(com|me|to)").unwrap();
+    static ref BOUNDARIES_REGEX: Regex = Regex::new(r"[-._:]").unwrap();
 }
 
 pub fn parse_title(title: &str) -> String {
-    let title = title.to_lowercase();
+    let title = normalize_title(&title);
 
     let Some(year) = YEAR_REGEX.find(&title) else {
         return String::new();
@@ -21,7 +22,6 @@ pub fn parse_title(title: &str) -> String {
     let title = REMOVE_AFTER_YEAR.replace(&title, "");
     let title = REMOVE_TAGS_REGEX.replace(&title, "");
     let title = SITE_REGEX.replace(&title, "");
-    let title = normalize_title(&title);
 
     let title = title.trim();
 
@@ -40,7 +40,6 @@ fn levenshtein_percentage(first: &str, second: &str) -> f64 {
 
 pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {
     let torrent_title = parse_title(og_torrent_title);
-    // println!("{}\n{}\n", og_torrent_title, torrent_title);
 
     let movie_title = normalize_title(movie_title);
 
