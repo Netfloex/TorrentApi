@@ -1,21 +1,14 @@
 use chrono::{DateTime, Utc};
 use derive_getters::Getters;
 use juniper::GraphQLObject;
-use serde::{Serialize, Serializer};
+use serde::Serialize;
 use torrent_search_client::{MovieProperties, Provider, Torrent};
-
-use crate::int_scalar::IntScalar;
-
-fn serialize_datetime<S>(datetime: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    serializer.serialize_str(&datetime.to_rfc3339())
-}
+use utils::datetime::serialize;
+use utils::int_scalar::IntScalar;
 
 #[derive(Serialize, Debug, Getters, Clone, GraphQLObject)]
 pub struct ApiTorrent {
-    #[serde(serialize_with = "serialize_datetime")]
+    #[serde(serialize_with = "serialize")]
     added: DateTime<Utc>,
     category: String,
     file_count: i32,

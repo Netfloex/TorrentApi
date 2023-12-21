@@ -1,5 +1,5 @@
 mod auth_middleware;
-mod datetime;
+use utils::datetime;
 mod error;
 use auth_middleware::AuthMiddleware;
 use chrono::DateTime;
