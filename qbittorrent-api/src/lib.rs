@@ -15,6 +15,7 @@ use std::fmt::Debug;
 use surf::Body;
 use surf::Client;
 use surf::{Config, Url};
+use utils::int_scalar::IntScalar;
 pub struct QbittorrentClient {
     http: Client,
 }
@@ -45,19 +46,19 @@ struct AddCategoryOptions {
 pub struct Torrent {
     #[serde(with = "datetime")]
     added_on: DateTime<Utc>,
-    amount_left: i32,
+    amount_left: IntScalar<u64>,
     auto_tmm: bool,
     availability: f64,
     category: String,
-    completed: i32,
+    completed: IntScalar<u64>,
     #[serde(with = "datetime")]
     completion_on: DateTime<Utc>,
     content_path: String,
     dl_limit: i32,
     dlspeed: i32,
-    downloaded: i32,
-    downloaded_session: i32,
-    eta: i32,
+    downloaded: IntScalar<u64>,
+    downloaded_session: IntScalar<u64>,
+    eta: IntScalar<u64>,
     f_l_piece_prio: bool,
     force_start: bool,
     hash: String,
@@ -80,12 +81,12 @@ pub struct Torrent {
     #[serde(with = "datetime")]
     seen_complete: DateTime<Utc>,
     seq_dl: bool,
-    size: i32,
+    size: IntScalar<u64>,
     state: TorrentState,
     super_seeding: bool,
     tags: String,
     time_active: i32,
-    total_size: i32,
+    total_size: IntScalar<i64>,
     tracker: String,
     up_limit: i32,
     uploaded: i32,
