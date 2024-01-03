@@ -14,12 +14,13 @@ qbittorrent-api = { path = "../qbittorrent-api", version = "0.1", features = [
 ] }
 utils = { path = "../utils", version = "0.1" }
 rocket = { version = "=0.5.0-rc.2", features = ["json"] }
-juniper = "0.15.11"
+juniper = "0.15.12"
 juniper_rocket = "0.8.2"
 derive-getters = "0.3.0"
-serde = "1.0.188"
+serde = "1.0.194"
 chrono = "0.4.31"
 dotenvy = "0.15.7"
+rocket_http = "=0.5.0-rc.2"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = [

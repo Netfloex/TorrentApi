@@ -5,13 +5,13 @@ edition = "2021"
 
 [dependencies]
 utils = { path = "../utils", version = "0.1" }
-async-trait = "0.1.68"
+async-trait = "0.1.77"
 derive-getters = "0.3.0"
 derive_setters = "0.1.6"
-serde = "1.0.188"
-serde_json = "1.0.107"
+serde = "1.0.194"
+serde_json = "1.0.110"
 surf = "2.3.2"
-juniper = { version = "0.15.11", optional = true }
+juniper = { version = "0.15.12", optional = true }
 chrono = "0.4.31"
 
 [features]
