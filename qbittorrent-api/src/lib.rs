@@ -15,6 +15,7 @@ use surf::Client;
 use surf::{Config, Url};
 pub struct QbittorrentClient {
     http: Client,
+    sync_rid: usize,
 }
 
 impl QbittorrentClient {
@@ -33,6 +34,7 @@ impl QbittorrentClient {
 
         Self {
             http: client.with(AuthMiddleware::new(username.into(), password.into(), url)),
+            sync_rid: 0,
         }
     }
 }

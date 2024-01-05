@@ -5,8 +5,7 @@ impl QbittorrentClient {
         let mut resp = self
             .http
             .get("/api/v2/torrents/info")
-            .query(&options)
-            .unwrap()
+            .query(&options)?
             .await?;
 
         if resp.status().is_success() {
