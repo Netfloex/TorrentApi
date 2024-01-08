@@ -26,7 +26,6 @@ impl SyncMainData {
                 let self_torrents = self.torrents.as_mut().unwrap();
                 if let Some(existing) = self_torrents.get_mut(&hash) {
                     existing.merge(torrent);
-                    println!("existing: {:?}", existing);
                 } else {
                     self_torrents.insert(hash, torrent);
                 }

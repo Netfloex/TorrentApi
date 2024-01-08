@@ -13,7 +13,7 @@ impl QbittorrentClient {
             .query(&Rid { rid: self.sync_rid })?
             .recv_string()
             .await?;
-        println!("{}", sync);
+
         let sync: SyncMainData = serde_json::from_str(&sync).unwrap();
 
         self.sync_rid = sync.rid().to_owned();
