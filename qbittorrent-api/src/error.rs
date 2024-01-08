@@ -9,6 +9,7 @@ pub enum ErrorKind {
     TorrentAddError,
     BadParameters(String),
     RequestError,
+    TorrentNotFound,
 }
 impl ToString for ErrorKind {
     fn to_string(&self) -> String {
@@ -18,6 +19,7 @@ impl ToString for ErrorKind {
             ErrorKind::TorrentAddError => "TorrentAddError".into(),
             ErrorKind::BadParameters(param) => format!("Bad Parameter: {}", param),
             ErrorKind::RequestError => "RequestError".into(),
+            ErrorKind::TorrentNotFound => "TorrentNotFound".into(),
         }
     }
 }
