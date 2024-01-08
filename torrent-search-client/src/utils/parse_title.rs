@@ -13,7 +13,7 @@ lazy_static! {
 }
 
 pub fn parse_title(title: &str) -> String {
-    let title = normalize_title(&title);
+    let title = normalize_title(title);
 
     let Some(year) = YEAR_REGEX.find(&title) else {
         return String::new();
@@ -29,13 +29,11 @@ pub fn parse_title(title: &str) -> String {
 }
 
 fn levenshtein_percentage(first: &str, second: &str) -> f64 {
-    let distance = levenshtein(&first, &second);
+    let distance = levenshtein(first, second);
 
     let max_len = first.len().max(second.len());
 
-    let match_perc = 1.0 - (distance as f64 / max_len as f64);
-
-    match_perc
+    1.0 - (distance as f64 / max_len as f64)
 }
 
 pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {

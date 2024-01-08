@@ -1,4 +1,4 @@
-pub const PIRATEBAY_TRACKERS: &'static [&'static str] = &[
+pub const PIRATEBAY_TRACKERS: &[&str] = &[
     "udp://47.ip-51-68-199.eu:6969/announce",
     "udp://9.rarbg.to:2920/announce",
     "udp://opentracker.i2p.rocks:6969/announce",

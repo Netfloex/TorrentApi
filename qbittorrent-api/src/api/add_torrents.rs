@@ -7,7 +7,7 @@ use crate::{
 impl QbittorrentClient {
     pub async fn add_torrents(
         &self,
-        urls: &Vec<String>,
+        urls: &[String],
         mut options: AddTorrentOptions,
     ) -> Result<(), Error> {
         options = options.urls(urls.join("\n"));

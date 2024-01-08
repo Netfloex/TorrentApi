@@ -2,7 +2,7 @@ use derive_setters::Setters;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-#[derive(Serialize, Deserialize, Debug, Setters)]
+#[derive(Serialize, Deserialize, Debug, Setters, Default)]
 #[setters(strip_option = true)]
 pub struct AddTorrentOptions {
     urls: String,
@@ -32,25 +32,4 @@ pub struct AddTorrentOptions {
     sequential_download: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none", rename = "firstLastPiecePrio")]
     first_last_piece_prio: Option<bool>,
-}
-
-impl AddTorrentOptions {
-    pub fn new() -> Self {
-        Self {
-            urls: "".to_string(),
-            savepath: None,
-            cookie: None,
-            category: None,
-            tags: None,
-            skip_checking: None,
-            paused: None,
-            root_folder: None,
-            rename: None,
-            up_limit: None,
-            dl_limit: None,
-            auto_tmm: None,
-            sequential_download: None,
-            first_last_piece_prio: None,
-        }
-    }
 }

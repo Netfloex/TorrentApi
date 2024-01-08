@@ -46,8 +46,8 @@ impl AuthMiddleware {
             ));
         }
 
-        if let Some(cookie) = resp.header("set-cookie").map(|c| c.get(0)).flatten() {
-            let session_id = cookie.as_str().split(";").next().unwrap().to_string();
+        if let Some(cookie) = resp.header("set-cookie").and_then(|c| c.get(0)) {
+            let session_id = cookie.as_str().split(';').next().unwrap().to_string();
             *self.session_id.lock().unwrap() = Some(session_id.clone());
 
             return Ok(session_id);

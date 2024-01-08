@@ -108,7 +108,7 @@ impl TorrentProvider for BitSearch {
 
         fn get_text(item: Option<ElementRef>) -> String {
             item.map(|i| i.text().collect::<Vec<&str>>().join(""))
-                .unwrap_or(String::new())
+                .unwrap_or_default()
                 .trim()
                 .to_string()
         }

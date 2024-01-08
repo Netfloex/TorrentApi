@@ -1,6 +1,6 @@
 use juniper::GraphQLInputObject;
 use qbittorrent_api::AddTorrentOptions;
-#[derive(GraphQLInputObject)]
+#[derive(GraphQLInputObject, Default)]
 pub struct ApiAddTorrentOptions {
     savepath: Option<String>,
     cookie: Option<String>,
@@ -17,29 +17,9 @@ pub struct ApiAddTorrentOptions {
     first_last_piece_prio: Option<bool>,
 }
 
-impl Default for ApiAddTorrentOptions {
-    fn default() -> Self {
-        Self {
-            savepath: None,
-            cookie: None,
-            category: None,
-            tags: None,
-            skip_checking: None,
-            paused: None,
-            root_folder: None,
-            rename: None,
-            up_limit: None,
-            dl_limit: None,
-            auto_tmm: None,
-            sequential_download: None,
-            first_last_piece_prio: None,
-        }
-    }
-}
-
 impl From<ApiAddTorrentOptions> for AddTorrentOptions {
     fn from(value: ApiAddTorrentOptions) -> Self {
-        let mut options = AddTorrentOptions::new();
+        let mut options = AddTorrentOptions::default();
 
         macro_rules! option_check {
             ($value:expr, $func:ident) => {

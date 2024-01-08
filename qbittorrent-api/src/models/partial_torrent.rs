@@ -1,35 +1,9 @@
-use chrono::{DateTime, Utc};
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use utils::{datetime, int_scalar::IntScalar};
+use utils::int_scalar::IntScalar;
 
 use super::torrent_state::TorrentState;
-
-mod option_datetime {
-    use chrono::{DateTime, Utc};
-    use serde::Deserialize;
-    use serde::{Deserializer, Serializer};
-
-    pub fn serialize<S>(datetime: &Option<DateTime<Utc>>, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        if let Some(datetime) = datetime {
-            serializer.serialize_str(&datetime.to_rfc3339())
-        } else {
-            serializer.serialize_none()
-        }
-    }
-
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<DateTime<Utc>>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let s = i64::deserialize(deserializer)?;
-        Ok(Some(DateTime::from_timestamp(s, 0).unwrap_or_default()))
-    }
-}
 
 #[derive(Serialize, Deserialize, Debug, Getters, Clone)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]

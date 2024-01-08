@@ -67,8 +67,8 @@ impl Torrent {
 
 fn format_magnet(hash: &str, name: &str, trackers: &[&str]) -> String {
     let trackers = trackers
-        .into_iter()
-        .map(|tr| encode(&tr))
+        .iter()
+        .map(|tr| encode(tr))
         .collect::<Vec<Cow<str>>>()
         .join("&tr=");
 

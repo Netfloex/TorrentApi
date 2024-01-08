@@ -12,7 +12,7 @@ where
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Setters)]
+#[derive(Serialize, Deserialize, Debug, Setters, Default)]
 #[setters(strip_option = true)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLInputObject))]
 pub struct GetTorrentsParameters {
@@ -35,19 +35,4 @@ pub struct GetTorrentsParameters {
         serialize_with = "serialize_hashes"
     )]
     hashes: Option<Vec<String>>,
-}
-
-impl GetTorrentsParameters {
-    pub fn new() -> Self {
-        Self {
-            filter: None,
-            category: None,
-            tag: None,
-            sort: None,
-            reverse: None,
-            limit: None,
-            offset: None,
-            hashes: None,
-        }
-    }
 }
