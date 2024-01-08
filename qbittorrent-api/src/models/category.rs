@@ -2,14 +2,14 @@ use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
-#[derive(Serialize, Deserialize, Debug, Getters)]
+#[derive(Serialize, Deserialize, Debug, Getters, Clone)]
 pub struct Category {
     name: String,
     #[serde(rename = "savePath")]
     save_path: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Categories {
     #[serde(flatten)]
     categories: HashMap<String, Category>,

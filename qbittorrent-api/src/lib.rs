@@ -9,6 +9,7 @@ pub use models::add_category_options::AddCategoryOptions;
 pub use models::add_torrent_options::AddTorrentOptions;
 pub use models::category::{Categories, Category};
 pub use models::get_torrents_parameters::GetTorrentsParameters;
+pub use models::sync_main_data::SyncMainData;
 pub use models::torrent::Torrent;
 use std::fmt::Debug;
 use surf::Client;
@@ -16,6 +17,7 @@ use surf::{Config, Url};
 pub struct QbittorrentClient {
     http: Client,
     sync_rid: usize,
+    sync_main_data: Option<SyncMainData>,
 }
 
 impl QbittorrentClient {
@@ -35,6 +37,7 @@ impl QbittorrentClient {
         Self {
             http: client.with(AuthMiddleware::new(username.into(), password.into(), url)),
             sync_rid: 0,
+            sync_main_data: None,
         }
     }
 }
