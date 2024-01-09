@@ -2,6 +2,7 @@ mod api;
 mod auth_middleware;
 mod error;
 mod models;
+mod r#static;
 use auth_middleware::AuthMiddleware;
 mod utils;
 pub use error::Error;
