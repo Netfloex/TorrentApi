@@ -4,8 +4,8 @@ use crate::{
     utils::{hash_from_magnet::hash_from_magnet, path_converter::remote_to_local},
     AddTorrentOptions, Error, ErrorKind, QbittorrentClient,
 };
-use std::fs;
 use std::path::Path;
+use tokio::fs;
 
 const MOVIES_PATH: &str = "/media/imported_movies";
 
@@ -50,12 +50,12 @@ impl QbittorrentClient {
                         }
 
                         let dest_folder = movies_path.join(&folder_name);
-                        fs::create_dir_all(&dest_folder)?;
+                        fs::create_dir_all(&dest_folder).await?;
 
                         let dest_file = dest_folder.join(entry.file_name());
 
                         println!("{:?}", dest_file);
-                        fs::copy(entry.path(), &dest_file)?;
+                        fs::copy(entry.path(), &dest_file).await?;
                         println!("Movie copied to: {:?}", dest_file)
                     }
                 }
