@@ -21,6 +21,9 @@ serde = "1.0.194"
 chrono = "0.4.31"
 dotenvy = "0.15.7"
 rocket_http = "=0.5.0-rc.2"
+serde_json = "1.0.111"
+tokio = "1.35.1"
+figment = { version = "0.10.13", features = ["yaml"], default-features = false }
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = [

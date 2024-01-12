@@ -1,9 +1,11 @@
 mod add_torrent_options;
+mod config;
 mod graphql;
 mod http_error;
 mod search_handler;
 mod torrent;
 
+use config::get_config;
 use graphql::{
     get_graphql_handler, graphiql, post_graphql_handler, Context, Mutation, Query, Schema,
 };
@@ -12,10 +14,13 @@ use qbittorrent_api::QbittorrentClient;
 use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
-use std::vec;
+use std::sync::Arc;
+use std::{process, vec};
+use tokio::sync::Mutex;
 use torrent::ApiTorrent;
 use torrent_search_client::{Category, Order, Quality, SortColumn, TorrentClient};
 
+use crate::graphql::ContextPointer;
 use crate::http_error::HttpErrorKind;
 
 #[macro_use]
@@ -24,9 +29,9 @@ extern crate rocket;
 #[derive(FromForm, Debug, GraphQLInputObject)]
 pub struct SearchParams {
     query: Option<String>,
-    #[field(validate= or(&self.query))]
+    #[field(validate = or(&self.query))]
     imdb: Option<String>,
-    #[field(validate= or(&self.query))]
+    #[field(validate = or(&self.query))]
     title: Option<String>,
     #[field(validate = or(&self.imdb))]
     category: Option<String>,
@@ -48,7 +53,7 @@ fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, (
 #[get("/search?<search_params..>")]
 async fn search(
     search_params: SearchParams,
-    context: &State<Context>,
+    context: &State<ContextPointer>,
 ) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
     let category: Category = search_params
         .category
@@ -99,40 +104,38 @@ async fn search(
                     .collect(),
             ),
         },
-        context.torrent_client(),
+        context.lock().await.torrent_client(),
     )
     .await?;
     Ok(Json(torrents))
 }
 
 #[launch]
-fn rocket() -> _ {
-    // Load .env file if in debug mode
-    #[cfg(debug_assertions)]
-    dotenvy::dotenv().ok();
+async fn rocket() -> _ {
+    let config = get_config().unwrap_or_else(|e| {
+        println!("Error missing required config");
+        println!("{}", e);
+        process::exit(1);
+    });
 
-    let qbittorrent_username =
-        std::env::var("QBITTORRENT_USERNAME").expect("QBITTORRENT_USERNAME is not set");
-    let qbittorrent_password =
-        std::env::var("QBITTORRENT_PASSWORD").expect("QBITTORRENT_PASSWORD is not set");
-    let qbittorrent_url = std::env::var("QBITTORRENT_URL").expect("QBITTORRENT_URL is not set");
+    let context: ContextPointer = Arc::new(Mutex::new(Context::new(
+        TorrentClient::new(),
+        QbittorrentClient::new(
+            config.qbittorrent().username(),
+            config.qbittorrent().password(),
+            config.qbittorrent().url().as_str(),
+        ),
+    )));
 
     rocket::build()
-        .manage(Context::new(
-            TorrentClient::new(),
-            QbittorrentClient::new(
-                qbittorrent_username,
-                qbittorrent_password,
-                qbittorrent_url.as_str(),
-            ),
-        ))
+        .manage(context)
         .manage(Schema::new(
             Query,
             Mutation,
-            EmptySubscription::<Context>::new(),
+            EmptySubscription::<ContextPointer>::new(),
         ))
         .mount(
             "/",
-            routes![search, graphiql, get_graphql_handler, post_graphql_handler],
+            routes![search, graphiql, get_graphql_handler, post_graphql_handler,],
         )
 }

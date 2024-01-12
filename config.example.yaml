@@ -1,0 +1,4 @@
+qbittorrent:
+    username: admin
+    password: adminadmin
+    url: http://localhost:8080

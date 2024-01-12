@@ -4,21 +4,17 @@ use crate::{
     utils::{hash_from_magnet::hash_from_magnet, path_converter::remote_to_local},
     AddTorrentOptions, Error, ErrorKind, QbittorrentClient,
 };
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tokio::fs;
-
-const MOVIES_PATH: &str = "/media/imported_movies";
 
 impl QbittorrentClient {
     pub async fn import_torrent(
         &mut self,
         url: String,
-        folder_name: String,
+        dest_folder: &Path,
     ) -> Result<PartialTorrent, Error> {
         let hash = hash_from_magnet(&url)
             .ok_or(Error::new(ErrorKind::InvalidMagnet, "Invalid Magnet Link"))?;
-        let movies_path = Path::new(MOVIES_PATH);
-
         let options = AddTorrentOptions::default();
 
         self.add_torrent(url, options).await?;
@@ -49,7 +45,6 @@ impl QbittorrentClient {
                             println!("Found directory with movie extension: {:?}", entry.path());
                         }
 
-                        let dest_folder = movies_path.join(&folder_name);
                         fs::create_dir_all(&dest_folder).await?;
 
                         let dest_file = dest_folder.join(entry.file_name());
