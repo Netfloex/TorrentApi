@@ -8,10 +8,10 @@ pub enum HttpErrorKind {
     InvalidParam(String),
     MissingQuery(String),
     QbittorrentError(String),
-    InvalidMagnet(String),
-    TorrentIsFile(String),
     IoError(IoError),
-    TorrentNotFound(String),
+    // InvalidMagnet(String),
+    // TorrentIsFile(String),
+    // TorrentNotFound(String),
 }
 
 impl HttpErrorKind {
@@ -50,30 +50,30 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "QBITTORRENT_ERROR",
                 }),
             ),
-            HttpErrorKind::InvalidMagnet(error) => FieldError::new(
-                error,
-                graphql_value!({
-                    "type": "INVALID_MAGNET",
-                }),
-            ),
-            HttpErrorKind::TorrentIsFile(error) => FieldError::new(
-                error,
-                graphql_value!({
-                    "type": "TORRENT_IS_FILE",
-                }),
-            ),
             HttpErrorKind::IoError(error) => FieldError::new(
                 error,
                 graphql_value!({
                     "type": "IO_ERROR",
                 }),
             ),
-            HttpErrorKind::TorrentNotFound(error) => FieldError::new(
-                error,
-                graphql_value!({
-                    "type": "TORRENT_NOT_FOUND",
-                }),
-            ),
+            // HttpErrorKind::InvalidMagnet(error) => FieldError::new(
+            //     error,
+            //     graphql_value!({
+            //         "type": "INVALID_MAGNET",
+            //     }),
+            // ),
+            // HttpErrorKind::TorrentIsFile(error) => FieldError::new(
+            //     error,
+            //     graphql_value!({
+            //         "type": "TORRENT_IS_FILE",
+            //     }),
+            // ),
+            // HttpErrorKind::TorrentNotFound(error) => FieldError::new(
+            //     error,
+            //     graphql_value!({
+            //         "type": "TORRENT_NOT_FOUND",
+            //     }),
+            // ),
         }
     }
 }

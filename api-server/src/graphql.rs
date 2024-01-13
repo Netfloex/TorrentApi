@@ -4,10 +4,9 @@ use crate::{
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams},
     torrent::ApiTorrent,
-    utils::import_movie::import_movie,
+    utils::track_movie::track_movie,
 };
 use derive_getters::Getters;
-use filenamify::filenamify;
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
 use qbittorrent_api::{GetTorrentsParameters, QbittorrentClient, Torrent};
@@ -21,6 +20,7 @@ pub struct Context {
     torrent_client: TorrentClient,
     qbittorrent_client: QbittorrentClient,
     config: Config,
+    movie_tracking_enabled: bool,
 }
 
 impl Context {
@@ -33,6 +33,21 @@ impl Context {
             torrent_client,
             qbittorrent_client,
             config,
+            movie_tracking_enabled: true,
+        }
+    }
+
+    pub fn enable_movie_tracking(&mut self) {
+        if !self.movie_tracking_enabled {
+            println!("Enabling movie progress tracking");
+            self.movie_tracking_enabled = true;
+        }
+    }
+
+    pub fn disable_movie_tracking(&mut self) {
+        if self.movie_tracking_enabled {
+            println!("Disabling movie progress tracking");
+            self.movie_tracking_enabled = false;
         }
     }
 
@@ -100,25 +115,12 @@ impl Mutation {
         Ok("Ok".into())
     }
 
-    async fn import_movie(
+    async fn track_movie(
         #[graphql(context)] context: &ContextPointer,
         url: String,
-        movie_name: String,
     ) -> Result<String, HttpErrorKind> {
-        let mut ctx = context.lock().await;
-
-        let movies_path = ctx.config().movies_path().to_owned();
-        let category = ctx.config().qbittorrent().category().to_owned();
-        let qb = ctx.qbittorrent_client_mut();
-
-        let dest_folder = movies_path.join(filenamify(movie_name));
-        let torrent = import_movie(qb, url, category, &dest_folder).await?;
-
-        Ok(torrent
-            .name()
-            .as_ref()
-            .unwrap_or(&"Imported".to_string())
-            .to_string())
+        track_movie(context, url).await?;
+        Ok("Ok".into())
     }
 }
 

@@ -1,4 +1,5 @@
 mod add_torrent_options;
+mod background;
 mod config;
 mod graphql;
 mod http_error;
@@ -129,6 +130,8 @@ async fn rocket() -> _ {
         ),
         config,
     )));
+
+    tokio::spawn(background::background(context.clone()));
 
     rocket::build()
         .manage(context)
