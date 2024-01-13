@@ -1,5 +1,4 @@
 use std::fmt;
-use std::io::Error as IoError;
 use surf::StatusCode;
 
 #[derive(Debug)]
@@ -11,10 +10,8 @@ pub enum ErrorKind {
     RequestError,
     TorrentNotFound,
     TorrentNotDownloading,
-    InvalidMagnet,
-    IoError(IoError),
-    TorrentIsFile,
 }
+
 impl ToString for ErrorKind {
     fn to_string(&self) -> String {
         match self {
@@ -24,10 +21,7 @@ impl ToString for ErrorKind {
             ErrorKind::BadParameters(param) => format!("Bad Parameter: {}", param),
             ErrorKind::RequestError => "RequestError".into(),
             ErrorKind::TorrentNotFound => "TorrentNotFound".into(),
-            ErrorKind::InvalidMagnet => "InvalidMagnet".into(),
             ErrorKind::TorrentNotDownloading => "TorrentNotDownloading".into(),
-            ErrorKind::IoError(error) => format!("IoError: {}", error.to_string()),
-            ErrorKind::TorrentIsFile => "Single file torrents are not yet supported.".into(),
         }
     }
 }
@@ -64,12 +58,5 @@ impl From<surf::Error> for Error {
             return Self::new(ErrorKind::IncorrectLogin, "Incorrect login");
         }
         Self::new(ErrorKind::HttpRequestError(request_error), "Request Error")
-    }
-}
-
-impl From<IoError> for Error {
-    fn from(value: IoError) -> Self {
-        let message = value.to_string();
-        Self::new(ErrorKind::IoError(value), message)
     }
 }

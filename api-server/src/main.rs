@@ -3,22 +3,27 @@ mod config;
 mod graphql;
 mod http_error;
 mod search_handler;
+mod r#static;
 mod torrent;
+mod utils;
 
 use config::get_config;
 use graphql::{
     get_graphql_handler, graphiql, post_graphql_handler, Context, Mutation, Query, Schema,
 };
 use juniper::{EmptySubscription, GraphQLInputObject};
-use qbittorrent_api::QbittorrentClient;
+use qbittorrent_api::{PartialTorrent, QbittorrentClient};
 use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
+use std::borrow::BorrowMut;
+use std::path::Path;
 use std::sync::Arc;
 use std::{process, vec};
 use tokio::sync::Mutex;
 use torrent::ApiTorrent;
 use torrent_search_client::{Category, Order, Quality, SortColumn, TorrentClient};
+use utils::import_movie::import_movie;
 
 use crate::graphql::ContextPointer;
 use crate::http_error::HttpErrorKind;
@@ -110,6 +115,20 @@ async fn search(
     Ok(Json(torrents))
 }
 
+#[get("/test")]
+async fn test(context: &State<ContextPointer>) -> Result<Json<PartialTorrent>, HttpErrorKind> {
+    let mut ctx = context.lock().await;
+
+    let movies_path = ctx.config().movies_path().to_owned();
+    let qb = ctx.qbittorrent_client_mut();
+
+    let wa = import_movie(qb,
+		"magnet:?xt=urn:btih:1447bb03de993e1ee7e430526ff1fbac0daf7b44&dn=archlinux-2024.01.01-x86_64.iso".to_string(),
+		&movies_path.join("Arch Linux")
+	).await?;
+
+    Ok(Json(wa))
+}
 #[launch]
 async fn rocket() -> _ {
     let config = get_config().unwrap_or_else(|e| {
@@ -125,6 +144,7 @@ async fn rocket() -> _ {
             config.qbittorrent().password(),
             config.qbittorrent().url().as_str(),
         ),
+        config,
     )));
 
     rocket::build()
@@ -136,6 +156,12 @@ async fn rocket() -> _ {
         ))
         .mount(
             "/",
-            routes![search, graphiql, get_graphql_handler, post_graphql_handler,],
+            routes![
+                search,
+                graphiql,
+                get_graphql_handler,
+                post_graphql_handler,
+                test
+            ],
         )
 }

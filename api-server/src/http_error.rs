@@ -1,4 +1,5 @@
 use juniper::{graphql_value, FieldError, IntoFieldError, ScalarValue};
+use std::io::Error as IoError;
 use torrent_search_client::InvalidOptionError;
 
 #[derive(Debug, Responder)]
@@ -7,6 +8,9 @@ pub enum HttpErrorKind {
     InvalidParam(String),
     MissingQuery(String),
     QbittorrentError(String),
+    InvalidMagnet(String),
+    TorrentIsFile(String),
+    IoError(IoError),
 }
 
 impl HttpErrorKind {
@@ -45,6 +49,24 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "QBITTORRENT_ERROR",
                 }),
             ),
+            HttpErrorKind::InvalidMagnet(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "INVALID_MAGNET",
+                }),
+            ),
+            HttpErrorKind::TorrentIsFile(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "TORRENT_IS_FILE",
+                }),
+            ),
+            HttpErrorKind::IoError(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "IO_ERROR",
+                }),
+            ),
         }
     }
 }
@@ -52,5 +74,11 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
 impl From<qbittorrent_api::Error> for HttpErrorKind {
     fn from(err: qbittorrent_api::Error) -> Self {
         Self::QbittorrentError(err.kind().to_string())
+    }
+}
+
+impl From<IoError> for HttpErrorKind {
+    fn from(value: IoError) -> Self {
+        Self::IoError(value)
     }
 }

@@ -1,5 +1,6 @@
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
+    config::Config,
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams},
     torrent::ApiTorrent,
@@ -17,13 +18,19 @@ use torrent_search_client::TorrentClient;
 pub struct Context {
     torrent_client: TorrentClient,
     qbittorrent_client: QbittorrentClient,
+    config: Config,
 }
 
 impl Context {
-    pub fn new(torrent_client: TorrentClient, qbittorrent_client: QbittorrentClient) -> Self {
+    pub fn new(
+        torrent_client: TorrentClient,
+        qbittorrent_client: QbittorrentClient,
+        config: Config,
+    ) -> Self {
         Self {
             torrent_client,
             qbittorrent_client,
+            config,
         }
     }
 

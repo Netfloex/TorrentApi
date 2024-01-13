@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use derive_getters::Getters;
 use figment::{
     providers::{Env, Format, Yaml},
@@ -6,22 +8,32 @@ use figment::{
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Debug, Serialize, Deserialize, Getters)]
+fn default_movies_path() -> PathBuf {
+    PathBuf::from("./movies")
+}
+
+#[derive(Debug, Serialize, Deserialize, Getters)]
 pub struct QbittorrentConf {
     username: String,
     password: String,
     url: String,
 }
-#[derive(Default, Debug, Serialize, Deserialize, Getters)]
+
+#[derive(Debug, Serialize, Deserialize, Getters)]
 pub struct Config {
     qbittorrent: QbittorrentConf,
+    #[serde(default = "default_movies_path")]
+    movies_path: PathBuf,
 }
 
 pub fn get_config() -> Result<Config, Error> {
-    let conf: Config = figment::Figment::new()
+    let figment = figment::Figment::new()
         .merge(Env::raw().split("_"))
-        .merge(Yaml::file("config.yaml"))
-        .extract()?;
+        .merge(Yaml::file("config.yaml"));
 
-    Ok(conf)
+    let config = figment.extract()?;
+
+    dbg!(&config);
+
+    Ok(config)
 }
