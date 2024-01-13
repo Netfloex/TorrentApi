@@ -108,10 +108,11 @@ impl Mutation {
         let mut ctx = context.lock().await;
 
         let movies_path = ctx.config().movies_path().to_owned();
+        let category = ctx.config().qbittorrent().category().to_owned();
         let qb = ctx.qbittorrent_client_mut();
 
         let dest_folder = movies_path.join(filenamify(movie_name));
-        let torrent = import_movie(qb, url, &dest_folder).await?;
+        let torrent = import_movie(qb, url, category, &dest_folder).await?;
 
         Ok(torrent
             .name()

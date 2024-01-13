@@ -9,11 +9,13 @@ use tokio::fs;
 pub async fn import_movie(
     client: &mut QbittorrentClient,
     url: String,
+    category: String,
     dest_folder: &PathBuf,
 ) -> Result<PartialTorrent, HttpErrorKind> {
     let hash =
         hash_from_magnet(&url).ok_or(HttpErrorKind::InvalidMagnet("Invalid Magnet Link".into()))?;
-    let options = AddTorrentOptions::default();
+
+    let options = AddTorrentOptions::default().category(category);
 
     client.add_torrent(url, options).await?;
 

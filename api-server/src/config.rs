@@ -12,11 +12,17 @@ fn default_movies_path() -> PathBuf {
     PathBuf::from("./movies")
 }
 
+fn default_category() -> String {
+    "torrent-api".to_string()
+}
+
 #[derive(Debug, Serialize, Deserialize, Getters)]
 pub struct QbittorrentConf {
     username: String,
     password: String,
     url: String,
+    #[serde(default = "default_category")]
+    category: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, Getters)]
