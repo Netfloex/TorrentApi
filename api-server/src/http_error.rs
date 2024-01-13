@@ -11,6 +11,7 @@ pub enum HttpErrorKind {
     InvalidMagnet(String),
     TorrentIsFile(String),
     IoError(IoError),
+    TorrentNotFound(String),
 }
 
 impl HttpErrorKind {
@@ -65,6 +66,12 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                 error,
                 graphql_value!({
                     "type": "IO_ERROR",
+                }),
+            ),
+            HttpErrorKind::TorrentNotFound(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "TORRENT_NOT_FOUND",
                 }),
             ),
         }

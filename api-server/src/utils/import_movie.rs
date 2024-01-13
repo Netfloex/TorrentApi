@@ -27,6 +27,13 @@ pub async fn import_movie(
     let local_path = &path;
     let torrent = Path::new(&local_path);
 
+    if !torrent.try_exists()? {
+        Err(HttpErrorKind::TorrentNotFound(format!(
+            "Torrent not found on disk at {}",
+            torrent.display()
+        )))?
+    }
+
     if !torrent.metadata()?.is_dir() {
         Err(HttpErrorKind::TorrentIsFile(
             "Single file torrents are not yet supported.".into(),

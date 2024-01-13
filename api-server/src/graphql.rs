@@ -4,8 +4,10 @@ use crate::{
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams},
     torrent::ApiTorrent,
+    utils::import_movie::import_movie,
 };
 use derive_getters::Getters;
+use filenamify::filenamify;
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
 use qbittorrent_api::{GetTorrentsParameters, QbittorrentClient, Torrent};
@@ -96,6 +98,26 @@ impl Mutation {
             .add_torrents(&urls, options.unwrap_or_default().into())
             .await?;
         Ok("Ok".into())
+    }
+
+    async fn import_movie(
+        #[graphql(context)] context: &ContextPointer,
+        url: String,
+        movie_name: String,
+    ) -> Result<String, HttpErrorKind> {
+        let mut ctx = context.lock().await;
+
+        let movies_path = ctx.config().movies_path().to_owned();
+        let qb = ctx.qbittorrent_client_mut();
+
+        let dest_folder = movies_path.join(filenamify(movie_name));
+        let torrent = import_movie(qb, url, &dest_folder).await?;
+
+        Ok(torrent
+            .name()
+            .as_ref()
+            .unwrap_or(&"Imported".to_string())
+            .to_string())
     }
 }
 
