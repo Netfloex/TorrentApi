@@ -12,10 +12,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
         .lock()
         .await
         .config()
-        .disable_progress_check()
+        .disable_movie_tracking()
         .to_owned()
     {
-        println!("Progress check disabled");
+        println!("Movie progress check is disabled");
         return Ok(());
     }
 
@@ -84,7 +84,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
             }
         }
 
-        println!("min_eta: {}", min_eta);
+        println!("Waiting: {}s", min_eta);
         sleep(Duration::from_secs(min_eta)).await;
     }
 }

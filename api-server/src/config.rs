@@ -16,7 +16,7 @@ fn default_category() -> String {
     "torrent-api".to_string()
 }
 
-fn default_progress_check() -> bool {
+fn default_movie_tracking() -> bool {
     false
 }
 
@@ -34,8 +34,8 @@ pub struct Config {
     qbittorrent: QbittorrentConf,
     #[serde(default = "default_movies_path")]
     movies_path: PathBuf,
-    #[serde(default = "default_progress_check")]
-    disable_progress_check: bool,
+    #[serde(default = "default_movie_tracking")]
+    disable_movie_tracking: bool,
 }
 
 pub fn get_config() -> Result<Config, Error> {
