@@ -168,6 +168,7 @@ dependencies = [
  "rocket_http",
  "serde",
  "serde_json",
+ "surf",
  "tokio",
  "torrent-search-client",
  "utils",

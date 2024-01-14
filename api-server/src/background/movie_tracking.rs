@@ -1,4 +1,7 @@
-use crate::{graphql::ContextPointer, utils::get_tmdb::get_tmdb};
+use crate::{
+    graphql::ContextPointer,
+    utils::{get_tmdb::get_tmdb, movie_info::MovieInfo},
+};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -40,7 +43,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
             if let Some(torrents) = sync.torrents() {
                 let mut watching_torrents = 0;
 
-                torrents.values().for_each(|torrent| {
+                for torrent in torrents.values() {
                     if torrent.category().as_ref() == Some(&category) {
                         let progress = torrent
                             .progress()
@@ -73,13 +76,16 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
                             );
                         } else {
                             if let Some(tmdb) = get_tmdb(name) {
-                                println!("Importing {}", name);
+                                let movie = MovieInfo::from_tmdb(tmdb).await;
+                                let movie_name = movie.format();
+
+                                println!("Importing \"{}\" as \"{}\"", name, movie_name);
                             } else {
                                 println!("No TMDB id found for {}", name);
                             }
                         }
                     }
-                });
+                }
 
                 if watching_torrents == 0 {
                     println!("No torrents to import");
