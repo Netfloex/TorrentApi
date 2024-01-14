@@ -118,9 +118,13 @@ impl Mutation {
     async fn track_movie(
         #[graphql(context)] context: &ContextPointer,
         url: String,
-        tmdb: String,
+        tmdb: i32,
     ) -> Result<String, HttpErrorKind> {
-        track_movie(context, url, tmdb).await?;
+        if tmdb.is_negative() {
+            return Err(HttpErrorKind::InvalidParam("tmdb".into()));
+        };
+
+        track_movie(context, url, tmdb as u32).await?;
         Ok("Ok".into())
     }
 }
