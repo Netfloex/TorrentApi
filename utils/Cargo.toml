@@ -12,6 +12,9 @@ serde = "1.0.194"
 # surf = "2.3.2"
 juniper = { version = "0.15.12" }
 chrono = "0.4.31"
+derive-getters = "0.3.0"
+url = "2.5.0"
+derive_setters = "0.1.6"
 
 # [features]
 # graphql = ["dep:juniper"]

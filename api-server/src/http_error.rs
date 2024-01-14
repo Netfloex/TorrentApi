@@ -9,7 +9,7 @@ pub enum HttpErrorKind {
     MissingQuery(String),
     QbittorrentError(String),
     IoError(IoError),
-    // InvalidMagnet(String),
+    InvalidMagnet(String),
     // TorrentIsFile(String),
     // TorrentNotFound(String),
 }
@@ -56,12 +56,12 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "IO_ERROR",
                 }),
             ),
-            // HttpErrorKind::InvalidMagnet(error) => FieldError::new(
-            //     error,
-            //     graphql_value!({
-            //         "type": "INVALID_MAGNET",
-            //     }),
-            // ),
+            HttpErrorKind::InvalidMagnet(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "INVALID_MAGNET",
+                }),
+            ),
             // HttpErrorKind::TorrentIsFile(error) => FieldError::new(
             //     error,
             //     graphql_value!({

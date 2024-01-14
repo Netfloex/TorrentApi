@@ -118,8 +118,9 @@ impl Mutation {
     async fn track_movie(
         #[graphql(context)] context: &ContextPointer,
         url: String,
+        imdb: String,
     ) -> Result<String, HttpErrorKind> {
-        track_movie(context, url).await?;
+        track_movie(context, url, imdb).await?;
         Ok("Ok".into())
     }
 }
