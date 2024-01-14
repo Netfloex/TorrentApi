@@ -6,10 +6,12 @@ pub enum ErrorKind {
     HttpRequestError(surf::Error),
     IncorrectLogin,
     TorrentAddError,
+
     BadParameters(String),
     RequestError,
     TorrentNotFound,
     TorrentNotDownloading,
+    CategoryDoesNotExist,
 }
 
 impl ToString for ErrorKind {
@@ -22,6 +24,7 @@ impl ToString for ErrorKind {
             ErrorKind::RequestError => "RequestError".into(),
             ErrorKind::TorrentNotFound => "TorrentNotFound".into(),
             ErrorKind::TorrentNotDownloading => "TorrentNotDownloading".into(),
+            ErrorKind::CategoryDoesNotExist => "CategoryDoesNotExist".into(),
         }
     }
 }

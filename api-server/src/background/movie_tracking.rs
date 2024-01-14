@@ -45,10 +45,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
             println!("Checking for torrents to import");
             let sync = qb.sync().await?;
 
-            if let Some(torrents) = sync.torrents() {
+            if let Some(torrents) = sync.torrents().clone() {
                 let mut watching_torrents = 0;
 
-                for torrent in torrents.values() {
+                for (hash, torrent) in torrents {
                     if torrent.category().as_ref() == Some(&category) {
                         let progress = torrent
                             .progress()
@@ -98,6 +98,8 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                                 let dest_folder = movies_path.join(movie_name);
 
                                 import_movie(local_path, dest_folder).await?;
+
+                                qb.set_category(hash.to_owned(), "".to_string()).await?;
                             } else {
                                 println!("No TMDB id found for {}", name);
                             }
