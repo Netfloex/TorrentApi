@@ -13,8 +13,6 @@ impl QbittorrentClient {
             .body(body)
             .await?;
 
-        dbg!(&resp);
-
         if resp.status().is_success() {
             Ok(())
         } else {

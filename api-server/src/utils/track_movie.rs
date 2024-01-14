@@ -21,7 +21,7 @@ pub async fn track_movie(
 
     qb.add_torrent(url, options).await?;
 
-    ctx.enable_movie_tracking();
+    ctx.enable_movie_tracking().await;
 
     Ok(())
 }

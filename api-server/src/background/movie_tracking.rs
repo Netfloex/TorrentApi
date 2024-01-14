@@ -3,7 +3,7 @@ use crate::{
     http_error::HttpErrorKind,
     utils::{get_tmdb::get_tmdb, import_movie::import_movie, movie_info::MovieInfo},
 };
-use std::{path::PathBuf, time::Duration};
+use std::{path::PathBuf, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 // const QBITTORRENT_INFINITE: u64 = 8640000;
@@ -27,10 +27,17 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
     loop {
         let mut min_eta = DEFAULT_TIMEOUT;
-        if !context.lock().await.movie_tracking_enabled() {
+        while !context
+            .lock()
+            .await
+            .movie_tracking_enabled()
+            .lock()
+            .await
+            .to_owned()
+        {
             println!("Progress check (temporarily) disabled");
-            sleep(Duration::from_secs(10)).await;
-            continue;
+            let ntfy = Arc::clone(&context.lock().await.movie_tracking_ntfy());
+            ntfy.notified().await;
         }
 
         {
@@ -109,13 +116,13 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                 if watching_torrents == 0 {
                     println!("No torrents to import");
-                    ctx.disable_movie_tracking();
+                    ctx.disable_movie_tracking().await;
                 } else {
                     println!("Watching {} torrents", watching_torrents)
                 }
             } else {
                 println!("No torrents in sync");
-                ctx.disable_movie_tracking();
+                ctx.disable_movie_tracking().await;
             }
         }
 

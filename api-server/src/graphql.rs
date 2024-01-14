@@ -12,7 +12,7 @@ use juniper_rocket::graphiql_source;
 use qbittorrent_api::{GetTorrentsParameters, QbittorrentClient, Torrent};
 use rocket::{response::content::RawHtml, State};
 use std::sync::Arc;
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, Notify};
 use torrent_search_client::TorrentClient;
 
 #[derive(Getters)]
@@ -20,7 +20,8 @@ pub struct Context {
     torrent_client: TorrentClient,
     qbittorrent_client: QbittorrentClient,
     config: Config,
-    movie_tracking_enabled: bool,
+    movie_tracking_enabled: Mutex<bool>,
+    movie_tracking_ntfy: Arc<Notify>,
 }
 
 impl Context {
@@ -33,21 +34,24 @@ impl Context {
             torrent_client,
             qbittorrent_client,
             config,
-            movie_tracking_enabled: true,
+            movie_tracking_enabled: Mutex::new(true),
+            movie_tracking_ntfy: Arc::new(Notify::new()),
         }
     }
 
-    pub fn enable_movie_tracking(&mut self) {
-        if !self.movie_tracking_enabled {
+    pub async fn enable_movie_tracking(&mut self) {
+        if !self.movie_tracking_enabled.lock().await.to_owned() {
             println!("Enabling movie progress tracking");
-            self.movie_tracking_enabled = true;
+            *self.movie_tracking_enabled.lock().await = true;
+            self.movie_tracking_ntfy.notify_waiters();
         }
     }
 
-    pub fn disable_movie_tracking(&mut self) {
-        if self.movie_tracking_enabled {
+    pub async fn disable_movie_tracking(&mut self) {
+        if self.movie_tracking_enabled.lock().await.to_owned() {
             println!("Disabling movie progress tracking");
-            self.movie_tracking_enabled = false;
+            *self.movie_tracking_enabled.lock().await = false;
+            self.movie_tracking_ntfy.notify_waiters();
         }
     }
 
