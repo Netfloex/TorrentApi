@@ -40,6 +40,7 @@ pub struct Config {
 
 pub fn get_config() -> Result<Config, Error> {
     let figment = figment::Figment::new()
+        .merge(Env::raw())
         .merge(Env::raw().split("_"))
         .merge(Yaml::file("config.yaml"));
 

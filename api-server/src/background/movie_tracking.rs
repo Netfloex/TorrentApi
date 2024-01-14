@@ -1,4 +1,4 @@
-use crate::graphql::ContextPointer;
+use crate::{graphql::ContextPointer, utils::get_imdb::get_imdb};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -56,19 +56,28 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
                             .as_ref()
                             .expect("State should be available at sync");
 
+                        let unknown = "Unknown".to_owned();
+                        let name = torrent.name().as_ref().unwrap_or(&unknown);
+
                         if progress != 1.0 {
                             watching_torrents += 1;
+
+                            min_eta = min_eta.min(eta).min(MAX_TIMEOUT).max(MIN_TIMEOUT);
+
+                            println!(
+                                "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
+                                name,
+                                (progress * 100.0).round(),
+                                eta / 60,
+                                state
+                            );
+                        } else {
+                            if let Some(imdb) = get_imdb(name) {
+                                println!("Importing {}", name);
+                            } else {
+                                println!("No IMDB found for {}", name);
+                            }
                         }
-
-                        min_eta = min_eta.min(eta).min(MAX_TIMEOUT).max(MIN_TIMEOUT);
-
-                        println!(
-                            "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
-                            torrent.name().as_ref().unwrap_or(&"Unknown".to_owned()),
-                            (progress * 100.0).round(),
-                            eta / 60,
-                            state
-                        );
                     }
                 });
 
