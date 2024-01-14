@@ -32,6 +32,8 @@ pub struct QbittorrentConf {
 #[derive(Debug, Serialize, Deserialize, Getters)]
 pub struct Config {
     qbittorrent: QbittorrentConf,
+    remote_download_path: String,
+    local_download_path: String,
     #[serde(default = "default_movies_path")]
     movies_path: PathBuf,
     #[serde(default = "default_movie_tracking")]

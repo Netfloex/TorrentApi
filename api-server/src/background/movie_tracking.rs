@@ -1,8 +1,9 @@
 use crate::{
     graphql::ContextPointer,
-    utils::{get_tmdb::get_tmdb, movie_info::MovieInfo},
+    http_error::HttpErrorKind,
+    utils::{get_tmdb::get_tmdb, import_movie::import_movie, movie_info::MovieInfo},
 };
-use std::time::Duration;
+use std::{path::PathBuf, time::Duration};
 use tokio::time::sleep;
 
 // const QBITTORRENT_INFINITE: u64 = 8640000;
@@ -10,7 +11,7 @@ const DEFAULT_TIMEOUT: u64 = 5;
 const MAX_TIMEOUT: u64 = 60;
 const MIN_TIMEOUT: u64 = 1;
 
-pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_api::Error> {
+pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind> {
     if context
         .lock()
         .await
@@ -35,6 +36,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
         {
             let mut ctx = context.lock().await;
             let category = ctx.config().qbittorrent().category().to_owned();
+            let movies_path = ctx.config().movies_path().to_owned();
+            let remote_download_path = ctx.config().remote_download_path().to_owned();
+            let local_download_path = ctx.config().local_download_path().to_owned();
+
             let qb = ctx.qbittorrent_client_mut();
 
             println!("Checking for torrents to import");
@@ -80,6 +85,19 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
                                 let movie_name = movie.format();
 
                                 println!("Importing \"{}\" as \"{}\"", name, movie_name);
+
+                                let remote_path = torrent
+                                    .content_path()
+                                    .as_ref()
+                                    .expect("Content path should be available at sync");
+
+                                let local_path = remote_path
+                                    .replace(&remote_download_path, &local_download_path);
+                                let local_path = PathBuf::from(local_path);
+
+                                let dest_folder = movies_path.join(movie_name);
+
+                                import_movie(local_path, dest_folder).await?;
                             } else {
                                 println!("No TMDB id found for {}", name);
                             }
