@@ -1,2 +1,2 @@
-pub mod get_imdb;
+pub mod get_tmdb;
 pub mod track_movie;

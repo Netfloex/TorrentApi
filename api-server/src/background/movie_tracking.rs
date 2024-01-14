@@ -1,4 +1,4 @@
-use crate::{graphql::ContextPointer, utils::get_imdb::get_imdb};
+use crate::{graphql::ContextPointer, utils::get_tmdb::get_tmdb};
 use std::time::Duration;
 use tokio::time::sleep;
 
@@ -72,10 +72,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), qbittorrent_a
                                 state
                             );
                         } else {
-                            if let Some(imdb) = get_imdb(name) {
+                            if let Some(tmdb) = get_tmdb(name) {
                                 println!("Importing {}", name);
                             } else {
-                                println!("No IMDB found for {}", name);
+                                println!("No TMDB id found for {}", name);
                             }
                         }
                     }
