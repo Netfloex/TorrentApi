@@ -162,6 +162,7 @@ dependencies = [
  "juniper",
  "juniper_rocket",
  "lazy_static",
+ "movie-info",
  "qbittorrent-api",
  "regex",
  "rocket",
@@ -2120,6 +2121,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "movie-info"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "surf",
+ "utils",
+]
+
+[[package]]
 name = "multer"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4041,6 +4051,7 @@ dependencies = [
  "derive_setters",
  "juniper",
  "serde",
+ "surf",
  "url",
 ]
 

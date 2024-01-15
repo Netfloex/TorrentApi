@@ -15,6 +15,7 @@ pub use models::torrent::Torrent;
 use std::fmt::Debug;
 use surf::Client;
 use surf::{Config, Url};
+use utils::surf_logging::SurfLogging;
 pub struct QbittorrentClient {
     http: Client,
     sync_rid: usize,
@@ -36,7 +37,9 @@ impl QbittorrentClient {
         let client: Client = config.try_into().unwrap();
 
         Self {
-            http: client.with(AuthMiddleware::new(username.into(), password.into(), url)),
+            http: client
+                .with(AuthMiddleware::new(username.into(), password.into(), url))
+                .with(SurfLogging),
             sync_rid: 0,
             sync_main_data: None,
         }

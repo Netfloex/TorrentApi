@@ -25,6 +25,7 @@ jobs:
                       torrent-search-client
                       qbittorrent-api
                       utils
+                      movie-info
 
             - name: Cargo Fetch
               run: cargo fetch --locked

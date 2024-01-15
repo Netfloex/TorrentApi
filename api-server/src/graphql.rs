@@ -9,6 +9,7 @@ use crate::{
 use derive_getters::Getters;
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
+use movie_info::MovieInfoClient;
 use qbittorrent_api::{GetTorrentsParameters, QbittorrentClient, Torrent};
 use rocket::{response::content::RawHtml, State};
 use std::sync::Arc;
@@ -19,6 +20,7 @@ use torrent_search_client::TorrentClient;
 pub struct Context {
     torrent_client: TorrentClient,
     qbittorrent_client: QbittorrentClient,
+    movie_info_client: MovieInfoClient,
     config: Config,
     movie_tracking_enabled: Mutex<bool>,
     movie_tracking_ntfy: Arc<Notify>,
@@ -33,6 +35,7 @@ impl Context {
         Self {
             torrent_client,
             qbittorrent_client,
+            movie_info_client: MovieInfoClient::new(),
             config,
             movie_tracking_enabled: Mutex::new(true),
             movie_tracking_ntfy: Arc::new(Notify::new()),

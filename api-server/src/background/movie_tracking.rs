@@ -2,7 +2,7 @@ use crate::{
     config::Config,
     graphql::ContextPointer,
     http_error::HttpErrorKind,
-    utils::{get_tmdb::get_tmdb, import_movie::import_movie, movie_info::MovieInfo},
+    utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
 use qbittorrent_api::PartialTorrent;
 use std::{collections::HashMap, path::PathBuf, sync::Arc, time::Duration};
@@ -99,7 +99,12 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                         );
                     } else {
                         if let Some(tmdb) = get_tmdb(name) {
-                            let movie = MovieInfo::from_tmdb(tmdb).await;
+                            let movie = context
+                                .lock()
+                                .await
+                                .movie_info_client()
+                                .from_tmdb(tmdb)
+                                .await?;
                             let movie_name = movie.format();
 
                             println!("Importing \"{}\" as \"{}\"", name, movie_name);

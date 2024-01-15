@@ -1,3 +1,9 @@
 [workspace]
-members = ["api-server", "torrent-search-client", "qbittorrent-api", "utils"]
+members = [
+	"api-server",
+	"torrent-search-client",
+	"qbittorrent-api",
+	"utils",
+	"movie-info",
+]
 resolver = "2"

@@ -12,6 +12,7 @@ pub enum HttpErrorKind {
     InvalidMagnet(String),
     TorrentIsFile(String),
     TorrentNotFound(String),
+    MovieInfoError(String),
 }
 
 impl HttpErrorKind {
@@ -74,6 +75,12 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "TORRENT_NOT_FOUND",
                 }),
             ),
+            HttpErrorKind::MovieInfoError(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "MOVIE_INFO_ERROR",
+                }),
+            ),
         }
     }
 }
@@ -87,5 +94,11 @@ impl From<qbittorrent_api::Error> for HttpErrorKind {
 impl From<IoError> for HttpErrorKind {
     fn from(value: IoError) -> Self {
         Self::IoError(value)
+    }
+}
+
+impl From<movie_info::Error> for HttpErrorKind {
+    fn from(value: movie_info::Error) -> Self {
+        Self::MovieInfoError(value.to_string())
     }
 }

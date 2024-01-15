@@ -1,0 +1,9 @@
+[package]
+name = "movie-info"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = "1.0.195"
+surf = "2.3.2"
+utils = { path = "../utils", version = "0.1.0" }
