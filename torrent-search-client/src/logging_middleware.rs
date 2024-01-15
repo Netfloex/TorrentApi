@@ -1,5 +1,6 @@
 use reqwest::{Request, Response};
 use reqwest_middleware::{Middleware, Next, Result};
+use std::time::Instant;
 use task_local_extensions::Extensions;
 
 pub struct LoggingMiddleware;

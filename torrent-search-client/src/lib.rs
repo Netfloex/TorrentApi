@@ -44,6 +44,10 @@ impl TorrentClient {
         &self,
         search_options: &SearchOptions,
     ) -> Vec<Result<Vec<Torrent>, Error>> {
+        if search_options.query().is_empty() {
+            return vec![];
+        }
+
         join_all(vec![
             X1137::search(search_options, &self.http),
             PirateBay::search(search_options, &self.http),
@@ -57,6 +61,9 @@ impl TorrentClient {
         &self,
         movie_options: &MovieOptions,
     ) -> Vec<Result<Vec<Torrent>, Error>> {
+        if movie_options.imdb().is_empty() {
+            return vec![];
+        }
         join_all(vec![
             // X1137::search_movie(movie_options, &self.http),
             PirateBay::search_movie(movie_options, &self.http),
