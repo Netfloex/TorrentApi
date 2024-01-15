@@ -1,6 +1,7 @@
 mod add_torrent_options;
 mod background;
 mod config;
+mod context;
 mod graphql;
 mod http_error;
 mod search_handler;
@@ -8,10 +9,10 @@ mod r#static;
 mod torrent;
 mod utils;
 
+use crate::http_error::HttpErrorKind;
 use config::get_config;
-use graphql::{
-    get_graphql_handler, graphiql, post_graphql_handler, Context, Mutation, Query, Schema,
-};
+use context::{Context, ContextPointer};
+use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Mutation, Query, Schema};
 use juniper::{EmptySubscription, GraphQLInputObject};
 use qbittorrent_api::QbittorrentClient;
 use rocket::form::{self, Error};
@@ -22,9 +23,6 @@ use std::{process, vec};
 use tokio::sync::Mutex;
 use torrent::ApiTorrent;
 use torrent_search_client::{Category, Order, Quality, SortColumn, TorrentClient};
-
-use crate::graphql::ContextPointer;
-use crate::http_error::HttpErrorKind;
 
 #[macro_use]
 extern crate rocket;

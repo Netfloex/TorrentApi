@@ -1,6 +1,6 @@
 mod movie_tracking;
 
-use crate::graphql::ContextPointer;
+use crate::context::ContextPointer;
 
 use self::movie_tracking::movie_tracking;
 

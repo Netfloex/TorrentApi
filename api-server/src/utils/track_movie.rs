@@ -1,4 +1,4 @@
-use crate::{graphql::ContextPointer, http_error::HttpErrorKind};
+use crate::{context::ContextPointer, http_error::HttpErrorKind};
 use qbittorrent_api::AddTorrentOptions;
 use utils::magnet::Magnet;
 

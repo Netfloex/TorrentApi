@@ -1,6 +1,6 @@
 use crate::{
     config::Config,
-    graphql::ContextPointer,
+    context::ContextPointer,
     http_error::HttpErrorKind,
     utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
