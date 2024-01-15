@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use derive_getters::Getters;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use utils::{datetime, int_scalar::IntScalar};
+use utils::int_scalar::IntScalar;
 
 use super::torrent_state::TorrentState;
 
@@ -10,14 +10,12 @@ use super::torrent_state::TorrentState;
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
 
 pub struct Torrent {
-    #[serde(with = "datetime")]
     added_on: DateTime<Utc>,
     amount_left: IntScalar<u64>,
     auto_tmm: bool,
     availability: f64,
     category: String,
     completed: IntScalar<u64>,
-    #[serde(with = "datetime")]
     completion_on: DateTime<Utc>,
     content_path: String,
     dl_limit: i32,
@@ -28,7 +26,6 @@ pub struct Torrent {
     f_l_piece_prio: bool,
     force_start: bool,
     hash: String,
-    #[serde(with = "datetime")]
     last_activity: DateTime<Utc>,
     magnet_uri: String,
     max_ratio: f64,
@@ -44,7 +41,6 @@ pub struct Torrent {
     ratio_limit: f64,
     save_path: String,
     seeding_time_limit: i32,
-    #[serde(with = "datetime")]
     seen_complete: DateTime<Utc>,
     seq_dl: bool,
     size: IntScalar<u64>,

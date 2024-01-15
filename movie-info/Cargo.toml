@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chrono = { version = "0.4.31", features = ["serde"] }
+derive-getters = "0.3.0"
 serde = "1.0.195"
 surf = "2.3.2"
 utils = { path = "../utils", version = "0.1.0" }

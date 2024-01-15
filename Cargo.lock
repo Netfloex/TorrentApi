@@ -642,6 +642,7 @@ dependencies = [
  "iana-time-zone",
  "js-sys",
  "num-traits",
+ "serde",
  "wasm-bindgen",
  "windows-targets 0.48.5",
 ]
@@ -2124,6 +2125,8 @@ dependencies = [
 name = "movie-info"
 version = "0.1.0"
 dependencies = [
+ "chrono",
+ "derive-getters",
  "serde",
  "surf",
  "utils",
@@ -4046,7 +4049,6 @@ checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
 name = "utils"
 version = "0.1.0"
 dependencies = [
- "chrono",
  "derive-getters",
  "derive_setters",
  "juniper",

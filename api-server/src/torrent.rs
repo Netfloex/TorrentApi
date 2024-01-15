@@ -3,12 +3,10 @@ use derive_getters::Getters;
 use juniper::GraphQLObject;
 use serde::Serialize;
 use torrent_search_client::{MovieProperties, Provider, Torrent};
-use utils::datetime::serialize;
 use utils::int_scalar::IntScalar;
 
 #[derive(Serialize, Debug, Getters, Clone, GraphQLObject)]
 pub struct ApiTorrent {
-    #[serde(serialize_with = "serialize")]
     added: DateTime<Utc>,
     category: String,
     file_count: i32,
