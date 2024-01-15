@@ -12,7 +12,7 @@ torrent-search-client = { path = "../torrent-search-client", version = "0.1", fe
 qbittorrent-api = { path = "../qbittorrent-api", version = "0.1", features = [
 	"graphql",
 ] }
-movie-info = { path = "../movie-info", version = "0.1" }
+movie-info = { path = "../movie-info", version = "0.1", features = ["graphql"] }
 utils = { path = "../utils", version = "0.1" }
 rocket = { version = "=0.5.0-rc.2", features = ["json"] }
 juniper = "0.15.12"

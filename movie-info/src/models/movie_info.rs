@@ -26,14 +26,15 @@ where
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
-
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
 pub struct MovieRating {
-    pub value: f32,
-    pub count: u32,
+    pub value: f64,
+    pub count: i32,
 }
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
 pub struct MovieRatings {
     tmdb: Option<MovieRating>,
     imdb: Option<MovieRating>,
@@ -43,14 +44,15 @@ pub struct MovieRatings {
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
+#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
 pub struct MovieInfo {
     imdb_id: Option<String>,
     overview: String,
     title: String,
     original_title: String,
-    runtime: u16,
-    year: u16,
-    tmdb_id: u32,
+    runtime: i32,
+    year: i32,
+    tmdb_id: i32,
     movie_ratings: MovieRatings,
     genres: Vec<String>,
     #[serde(deserialize_with = "deserialize_poster_url")]

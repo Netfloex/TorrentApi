@@ -2127,6 +2127,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "derive-getters",
+ "juniper",
  "serde",
  "surf",
  "utils",

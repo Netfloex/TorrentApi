@@ -2,6 +2,7 @@ mod api;
 mod error;
 mod models;
 pub use error::Error;
+pub use models::movie_info::MovieInfo;
 use surf::{Client, Config};
 use utils::surf_logging::SurfLogging;
 pub struct MovieInfoClient {

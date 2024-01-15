@@ -8,6 +8,7 @@ use crate::{
 };
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
+use movie_info::MovieInfo;
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
 use rocket::{response::content::RawHtml, State};
 
@@ -35,6 +36,24 @@ impl Query {
             .await?;
 
         Ok(torrents)
+    }
+
+    async fn movie_info(
+        #[graphql(context)] context: &ContextPointer,
+        tmdb: i32,
+    ) -> Result<MovieInfo, HttpErrorKind> {
+        if tmdb.is_negative() {
+            return Err(HttpErrorKind::InvalidParam("tmdb".into()));
+        };
+
+        let movie_info = context
+            .lock()
+            .await
+            .movie_info_client()
+            .from_tmdb(tmdb as u32)
+            .await?;
+
+        Ok(movie_info)
     }
 }
 
