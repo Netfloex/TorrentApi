@@ -45,3 +45,18 @@ pub enum TorrentState {
     /// Unknown status
     Unknown,
 }
+
+impl TorrentState {
+    pub fn is_active(&self) -> bool {
+        match self {
+            TorrentState::Allocating
+            | TorrentState::Downloading
+            | TorrentState::MetaDL
+            | TorrentState::CheckingDL
+            | TorrentState::ForcedDL
+            | TorrentState::CheckingResumeData
+            | TorrentState::Unknown => true,
+            _ => false,
+        }
+    }
+}

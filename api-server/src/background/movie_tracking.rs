@@ -7,8 +7,8 @@ use std::{path::PathBuf, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 // const QBITTORRENT_INFINITE: u64 = 8640000;
-const DEFAULT_TIMEOUT: u64 = 5;
-const MAX_TIMEOUT: u64 = 60;
+const MAX_TIMEOUT_ACTIVE: u64 = 60;
+const TIMEOUT_INACTIVE: u64 = 300;
 const MIN_TIMEOUT: u64 = 1;
 
 pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind> {
@@ -26,7 +26,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
     println!("Starting background movie progress tracking");
 
     loop {
-        let mut min_eta = DEFAULT_TIMEOUT;
+        let mut min_eta = MAX_TIMEOUT_ACTIVE;
         while !context
             .lock()
             .await
@@ -35,7 +35,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
             .await
             .to_owned()
         {
-            println!("Progress check (temporarily) disabled");
+            println!("Progress tracking (temporarily) disabled");
             let ntfy = Arc::clone(&context.lock().await.movie_tracking_ntfy());
             ntfy.notified().await;
         }
@@ -54,6 +54,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
             if let Some(torrents) = sync.torrents().clone() {
                 let mut watching_torrents = 0;
+                let mut active_torrents = 0;
 
                 for (hash, torrent) in torrents {
                     if torrent.category().as_ref() == Some(&category) {
@@ -76,8 +77,11 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                         if progress != 1.0 {
                             watching_torrents += 1;
+                            if state.is_active() {
+                                active_torrents += 1;
+                            }
 
-                            min_eta = min_eta.min(eta).min(MAX_TIMEOUT).max(MIN_TIMEOUT);
+                            min_eta = min_eta.min(eta).min(MAX_TIMEOUT_ACTIVE).max(MIN_TIMEOUT);
 
                             println!(
                                 "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
@@ -115,14 +119,22 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                 }
 
                 if watching_torrents == 0 {
-                    println!("No torrents to import");
+                    println!("No torrents to track");
                     ctx.disable_movie_tracking().await;
+                    continue;
+                } else if active_torrents == 0 {
+                    min_eta = TIMEOUT_INACTIVE;
+                    println!("No active torrents, waiting {}s", min_eta)
                 } else {
-                    println!("Watching {} torrents", watching_torrents)
+                    println!(
+                        "Watching {}/{} torrents",
+                        active_torrents, watching_torrents
+                    )
                 }
             } else {
                 println!("No torrents in sync");
                 ctx.disable_movie_tracking().await;
+                continue;
             }
         }
 
