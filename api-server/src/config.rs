@@ -20,7 +20,19 @@ fn default_movie_tracking() -> bool {
     false
 }
 
-#[derive(Debug, Serialize, Deserialize, Getters)]
+fn default_movie_tracking_max_timeout_active() -> u64 {
+    60
+}
+
+fn default_movie_tracking_timeout_inactive() -> u64 {
+    300
+}
+
+fn default_movie_tracking_min_timeout() -> u64 {
+    1
+}
+
+#[derive(Debug, Serialize, Deserialize, Getters, Clone)]
 pub struct QbittorrentConf {
     username: String,
     password: String,
@@ -29,7 +41,7 @@ pub struct QbittorrentConf {
     category: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, Getters)]
+#[derive(Debug, Serialize, Deserialize, Getters, Clone)]
 pub struct Config {
     qbittorrent: QbittorrentConf,
     remote_download_path: String,
@@ -38,6 +50,12 @@ pub struct Config {
     movies_path: PathBuf,
     #[serde(default = "default_movie_tracking")]
     disable_movie_tracking: bool,
+    #[serde(default = "default_movie_tracking_max_timeout_active")]
+    movie_tracking_max_timeout_active: u64,
+    #[serde(default = "default_movie_tracking_timeout_inactive")]
+    movie_tracking_timeout_inactive: u64,
+    #[serde(default = "default_movie_tracking_min_timeout")]
+    movie_tracking_min_timeout: u64,
 }
 
 pub fn get_config() -> Result<Config, Error> {
