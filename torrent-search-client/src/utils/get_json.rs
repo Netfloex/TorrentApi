@@ -1,20 +1,14 @@
-use reqwest::{Method, Url};
-use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
+use surf::{Client, Url};
 
 use crate::Error;
 
-pub async fn get_json<T: for<'de> Deserialize<'de>>(
-    url: Url,
-    http: &ClientWithMiddleware,
-) -> Result<T, Error> {
-    let response = http
-        .request(Method::GET, url)
-        .send()
-        .await?
-        .error_for_status()?;
+use super::get_text::get_text;
 
-    let json: T = response.json().await?;
+pub async fn get_json<T: for<'de> Deserialize<'de>>(url: Url, http: &Client) -> Result<T, Error> {
+    let text = get_text(url, http).await?;
+
+    let json = serde_json::from_str(&text)?;
 
     Ok(json)
 }

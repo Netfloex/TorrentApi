@@ -1,5 +1,4 @@
-use std::sync::Mutex;
-
+use crate::utils::get_text;
 use crate::{
     client::Provider,
     error::{Error, ErrorKind},
@@ -13,9 +12,9 @@ use bytesize::ByteSize;
 use chrono::{NaiveDateTime, Utc};
 use lazy_static::lazy_static;
 use regex::Regex;
-use reqwest::{Method, Url};
-use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
+use std::sync::Mutex;
+use surf::{Client, Url};
 
 const X1137_APIS: [&str; 1] = [
     "https://1337x.to",
@@ -93,19 +92,9 @@ impl X1137 {
 
 #[async_trait]
 impl TorrentProvider for X1137 {
-    async fn search(
-        search_options: &SearchOptions,
-        http: &ClientWithMiddleware,
-    ) -> Result<Vec<Torrent>, Error> {
+    async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         let url = X1137::format_url(search_options);
-
-        let response = http
-            .request(Method::GET, url)
-            .send()
-            .await?
-            .error_for_status()?;
-
-        let body = response.text().await?;
+        let body = get_text::get_text(url, http).await?;
 
         let parsed = Html::parse_document(&body);
 
@@ -177,7 +166,7 @@ impl TorrentProvider for X1137 {
 
     async fn search_movie(
         _movie_options: &MovieOptions,
-        _http: &ClientWithMiddleware,
+        _http: &Client,
     ) -> Result<Vec<Torrent>, Error> {
         todo!()
     }

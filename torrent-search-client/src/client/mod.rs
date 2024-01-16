@@ -4,8 +4,8 @@ use crate::{
     torrent::Torrent,
 };
 use async_trait::async_trait;
-use reqwest_middleware::ClientWithMiddleware;
 use serde::Serialize;
+use surf::Client;
 
 pub mod bitsearch;
 pub mod piratebay;
@@ -15,14 +15,11 @@ pub mod yts;
 
 #[async_trait]
 pub trait TorrentProvider {
-    async fn search(
-        search_options: &SearchOptions,
-        http: &ClientWithMiddleware,
-    ) -> Result<Vec<Torrent>, Error>;
+    async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error>;
 
     async fn search_movie(
         movie_options: &MovieOptions,
-        http: &ClientWithMiddleware,
+        http: &Client,
     ) -> Result<Vec<Torrent>, Error>;
 }
 

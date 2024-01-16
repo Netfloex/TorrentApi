@@ -7,7 +7,10 @@ edition = "2021"
 chrono = { version = "0.4.31", features = ["serde"] }
 derive-getters = "0.3.0"
 serde = "1.0.195"
-surf = "2.3.2"
+surf = { version = "2.3.2", features = [
+	"curl-client",
+	"encoding",
+], default-features = false }
 utils = { path = "../utils", version = "0.1.0" }
 juniper = { version = "0.15.12", optional = true }
 http-cache-surf = "0.12.1"

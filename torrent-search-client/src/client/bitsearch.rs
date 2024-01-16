@@ -1,3 +1,4 @@
+use crate::utils::get_text;
 use crate::{
     client::Provider,
     error::Error,
@@ -12,10 +13,9 @@ use bytesize::ByteSize;
 use chrono::{NaiveDateTime, Utc};
 use lazy_static::lazy_static;
 use regex::Regex;
-use reqwest::{Method, Url};
-use reqwest_middleware::ClientWithMiddleware;
 use scraper::{ElementRef, Html, Selector};
 use std::sync::Mutex;
+use surf::{Client, Url};
 
 const BITSEARCH_APIS: [&str; 2] = [
     "https://bitsearch.to/search",
@@ -88,19 +88,10 @@ impl BitSearch {
 
 #[async_trait]
 impl TorrentProvider for BitSearch {
-    async fn search(
-        search_options: &SearchOptions,
-        http: &ClientWithMiddleware,
-    ) -> Result<Vec<Torrent>, Error> {
+    async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         let url = BitSearch::format_url(search_options);
 
-        let response = http
-            .request(Method::GET, url)
-            .send()
-            .await?
-            .error_for_status()?;
-
-        let body = response.text().await?;
+        let body = get_text::get_text(url, http).await?;
 
         let parsed = Html::parse_document(&body);
 
@@ -174,7 +165,7 @@ impl TorrentProvider for BitSearch {
 
     async fn search_movie(
         movie_options: &MovieOptions,
-        http: &ClientWithMiddleware,
+        http: &Client,
     ) -> Result<Vec<Torrent>, Error> {
         if let Some(title) = movie_options.title() {
             let options = SearchOptions::new(

@@ -8,9 +8,8 @@ use crate::{
 use async_trait::async_trait;
 use derive_getters::Getters;
 use lazy_static::lazy_static;
-use reqwest::Url;
-use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
+use surf::{Client, Url};
 
 #[derive(Deserialize, Debug, Getters)]
 pub struct PirateBayTorrent {
@@ -73,7 +72,7 @@ impl PirateBay {
             && torrent.added == "0"
     }
 
-    async fn search_request(url: Url, http: &ClientWithMiddleware) -> Result<Vec<Torrent>, Error> {
+    async fn search_request(url: Url, http: &Client) -> Result<Vec<Torrent>, Error> {
         let pb_torrents: Vec<PirateBayTorrent> = get_json(url, http).await?;
 
         if pb_torrents.len() == 1 && Self::is_empty_torrent(&pb_torrents[0]) {
@@ -88,10 +87,7 @@ impl PirateBay {
 
 #[async_trait]
 impl TorrentProvider for PirateBay {
-    async fn search(
-        search_options: &SearchOptions,
-        http: &ClientWithMiddleware,
-    ) -> Result<Vec<Torrent>, Error> {
+    async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(search_options);
 
         let torrents = PirateBay::search_request(url, http).await?;
@@ -101,7 +97,7 @@ impl TorrentProvider for PirateBay {
 
     async fn search_movie(
         movie_options: &MovieOptions,
-        http: &ClientWithMiddleware,
+        http: &Client,
     ) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_movie_url(movie_options);
 

@@ -1,4 +1,5 @@
 mod get_json;
+pub mod get_text;
 mod normalize_title;
 mod parse_title;
 mod round_robin;

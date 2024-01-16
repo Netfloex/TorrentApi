@@ -1,11 +1,12 @@
 use std::ops::AddAssign;
 
-use reqwest::Url;
+use surf::Url;
 
 pub struct RoundRobin {
     index: usize,
     urls: Vec<Url>,
 }
+
 impl RoundRobin {
     pub fn get(&mut self) -> Url {
         self.index.add_assign(1);

@@ -9,9 +9,8 @@ use crate::{
 use async_trait::async_trait;
 use derive_getters::Getters;
 use lazy_static::lazy_static;
-use reqwest::Url;
-use reqwest_middleware::ClientWithMiddleware;
 use serde::Deserialize;
+use surf::{Client, Url};
 
 use super::Error;
 
@@ -120,10 +119,7 @@ impl Yts {
 
 #[async_trait]
 impl TorrentProvider for Yts {
-    async fn search(
-        search_options: &SearchOptions,
-        http: &ClientWithMiddleware,
-    ) -> Result<Vec<Torrent>, Error> {
+    async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         if !matches!(search_options.category(), Category::All | Category::Video) {
             return Ok(Vec::new());
         }
@@ -147,7 +143,7 @@ impl TorrentProvider for Yts {
 
     async fn search_movie(
         movie_options: &MovieOptions,
-        http: &ClientWithMiddleware,
+        http: &Client,
     ) -> Result<Vec<Torrent>, Error> {
         let url = Yts::format_movie_url(movie_options);
         let json: YtsMovieSearchResponse = get_json(url, http).await?;

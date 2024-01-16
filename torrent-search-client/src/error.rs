@@ -2,8 +2,8 @@ use std::{error, fmt};
 
 #[derive(Debug)]
 pub enum ErrorKind {
-    HttpRequestError(reqwest::Error),
-    HttpRequestMiddlewareError(reqwest_middleware::Error),
+    HttpRequestError(surf::Error),
+    StatusCodeError(surf::Response),
     ParsingError(serde_json::Error),
     ScrapingError(),
 }
@@ -33,28 +33,19 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<reqwest::Error> for Error {
-    fn from(request_error: reqwest::Error) -> Self {
+impl From<surf::Error> for Error {
+    fn from(request_error: surf::Error) -> Self {
         Self::new(ErrorKind::HttpRequestError(request_error), "Request Error")
-    }
-}
-
-impl From<reqwest_middleware::Error> for Error {
-    fn from(request_error: reqwest_middleware::Error) -> Self {
-        Self::new(
-            ErrorKind::HttpRequestMiddlewareError(request_error),
-            "Request Error",
-        )
     }
 }
 
 impl error::Error for Error {
     fn source(&self) -> Option<&(dyn error::Error + 'static)> {
         match self.kind() {
-            ErrorKind::HttpRequestError(e) => e.source(),
-            ErrorKind::HttpRequestMiddlewareError(e) => e.source(),
+            ErrorKind::HttpRequestError(_) => None,
             ErrorKind::ParsingError(e) => e.source(),
             ErrorKind::ScrapingError() => None,
+            ErrorKind::StatusCodeError(_) => None,
         }
     }
 }
