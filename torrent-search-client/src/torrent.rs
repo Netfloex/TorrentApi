@@ -7,19 +7,11 @@ use crate::{
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
-use serde::{Serialize, Serializer};
+use serde::Serialize;
 use urlencoding::encode;
-
-fn serialize_datetime<S>(datetime: &DateTime<Utc>, serializer: S) -> Result<S::Ok, S::Error>
-where
-    S: Serializer,
-{
-    serializer.serialize_str(&datetime.to_rfc3339())
-}
 
 #[derive(Serialize, Debug, Getters, Clone)]
 pub struct Torrent {
-    #[serde(serialize_with = "serialize_datetime")]
     pub added: DateTime<Utc>,
     pub category: String,
     pub file_count: i32,
