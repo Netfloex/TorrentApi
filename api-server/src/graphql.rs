@@ -55,6 +55,20 @@ impl Query {
 
         Ok(movie_info)
     }
+
+    async fn search_movies(
+        #[graphql(context)] context: &ContextPointer,
+        query: String,
+    ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
+        let movie_info = context
+            .lock()
+            .await
+            .movie_info_client()
+            .search(query)
+            .await?;
+
+        Ok(movie_info)
+    }
 }
 
 pub struct Mutation;
