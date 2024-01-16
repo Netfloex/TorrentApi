@@ -10,6 +10,7 @@ serde = "1.0.195"
 surf = "2.3.2"
 utils = { path = "../utils", version = "0.1.0" }
 juniper = { version = "0.15.12", optional = true }
+http-cache-surf = "0.12.1"
 
 [features]
 graphql = ["dep:juniper"]

@@ -612,6 +612,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "cacache"
+version = "12.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "142316461ed3a3dfcba10417317472da5bfd0461e4d276bf7c07b330766d9490"
+dependencies = [
+ "async-std",
+ "digest 0.10.7",
+ "either",
+ "futures",
+ "hex",
+ "libc",
+ "memmap2",
+ "miette",
+ "reflink-copy",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "sha1 0.10.6",
+ "sha2 0.10.8",
+ "ssri",
+ "tempfile",
+ "thiserror",
+ "walkdir",
+]
+
+[[package]]
 name = "cargo-husky"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1593,9 +1619,26 @@ checksum = "fca6182c27d542b79579f1187b7ce2b694299e4ca940cac4dec787d9210ed994"
 dependencies = [
  "async-trait",
  "bincode",
- "cacache",
+ "cacache 11.7.1",
  "http",
  "http-cache-semantics",
+ "httpdate",
+ "serde",
+ "url",
+]
+
+[[package]]
+name = "http-cache"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b5ab65432bbdfe8490dfde21d0366353a8d39f2bc24aca0146889f931b0b4b5"
+dependencies = [
+ "async-trait",
+ "bincode",
+ "cacache 12.0.0",
+ "http",
+ "http-cache-semantics",
+ "http-types",
  "httpdate",
  "serde",
  "url",
@@ -1610,7 +1653,7 @@ dependencies = [
  "anyhow",
  "async-trait",
  "http",
- "http-cache",
+ "http-cache 0.11.0",
  "http-cache-semantics",
  "reqwest",
  "reqwest-middleware",
@@ -1629,6 +1672,24 @@ dependencies = [
  "http-serde",
  "serde",
  "time 0.3.31",
+]
+
+[[package]]
+name = "http-cache-surf"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8d299aea9375d69133b6a76c1fc61ed4ce7ff66ce05e4537bfd3c33855d5316b"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "http",
+ "http-cache 0.18.0",
+ "http-cache-semantics",
+ "http-types",
+ "serde",
+ "surf",
+ "thiserror",
+ "url",
 ]
 
 [[package]]
@@ -2127,6 +2188,7 @@ version = "0.1.0"
 dependencies = [
  "chrono",
  "derive-getters",
+ "http-cache-surf",
  "juniper",
  "serde",
  "surf",
