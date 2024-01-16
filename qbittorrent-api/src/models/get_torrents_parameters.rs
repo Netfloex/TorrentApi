@@ -16,23 +16,13 @@ where
 #[setters(strip_option = true)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLInputObject))]
 pub struct GetTorrentsParameters {
-    #[serde(skip_serializing_if = "Option::is_none")]
     filter: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     category: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     tag: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     sort: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     reverse: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     limit: Option<i32>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     offset: Option<i32>,
-    #[serde(
-        skip_serializing_if = "Option::is_none",
-        serialize_with = "serialize_hashes"
-    )]
+    #[serde(serialize_with = "serialize_hashes")]
     hashes: Option<Vec<String>>,
 }

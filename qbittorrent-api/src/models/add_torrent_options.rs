@@ -6,30 +6,22 @@ use std::fmt::Debug;
 #[setters(strip_option = true)]
 pub struct AddTorrentOptions {
     urls: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
     savepath: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     cookie: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     category: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     tags: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     skip_checking: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     paused: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     root_folder: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none")]
     rename: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "upLimit")]
+    #[serde(rename = "upLimit")]
     up_limit: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "dlLimit")]
+    #[serde(rename = "dlLimit")]
     dl_limit: Option<i64>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "autoTMM")]
+    #[serde(rename = "autoTMM")]
     auto_tmm: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "sequentialDownload")]
+    #[serde(rename = "sequentialDownload")]
     sequential_download: Option<bool>,
-    #[serde(skip_serializing_if = "Option::is_none", rename = "firstLastPiecePrio")]
+    #[serde(rename = "firstLastPiecePrio")]
     first_last_piece_prio: Option<bool>,
 }
