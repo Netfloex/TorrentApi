@@ -6,4 +6,3 @@ pub mod set_category;
 pub mod sync;
 pub mod torrents;
 pub mod version;
-pub mod wait_torrent_completion;

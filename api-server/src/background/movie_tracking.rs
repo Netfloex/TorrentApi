@@ -4,6 +4,7 @@ use crate::{
     http_error::HttpErrorKind,
     utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
+use filenamify::filenamify;
 use qbittorrent_api::PartialTorrent;
 use std::{collections::HashMap, path::PathBuf, sync::Arc, time::Duration};
 use tokio::time::sleep;
@@ -118,7 +119,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                                 remote_path.replace(&remote_download_path, &local_download_path);
                             let local_path = PathBuf::from(local_path);
 
-                            let dest_folder = movies_path.join(movie_name);
+                            let dest_folder = movies_path.join(filenamify(&movie_name));
 
                             import_movie(local_path, dest_folder).await?;
 
