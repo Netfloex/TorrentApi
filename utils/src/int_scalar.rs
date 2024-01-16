@@ -1,45 +1,7 @@
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct IntScalar<T>(T);
-
-impl Serialize for IntScalar<u64> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_u64(*self.get())
-    }
-}
-
-impl<'de> Deserialize<'de> for IntScalar<u64> {
-    fn deserialize<D>(deserializer: D) -> Result<IntScalar<u64>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value = u64::deserialize(deserializer)?;
-        Ok(IntScalar(value))
-    }
-}
-
-impl Serialize for IntScalar<i64> {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        serializer.serialize_i64(*self.get())
-    }
-}
-
-impl<'de> Deserialize<'de> for IntScalar<i64> {
-    fn deserialize<D>(deserializer: D) -> Result<IntScalar<i64>, D::Error>
-    where
-        D: Deserializer<'de>,
-    {
-        let value = i64::deserialize(deserializer)?;
-        Ok(IntScalar(value))
-    }
-}
 
 impl<T> IntScalar<T> {
     pub fn get(&self) -> &T {
