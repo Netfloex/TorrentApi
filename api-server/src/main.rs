@@ -23,7 +23,9 @@ use std::sync::Arc;
 use std::{process, vec};
 use tokio::sync::Mutex;
 use torrent::ApiTorrent;
-use torrent_search_client::{Category, Order, SortColumn, TorrentClient};
+use torrent_search_client::{
+    Category, Order, Quality, SortColumn, Source, TorrentClient, VideoCodec,
+};
 
 #[macro_use]
 extern crate rocket;
@@ -57,21 +59,18 @@ async fn search(
             sort: Some(sort),
             order: Some(order),
             limit: search_params.limit().clone(),
-            quality: search_params.quality().as_ref().map(|q| {
-                q.into_iter()
-                    .map(|q| q.parse().expect("Can not give error"))
-                    .collect()
-            }),
-            codec: search_params.codec().as_ref().map(|c| {
-                c.into_iter()
-                    .map(|c| c.parse().expect("Can not give error"))
-                    .collect()
-            }),
-            source: search_params.source().as_ref().map(|s| {
-                s.into_iter()
-                    .map(|s| s.parse().expect("Can not give error"))
-                    .collect()
-            }),
+            quality: search_params
+                .quality()
+                .as_ref()
+                .map(|q| q.into_iter().map(|q| Quality::from_str(q)).collect()),
+            codec: search_params
+                .codec()
+                .as_ref()
+                .map(|c| c.into_iter().map(|c| VideoCodec::from_str(c)).collect()),
+            source: search_params
+                .source()
+                .as_ref()
+                .map(|s| s.into_iter().map(|s| Source::from_str(s)).collect()),
         },
         context.lock().await.torrent_client(),
     )

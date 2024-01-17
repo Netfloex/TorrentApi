@@ -36,11 +36,9 @@ lazy_static! {
     .unwrap();
 }
 
-impl FromStr for Quality {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let quality = match s.to_ascii_lowercase().as_str() {
+impl Quality {
+    pub fn from_str(s: &str) -> Self {
+        match s.to_ascii_lowercase().as_str() {
             s if P480_REGEX.is_match(s) => Quality::P480,
             s if P540_REGEX.is_match(s) => Quality::P540,
             s if P576_REGEX.is_match(s) => Quality::P576,
@@ -48,8 +46,6 @@ impl FromStr for Quality {
             s if P1080_REGEX.is_match(s) => Quality::P1080,
             s if P2160_REGEX.is_match(s) => Quality::P2160,
             _ => Self::Unknown,
-        };
-
-        Ok(quality)
+        }
     }
 }

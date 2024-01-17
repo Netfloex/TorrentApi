@@ -4,6 +4,7 @@ use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
     movie_properties::MovieProperties,
     r#static::{PIRATEBAY_TRACKERS, YTS_TRACKERS},
+    Quality, Source, VideoCodec,
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
@@ -91,9 +92,9 @@ impl From<PirateBayTorrent> for Torrent {
             magnet: format_magnet(value.info_hash(), value.name(), PIRATEBAY_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
-                value.name().parse().expect("Should not return error"),
-                value.name().parse().expect("Should not return error"),
-                value.name().parse().expect("Should not return error"),
+                Quality::from_str(value.name()),
+                VideoCodec::from_str(value.name()),
+                Source::from_str(value.name()),
             )),
         }
     }
@@ -127,12 +128,9 @@ impl From<YtsTorrent> for Torrent {
             magnet: format_magnet(torrent.hash(), &name, YTS_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
-                torrent.quality().parse().expect("Should not return error"),
-                torrent
-                    .video_codec()
-                    .parse()
-                    .expect("Should not return error"),
-                torrent.source().parse().expect("Should not return error"),
+                Quality::from_str(&name),
+                VideoCodec::from_str(&name),
+                Source::from_str(&name),
             )),
         }
     }

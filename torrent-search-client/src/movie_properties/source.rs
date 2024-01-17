@@ -40,11 +40,9 @@ lazy_static! {
         Regex::new(r"\b(?:blu-?ray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv|bdremux)\b").unwrap();
 }
 
-impl FromStr for Source {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let source = match s.to_ascii_lowercase().as_str() {
+impl Source {
+    pub fn from_str(s: &str) -> Self {
+        match s.to_ascii_lowercase().as_str() {
             s if CAM_REGEX.is_match(s) => Source::Cam,
             s if TELESYNC_REGEX.is_match(s) => Source::Telesync,
             s if TELECINE_REGEX.is_match(s) => Source::Telecine,
@@ -56,8 +54,6 @@ impl FromStr for Source {
             s if BLURAY_REGEX.is_match(s) => Source::BluRay,
 
             _ => Self::Unknown,
-        };
-
-        Ok(source)
+        }
     }
 }
