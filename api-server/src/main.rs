@@ -5,6 +5,7 @@ mod context;
 mod graphql;
 mod http_error;
 mod search_handler;
+mod search_params;
 mod r#static;
 mod torrent;
 mod utils;
@@ -13,43 +14,19 @@ use crate::http_error::HttpErrorKind;
 use config::get_config;
 use context::{Context, ContextPointer};
 use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Mutation, Query, Schema};
-use juniper::{EmptySubscription, GraphQLInputObject};
+use juniper::EmptySubscription;
 use qbittorrent_api::QbittorrentClient;
-use rocket::form::{self, Error};
 use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
+use search_params::SearchParams;
 use std::sync::Arc;
 use std::{process, vec};
 use tokio::sync::Mutex;
 use torrent::ApiTorrent;
-use torrent_search_client::{Category, Order, Quality, SortColumn, TorrentClient};
+use torrent_search_client::{Category, Order, SortColumn, TorrentClient};
 
 #[macro_use]
 extern crate rocket;
-
-#[derive(FromForm, Debug, GraphQLInputObject)]
-pub struct SearchParams {
-    query: Option<String>,
-    #[field(validate = or(&self.query))]
-    imdb: Option<String>,
-    #[field(validate = or(&self.query))]
-    title: Option<String>,
-    #[field(validate = or(&self.imdb))]
-    category: Option<String>,
-    sort: Option<String>,
-    order: Option<String>,
-    limit: Option<i32>,
-    quality: Option<Vec<String>>,
-    codec: Option<Vec<String>>,
-    source: Option<Vec<String>>,
-}
-
-fn or<'v>(first: &Option<String>, second: &Option<String>) -> form::Result<'v, ()> {
-    match (first, second) {
-        (Some(_), Some(_)) => Err(Error::validation("Not both"))?,
-        _ => Ok(()),
-    }
-}
 
 #[get("/search?<search_params..>")]
 async fn search(
@@ -57,53 +34,44 @@ async fn search(
     context: &State<ContextPointer>,
 ) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
     let category: Category = search_params
-        .category
+        .category()
         .as_ref()
         .map_or_else(|| Ok(Category::default()), |c| c.parse())?;
 
     let sort: SortColumn = search_params
-        .sort
+        .sort()
         .as_ref()
         .map_or_else(|| Ok(SortColumn::default()), |f| f.parse())?;
 
     let order: Order = search_params
-        .order
+        .order()
         .as_ref()
         .map_or_else(|| Ok(Order::default()), |f| f.parse())?;
 
     let torrents = search_handler(
         SearchHandlerParams {
-            query: search_params.query,
-            imdb: search_params.imdb,
-            title: search_params.title,
+            query: search_params.query().clone(),
+            imdb: search_params.imdb().clone(),
+            title: search_params.title().clone(),
             category: Some(category),
             sort: Some(sort),
             order: Some(order),
-            limit: search_params.limit,
-            quality: Some(
-                search_params
-                    .quality
-                    .unwrap_or_default()
-                    .into_iter()
-                    .map(|q| q.parse::<Quality>().expect("Can not give error"))
-                    .collect(),
-            ),
-            codec: Some(
-                search_params
-                    .codec
-                    .unwrap_or_default()
-                    .into_iter()
+            limit: search_params.limit().clone(),
+            quality: search_params.quality().as_ref().map(|q| {
+                q.into_iter()
+                    .map(|q| q.parse().expect("Can not give error"))
+                    .collect()
+            }),
+            codec: search_params.codec().as_ref().map(|c| {
+                c.into_iter()
                     .map(|c| c.parse().expect("Can not give error"))
-                    .collect(),
-            ),
-            source: Some(
-                search_params
-                    .source
-                    .unwrap_or_default()
-                    .into_iter()
+                    .collect()
+            }),
+            source: search_params.source().as_ref().map(|s| {
+                s.into_iter()
                     .map(|s| s.parse().expect("Can not give error"))
-                    .collect(),
-            ),
+                    .collect()
+            }),
         },
         context.lock().await.torrent_client(),
     )
