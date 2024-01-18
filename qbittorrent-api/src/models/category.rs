@@ -9,7 +9,7 @@ pub struct Category {
     save_path: String,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct Categories {
     #[serde(flatten)]
     categories: HashMap<String, Category>,

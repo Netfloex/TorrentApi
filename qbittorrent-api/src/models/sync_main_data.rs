@@ -11,9 +11,12 @@ pub struct SyncMainData {
     rid: usize,
     #[serde(default)]
     full_update: bool,
-    torrents: Option<HashMap<String, PartialTorrent>>,
-    torrents_removed: Option<Vec<String>>,
-    categories: Option<Categories>,
+    #[serde(default)]
+    torrents: HashMap<String, PartialTorrent>,
+    #[serde(default)]
+    torrents_removed: Vec<String>,
+    #[serde(default)]
+    categories: Categories,
 }
 
 impl SyncMainData {
@@ -21,21 +24,16 @@ impl SyncMainData {
         self.rid = other.rid;
         self.full_update = other.full_update;
 
-        if let Some(torrents) = other.torrents {
-            torrents.into_iter().for_each(|(hash, torrent)| {
-                let self_torrents = self.torrents.as_mut().unwrap();
-                if let Some(existing) = self_torrents.get_mut(&hash) {
-                    existing.merge(torrent);
-                } else {
-                    self_torrents.insert(hash, torrent);
-                }
-            });
-        }
+        other.torrents_removed().iter().for_each(|hash| {
+            self.torrents.remove(hash);
+        });
 
-        if let Some(torrents_removed) = other.torrents_removed {
-            torrents_removed.into_iter().for_each(|hash| {
-                self.torrents.as_mut().unwrap().remove(&hash);
-            });
-        }
+        other.torrents.into_iter().for_each(|(hash, torrent)| {
+            if let Some(existing) = self.torrents.get_mut(&hash) {
+                existing.merge(torrent);
+            } else {
+                self.torrents.insert(hash, torrent);
+            }
+        });
     }
 }
