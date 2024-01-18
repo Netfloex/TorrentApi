@@ -1,6 +1,4 @@
-use surf::Body;
-
-use crate::{error::ErrorKind, AddCategoryOptions, Error, QbittorrentClient};
+use crate::{Error, QbittorrentClient};
 
 impl QbittorrentClient {
     pub async fn ensure_category(&self, name: &str, save_path: &str) -> Result<(), Error> {

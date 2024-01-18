@@ -28,6 +28,13 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
     let timeout_inactive = config.movie_tracking_timeout_inactive().to_owned();
     let min_timeout = config.movie_tracking_min_timeout().to_owned();
 
+    context
+        .lock()
+        .await
+        .qbittorrent_client()
+        .ensure_category(config.qbittorrent().category(), "")
+        .await?;
+
     loop {
         let mut min_eta = max_timeout_active;
         while !context
