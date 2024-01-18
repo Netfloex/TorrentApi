@@ -130,19 +130,22 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                             import_movie(local_path, dest_folder).await?;
 
-                            context
-                                .lock()
-                                .await
-                                .qbittorrent_client()
-                                .set_category(hash.to_owned(), "".to_string())
-                                .await?;
-
                             if *config.delete_torrent_after_import() {
                                 context
                                     .lock()
                                     .await
                                     .qbittorrent_client()
                                     .delete_torrent(hash.to_owned(), *config.delete_torrent_files())
+                                    .await?;
+                            } else {
+                                context
+                                    .lock()
+                                    .await
+                                    .qbittorrent_client()
+                                    .set_category(
+                                        hash.to_owned(),
+                                        config.category_after_import().to_owned(),
+                                    )
                                     .await?;
                             }
                         } else {

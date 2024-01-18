@@ -43,6 +43,9 @@ pub struct Config {
 
     #[serde_inline_default(false)]
     delete_torrent_files: bool,
+
+    #[serde_inline_default(String::new())]
+    category_after_import: String,
 }
 
 pub fn get_config() -> Result<Config, Error> {
