@@ -29,4 +29,8 @@ impl QbittorrentClient {
             ))
         }
     }
+
+    pub async fn delete_torrent(&self, hash: String, delete_files: bool) -> Result<(), Error> {
+        self.delete_torrents(vec![hash], delete_files).await
+    }
 }

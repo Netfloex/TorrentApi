@@ -129,6 +129,15 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                                 .qbittorrent_client()
                                 .set_category(hash.to_owned(), "".to_string())
                                 .await?;
+
+                            if *config.delete_torrent_after_import() {
+                                context
+                                    .lock()
+                                    .await
+                                    .qbittorrent_client()
+                                    .delete_torrent(hash.to_owned(), *config.delete_torrent_files())
+                                    .await?;
+                            }
                         } else {
                             println!("No TMDB id found for {}", name);
                         }
@@ -142,7 +151,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                 continue;
             } else if active_torrents == 0 {
                 min_eta = timeout_inactive;
-                println!("No active torrents, waiting {}s", min_eta)
+                println!("No active torrents")
             } else {
                 println!(
                     "Watching {}/{} torrents",

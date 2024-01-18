@@ -37,6 +37,12 @@ pub struct Config {
 
     #[serde_inline_default(1)]
     movie_tracking_min_timeout: u64,
+
+    #[serde_inline_default(false)]
+    delete_torrent_after_import: bool,
+
+    #[serde_inline_default(false)]
+    delete_torrent_files: bool,
 }
 
 pub fn get_config() -> Result<Config, Error> {
