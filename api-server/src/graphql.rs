@@ -114,6 +114,21 @@ impl Mutation {
         track_movie(context, url, tmdb as u32).await?;
         Ok("Ok".into())
     }
+
+    async fn delete_torrents(
+        #[graphql(context)] context: &ContextPointer,
+        hashes: Vec<String>,
+        delete_files: bool,
+    ) -> Result<String, HttpErrorKind> {
+        context
+            .lock()
+            .await
+            .qbittorrent_client()
+            .delete_torrents(hashes, delete_files)
+            .await?;
+
+        Ok("Ok".into())
+    }
 }
 
 pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription<ContextPointer>>;

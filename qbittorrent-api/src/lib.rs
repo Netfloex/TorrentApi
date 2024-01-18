@@ -2,6 +2,7 @@ mod api;
 mod auth_middleware;
 mod error;
 mod models;
+pub mod serialize_hashes;
 use auth_middleware::AuthMiddleware;
 pub use error::Error;
 pub use error::ErrorKind;

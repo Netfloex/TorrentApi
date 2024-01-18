@@ -1,7 +1,6 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Serialize;
-use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Default, PartialEq)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
