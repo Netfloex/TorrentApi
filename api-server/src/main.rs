@@ -87,8 +87,10 @@ async fn rocket() -> _ {
     TermLogger::init(
         LevelFilter::Debug,
         LogConfigBuilder::new()
-            .add_filter_ignore("isahc".to_string())
-            .add_filter_ignore("tracing".to_string())
+            .add_filter_ignore_str("isahc")
+            .add_filter_ignore_str("tracing")
+            .add_filter_ignore_str("hyper")
+            .add_filter_ignore_str("selectors")
             .build(),
         TerminalMode::Mixed,
         ColorChoice::Auto,
