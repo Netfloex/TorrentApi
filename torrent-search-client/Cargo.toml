@@ -26,6 +26,7 @@ surf = { version = "2.3.2", features = [
 	"encoding",
 ], default-features = false }
 http-cache-surf = "0.12.1"
+log = "0.4.20"
 
 [features]
 graphql = ["dep:juniper"]

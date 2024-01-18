@@ -52,7 +52,7 @@ pub async fn search_handler(
                         .or_insert(torrent.into());
                 }
             }
-            Err(err) => eprintln!("Error:\n{:?}", err),
+            Err(err) => error!("Error:\n{:?}", err),
         }
     }
 

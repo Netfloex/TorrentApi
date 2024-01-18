@@ -53,7 +53,7 @@ pub fn get_config() -> Result<Config, Error> {
 
     let config = figment.extract()?;
 
-    dbg!(&config);
+    debug!("{:#?}", config);
 
     Ok(config)
 }

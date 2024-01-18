@@ -1,8 +1,8 @@
+use crate::utils::normalize_title;
 use distance::levenshtein;
 use lazy_static::lazy_static;
+use log::debug;
 use regex::Regex;
-
-use crate::utils::normalize_title;
 
 lazy_static! {
     static ref REMOVE_AFTER_YEAR: Regex = Regex::new(r"\W*(19|20)\d\d\D.*").unwrap();
@@ -45,7 +45,7 @@ pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {
 
     let matches = match_perc > 0.8;
     if !matches {
-        println!("Incorrect movie: {}", torrent_title)
+        debug!("Incorrect movie: {}", torrent_title)
     }
     matches
 }

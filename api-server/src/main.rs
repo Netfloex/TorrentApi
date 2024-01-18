@@ -19,6 +19,10 @@ use qbittorrent_api::QbittorrentClient;
 use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
 use search_params::SearchParams;
+use simplelog::{
+    ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, SimpleLogger, TermLogger,
+    TerminalMode,
+};
 use std::sync::Arc;
 use std::{process, vec};
 use tokio::sync::Mutex;
@@ -80,9 +84,20 @@ async fn search(
 
 #[launch]
 async fn rocket() -> _ {
+    TermLogger::init(
+        LevelFilter::Debug,
+        LogConfigBuilder::new()
+            .add_filter_ignore("isahc".to_string())
+            .add_filter_ignore("tracing".to_string())
+            .build(),
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    )
+    .unwrap();
+
     let config = get_config().unwrap_or_else(|e| {
-        println!("Error missing required config");
-        println!("{}", e);
+        error!("Error missing required config");
+        error!("{}", e);
         process::exit(1);
     });
 

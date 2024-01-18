@@ -18,11 +18,11 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
     }
 
     if config.disable_movie_tracking().to_owned() {
-        println!("Movie progress check is disabled");
+        info!("Movie progress check is disabled");
         return Ok(());
     }
 
-    println!("Starting background movie progress tracking");
+    info!("Starting background movie progress tracking");
 
     let max_timeout_active = config.movie_tracking_max_timeout_active().to_owned();
     let timeout_inactive = config.movie_tracking_timeout_inactive().to_owned();
@@ -45,7 +45,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
             .await
             .to_owned()
         {
-            println!("Progress tracking (temporarily) disabled");
+            info!("Progress tracking (temporarily) disabled");
             let ntfy = Arc::clone(&context.lock().await.movie_tracking_ntfy());
             ntfy.notified().await;
         }
@@ -63,7 +63,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                 let qb = ctx.qbittorrent_client_mut();
 
-                println!("Checking for torrents to import");
+                debug!("Checking for torrents to import");
                 let sync = qb.sync().await?;
                 torrents = sync.torrents().clone();
             }
@@ -98,7 +98,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                         min_eta = min_eta.min(eta).min(max_timeout_active).max(min_timeout);
 
-                        println!(
+                        debug!(
                             "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
                             name,
                             (progress * 100.0).round(),
@@ -115,7 +115,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                                 .await?;
                             let movie_name = movie.format();
 
-                            println!("Importing \"{}\" as \"{}\"", name, movie_name);
+                            info!("Importing \"{}\" as \"{}\"", name, movie_name);
 
                             let remote_path = torrent
                                 .content_path()
@@ -146,28 +146,28 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                                     .await?;
                             }
                         } else {
-                            println!("No TMDB id found for {}", name);
+                            warn!("No TMDB id found for {}", name);
                         }
                     }
                 }
             }
 
             if watching_torrents == 0 {
-                println!("No torrents to track");
+                info!("No torrents to track");
                 context.lock().await.disable_movie_tracking().await;
                 continue;
             } else if active_torrents == 0 {
                 min_eta = timeout_inactive;
-                println!("No active torrents")
+                info!("No active torrents")
             } else {
-                println!(
+                info!(
                     "Watching {}/{} torrents",
                     active_torrents, watching_torrents
                 )
             }
         }
 
-        println!("Waiting: {}s", min_eta);
+        info!("Waiting: {}s", min_eta);
         sleep(Duration::from_secs(min_eta)).await;
     }
 }
