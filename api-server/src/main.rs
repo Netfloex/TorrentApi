@@ -20,8 +20,7 @@ use rocket::{serde::json::Json, State};
 use search_handler::{search_handler, SearchHandlerParams};
 use search_params::SearchParams;
 use simplelog::{
-    ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, SimpleLogger, TermLogger,
-    TerminalMode,
+    ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
 };
 use std::sync::Arc;
 use std::{process, vec};

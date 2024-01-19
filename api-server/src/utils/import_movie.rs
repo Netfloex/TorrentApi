@@ -1,9 +1,6 @@
-use std::path::PathBuf;
-
-use rocket::local;
-use tokio::fs::{self, DirEntry};
-
 use crate::{http_error::HttpErrorKind, r#static::media_file_extensions::MEDIA_FILE_EXTENSIONS};
+use std::path::PathBuf;
+use tokio::fs::{self, DirEntry};
 
 pub async fn import_movie(local_path: PathBuf, dest_folder: PathBuf) -> Result<(), HttpErrorKind> {
     if !local_path.try_exists()? {

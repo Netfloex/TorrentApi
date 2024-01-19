@@ -54,7 +54,19 @@ pub fn get_config() -> Result<Config, Error> {
         .merge(Env::raw().split("_"))
         .merge(Yaml::file("config.yaml"));
 
-    let config = figment.extract()?;
+    let config: Config = figment.extract()?;
+
+    // category != category_after_import
+    if config.category_after_import() == config.qbittorrent().category() {
+        error!("category_after_import cannot be the same as category");
+        std::process::exit(1);
+    }
+
+    // !delete_torrent_after_import && delete_torrent_files
+    if !config.delete_torrent_after_import() && *config.delete_torrent_files() {
+        error!("delete_torrent_files cannot be true if delete_torrent_after_import is false");
+        std::process::exit(1);
+    }
 
     debug!("{:#?}", config);
 
