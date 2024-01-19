@@ -1,14 +1,21 @@
+use std::ops::Deref;
+
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct IntScalar<T>(T);
 
-impl<T> IntScalar<T> {
-    pub fn get(&self) -> &T {
+impl<T> Deref for IntScalar<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
         &self.0
     }
-    pub fn from(i: T) -> Self {
-        Self(i)
+}
+
+impl From<u64> for IntScalar<u64> {
+    fn from(value: u64) -> Self {
+        Self(value)
     }
 }
 

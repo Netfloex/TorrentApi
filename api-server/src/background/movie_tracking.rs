@@ -76,12 +76,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                     let progress = torrent
                         .progress()
                         .expect("Progress should be available at sync");
-                    let eta = torrent
+                    let eta = **torrent
                         .eta()
                         .as_ref()
-                        .expect("ETA should be available at sync")
-                        .get()
-                        .to_owned();
+                        .expect("ETA should be available at sync");
                     let state = torrent
                         .state()
                         .as_ref()

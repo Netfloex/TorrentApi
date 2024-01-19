@@ -45,7 +45,7 @@ impl ApiTorrent {
             self.name = other.name
         }
         self.seeders |= other.seeders;
-        if self.size().get() == &0 {
+        if **self.size() == 0 {
             self.size = other.size
         }
         if self.magnet.is_empty() {
@@ -65,7 +65,7 @@ impl From<Torrent> for ApiTorrent {
             leechers: value.leechers,
             name: value.name,
             seeders: value.seeders,
-            size: IntScalar::from(value.size),
+            size: value.size.into(),
             provider: value.provider,
             magnet: value.magnet,
             movie_properties: value.movie_properties,

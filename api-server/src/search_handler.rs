@@ -89,7 +89,7 @@ pub async fn search_handler(
         SortColumn::Added => a.added().cmp(b.added()),
         SortColumn::Leechers => a.leechers().cmp(b.leechers()),
         SortColumn::Seeders => a.seeders().cmp(b.seeders()),
-        SortColumn::Size => a.size().get().cmp(b.size().get()),
+        SortColumn::Size => a.size().cmp(b.size()),
     });
 
     if order == Order::Descending {
