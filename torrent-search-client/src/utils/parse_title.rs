@@ -7,7 +7,7 @@ use regex::Regex;
 lazy_static! {
     static ref REMOVE_AFTER_YEAR: Regex = Regex::new(r"\W*(19|20)\d\d\D.*").unwrap();
     static ref REMOVE_TAGS_REGEX: Regex = Regex::new(r"\[.*\]|\(.*\)").unwrap();
-    static ref YEAR_REGEX: Regex = Regex::new(r"19|20\d\d").unwrap();
+    static ref YEAR_REGEX: Regex = Regex::new(r"(19|20)\d\d").unwrap();
     static ref SITE_REGEX: Regex = Regex::new(r"(www\.)?\w+\.(com|me|to)").unwrap();
     static ref BOUNDARIES_REGEX: Regex = Regex::new(r"[-._:]").unwrap();
 }
@@ -20,8 +20,9 @@ pub fn parse_title(title: &str) -> String {
     };
 
     let title = REMOVE_AFTER_YEAR.replace(&title, "");
-    let title = REMOVE_TAGS_REGEX.replace(&title, "");
-    let title = SITE_REGEX.replace(&title, "");
+    let title = REMOVE_TAGS_REGEX.replace_all(&title, "");
+    let title = SITE_REGEX.replace_all(&title, "");
+    let title = BOUNDARIES_REGEX.replace_all(&title, " ");
 
     let title = title.trim();
 
@@ -48,4 +49,71 @@ pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {
         debug!("Incorrect movie: {}", torrent_title)
     }
     matches
+}
+
+#[cfg(test)]
+
+mod tests {
+    use crate::r#static::tests::matrix_torrents::TEST_MOVIE_TITLES;
+
+    use super::*;
+
+    const PARSED_TEST_TITLE: &str = "the matrix (1999)";
+
+    #[test]
+    fn test_parse_title() {
+        TEST_MOVIE_TITLES.iter().for_each(|title| {
+            assert_eq!(parse_title(title), PARSED_TEST_TITLE);
+        });
+    }
+
+    #[test]
+    fn test_levenshtein_percentage_1() {
+        let same = "aaaa";
+        assert_eq!(levenshtein_percentage(same, same), 1.0);
+    }
+
+    #[test]
+    fn test_levenshtein_percentage_05() {
+        let left_ = "aaaa";
+        let right = "aabb";
+        assert_eq!(levenshtein_percentage(left_, right), 0.5);
+    }
+
+    #[test]
+    fn test_levenshtein_percentage_0() {
+        let left_ = "aaaa";
+        let right = "bbbb";
+        assert_eq!(levenshtein_percentage(left_, right), 0.0);
+    }
+
+    #[test]
+    fn test_boundaries_regex() {
+        let boundaries = "_.:-";
+        assert_eq!(BOUNDARIES_REGEX.replace_all(boundaries, ""), "");
+    }
+
+    #[test]
+    fn test_remove_tags_regex() {
+        let tags = "[test]middle(test)";
+        assert_eq!(REMOVE_TAGS_REGEX.replace_all(tags, ""), "middle");
+    }
+
+    #[test]
+    fn test_year_regex() {
+        let year = "test test.1999 test";
+        assert_eq!(YEAR_REGEX.find(year).unwrap().as_str(), "1999");
+    }
+
+    #[test]
+    fn test_site_regex() {
+        let site = "start www.test.com end";
+        assert_eq!(SITE_REGEX.replace_all(site, ""), "start  end");
+    }
+
+    #[test]
+    fn test_remove_after_year_regex() {
+        let remove_after_year = "1999 test";
+        assert_eq!(REMOVE_AFTER_YEAR.replace(remove_after_year, ""), "");
+    }
 }

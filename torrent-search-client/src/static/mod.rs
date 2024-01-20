@@ -1,4 +1,2 @@
-mod trackers;
-
-pub use trackers::PIRATEBAY_TRACKERS;
-pub use trackers::YTS_TRACKERS;
+pub mod tests;
+pub mod trackers;
