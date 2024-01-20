@@ -27,7 +27,7 @@ lazy_static! {
     static ref TELESYNC_REGEX: Regex =
         Regex::new(r"\b(?:telesync|hd-?ts|ts|pdvd|predvdrip)\b").unwrap();
     static ref TELECINE_REGEX: Regex = Regex::new(r"\b(?:telecine|hd-?tc|tc)\b").unwrap();
-    static ref DVD_REGEX: Regex = Regex::new(r"\b(?:dvd|dvdrip|xvidvd|dvdr)\b").unwrap();
+    static ref DVD_REGEX: Regex = Regex::new(r"\b(?:(?:hd)?dvd(?:rip)?|xvidvd|dvdr)\b").unwrap();
     static ref HDTV_REGEX: Regex =
         Regex::new(r"\b(?:hdtv|pdtv|dsr|dsrrip|satrip|dthrip|dvbrip|dtvrip|tvrip|hdtvrip)\b")
             .unwrap();

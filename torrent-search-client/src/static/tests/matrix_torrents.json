@@ -38,7 +38,7 @@
 		"name": "The Matrix Complete 5 Movie Collection Sci-Fi 1999-2021 Eng 1080",
 		"codec": "Unknown",
 		"source": "Unknown",
-		"quality": "Unknown",
+		"quality": "1080p",
 		"parsed": "the matrix complete 5 movie collection sci fi (1999)"
 	},
 	{
@@ -415,7 +415,7 @@
 	{
 		"name": "The Matrix Trilogy HDDVD FASM X264 720p PROPER",
 		"codec": "avc",
-		"source": "Unknown",
+		"source": "Dvd",
 		"quality": "720p",
 		"parsed": ""
 	},
@@ -583,7 +583,7 @@
 	{
 		"name": "The Matrix 1999 1080p HDDVDRip H264 AAC - IceBane (Kingdom Relea",
 		"codec": "avc",
-		"source": "Unknown",
+		"source": "Dvd",
 		"quality": "1080p",
 		"parsed": "the matrix (1999)"
 	},
@@ -682,7 +682,7 @@
 		"name": "The Matrix Trilogy Complete - BRRip - m720p - x264 - MKV by Ridd",
 		"codec": "avc",
 		"source": "BluRay",
-		"quality": "Unknown",
+		"quality": "720p",
 		"parsed": ""
 	},
 	{

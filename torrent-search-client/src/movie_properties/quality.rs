@@ -23,17 +23,18 @@ pub enum Quality {
 }
 
 lazy_static! {
-    static ref P480_REGEX: Regex = Regex::new(r"\b(?:480p|640x480|848x480)\b").unwrap();
-    static ref P540_REGEX: Regex = Regex::new(r"\b(?:540p)\b").unwrap();
-    static ref P576_REGEX: Regex = Regex::new(r"\b(?:576p)\b").unwrap();
+    static ref P480_REGEX: Regex = Regex::new(r"\D(?:480p|640x480|848x480)\b").unwrap();
+    static ref P540_REGEX: Regex = Regex::new(r"\D(?:540p)\b").unwrap();
+    static ref P576_REGEX: Regex = Regex::new(r"\D(?:576p)\b").unwrap();
     static ref P720_REGEX: Regex =
-        Regex::new(r"\b(?:720p|1280x720|960p|hdcam(?:rip)?|hdt[cs])\b").unwrap();
+        Regex::new(r"\D(?:720p|1280x720|960p|hdcam(?:rip)?|hdt[cs])\b").unwrap();
     static ref P1080_REGEX: Regex =
-        Regex::new(r"\b(?:1080p|1920x1080|1440p|FHD|1080i|4kto1080p)\b").unwrap();
+        Regex::new(r"\D(?:1080p|1920x1080|1440p|FHD|1080i|4kto1080p)\b").unwrap();
     static ref P2160_REGEX: Regex = Regex::new(
-        r"\b(?:2160p|3840x2160|4k[-_. ](?:UHD|HEVC|BD|H\.?265)|(?:UHD|HEVC|BD|H\.?265)[-_. ]4k)\b"
+        r"\D(?:2160p|3840x2160|4k[-_. ](?:UHD|HEVC|BD|H\.?265)|(?:UHD|HEVC|BD|H\.?265)[-_. ]4k)\b"
     )
     .unwrap();
+    static ref SOME_DIGITS_REGEX: Regex = Regex::new(r"\d{3,4}").unwrap();
 }
 
 impl Quality {
@@ -45,7 +46,23 @@ impl Quality {
             s if P720_REGEX.is_match(s) => Quality::P720,
             s if P1080_REGEX.is_match(s) => Quality::P1080,
             s if P2160_REGEX.is_match(s) => Quality::P2160,
-            _ => Self::Unknown,
+            _ => {
+                let new_string = SOME_DIGITS_REGEX
+                    .replace_all(s, |caps: &regex::Captures| {
+                        caps.get(0).unwrap().as_str().to_string() + "p"
+                    })
+                    .to_string();
+                dbg!(&new_string);
+                match new_string.as_str() {
+                    s if P480_REGEX.is_match(s) => Quality::P480,
+                    s if P540_REGEX.is_match(s) => Quality::P540,
+                    s if P576_REGEX.is_match(s) => Quality::P576,
+                    s if P720_REGEX.is_match(s) => Quality::P720,
+                    s if P1080_REGEX.is_match(s) => Quality::P1080,
+                    s if P2160_REGEX.is_match(s) => Quality::P2160,
+                    _ => Self::Unknown,
+                }
+            }
         }
     }
 }
