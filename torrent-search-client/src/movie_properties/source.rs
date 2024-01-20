@@ -4,7 +4,7 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize, Default, PartialEq)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
-
+#[cfg_attr(test, derive(serde::Deserialize))]
 pub enum Source {
     #[default]
     Unknown,
@@ -53,5 +53,28 @@ impl Source {
 
             _ => Self::Unknown,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::r#static::tests::matrix_torrents::TestMatrixTorrents;
+    use lazy_static::lazy_static;
+
+    lazy_static! {
+        static ref TEST_MATRIX_TORRENTS: TestMatrixTorrents = TestMatrixTorrents::new();
+    }
+
+    #[test]
+    fn test_sources() {
+        TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
+            assert_eq!(
+                &Source::from_str(torrent.name()),
+                torrent.source(),
+                "{}",
+                torrent.name()
+            );
+        });
     }
 }

@@ -1,93 +1,33 @@
-pub const TEST_MOVIE_TITLES: &[&str] = &[
-    "The Matrix (1999) 1080p BrRip x264 - 1.85GB - YIFY",
-    "The Matrix (1999) 720p BrRip x264 - 700mb - YIFY",
-    "The Matrix (1999) [2160p] [bluray] x265",
-    "The.Matrix.1999.2160p.MAX.WEB-DL.DDPA.5.1.DV.HDR.H.265-PiRaTeS[T",
-    "The Matrix (1999) [Keanu Reeves] 1080p BluRay H264 DolbyD 5.1 + nickarad",
-    "The Matrix 1999 UHD Blu-ray 2160p x265 HDR Atmos 7.1-DTOne",
-    "The Matrix (1999) 3D HSBS 1080p BluRay H264 DolbyD 5.1 + nickarad",
-    "The.Matrix.1999.1080p.BluRay.DDP5.1.x265.10bit-GalaxyRG265",
-    "The Matrix 1999_HDRip_om_[scarabey.org].avi",
-    "The.Matrix.1999.PROPER.2160p.BluRay.REMUX.HEVC.DTS-HD.MA.TrueHD.7.1.Atmos-FGT",
-    "The.Matrix.1999.BRRip.2160p.UHD.HDR.DD5.1.gerald99",
-    "The Matrix (1999) [1080p]",
-    "The.Matrix.1999.2160p.BluRay.HDR.DDP5.1.x265-GalaxyUHD",
-    "The.Matrix.1999.REMASTERED.1080p.BluRay.H264.AAC-GoodFilms",
-    "The Matrix (1999) 720P Bluray X264 [Moviesfd]",
-    "The.Matrix.1999.BDRip.1080p.Rus.mkv",
-    "The Matrix (1999) 1080p Bluray 10-bit AV1 Opus DP2 [XannyFamily]",
-    "The Matrix (1999) 2160p [4K] BluRay SDR [HINDI-ENG-5.1] 10bit HEVC - PeruGuy",
-    "The Matrix (1999) (2160p BluRay x265 HEVC 10bit HDR AAC 7.1 Tigole)",
-    "The.Matrix.1999.2160p.UHD.BluRay.x265.10bit.HDR.TrueHD.7.1.Atmos",
-    "The.Matrix.1999.REMASTERED.RERIP.1080p.BluRay.x264.TrueHD.7.1.At",
-    "The.Matrix.1999.REMASTERED.1080p.BluRay.REMUX.AVC.DTS-HD.MA.True",
-    "The.Matrix.1999.REMASTERED.1080p.BluRay.x265-RARBM",
-    "The.Matrix.1999.2160p.10bit.HDR.BluRay.8CH.x265.HEVC-PSA",
-    "The Matrix 1999 4K 2160p BluRay x265 10bit HDR",
-    "The Matrix 1999 BluRay 1080p DTS AC3 x264-MgB",
-    "The Matrix 1999 1080p BluRay DTS x264-HiDt",
-    "The.Matrix.1999.REMASTERED.1080p.BluRay.X264-AMIABLE",
-    "The.Matrix.1999.1080p.10bit.BluRay.6CH.x265.HEVC-PSA",
-    "The Matrix 1999.UHD.BluRay.2160p.x265.HDR.Atmos.7.1[En+Hi]-DTOne",
-    "The Matrix (1999) 720p BRrip x264 scOrp {~dude7001~}",
-    "[DivX ac3 Ita Eng] The Matrix - 1999 (nautilus-bt.org)",
-    "The Matrix 1999 blu-ray 720p MP4 Spanish Latino only",
-    "The.Matrix.1999.RERIP.2160p.BluRay.x264.8bit.SDR.DTS-HD.MA.TrueH",
-    "The.Matrix.1999.1080p.BluRay.H264.AAC-RARBG",
-    "The.Matrix.1999.720p.BluRay.x264-NeZu",
-    "The.Matrix.1999.720p.BluRay.x264.AC3.-.Ozlem.mp4",
-    "The.Matrix.1999.1080p.BluRay.x265.10bit-z97",
-    "The.Matrix.1999.REMASTERED.RERIP.1080p.BluRay.x264.DTS-HD.MA.7.1",
-    "The.Matrix.1999.x264.DTS.2AUDIO-WAF",
-    "The Matrix (1999) 1080p 5.1 BDRip x264 HQ - Judas",
-    "The.Matrix.1999.DVDRip.Eng.XviD-BTSFilms",
-    "The.Matrix.1999.RM.in.4K.Bluray.1080p.TrueHD.7.1.Atmos.x264-Grym",
-    "The Matrix 1999 BDRip Hindi~3385VKSH",
-    "The Matrix 1999 1080p.BluRay.5.1.x264 . NVEE",
-    "The.Matrix.1999.1080p.x264.DTSMA.2AUDIO-WAF",
-    "The Matrix 1999 720p BRRip x264-x0r",
-    "The.Matrix.1999.720p.10bit.BluRay.6CH.x265.HEVC-PSA",
-    "The Matrix 1999 HDDVD 720p DTS x264-3Li",
-    "The.Matrix.1999.iNTERNAL.DVDRip.x264-FADE",
-    "The Matrix 1999 HDDVD ReMux 1080p VC-1 DTS-3Li",
-    "The Matrix 1999 (1080p Bluray x265 HEVC AAC 5.1 Joy)[UTR]",
-    "The Matrix (1999) PAL DVD9",
-    "The.Matrix.1999.SweSub-EngSub.1080p.x264-Justiso",
-    "The Matrix 1999 REMASTERED 720p BluRay X264-AMIABLE",
-    "The.Matrix.1999.1080p.BluRay.VC-1.TrueHD.5.1-HTPG",
-    "The Matrix [1999] BRRip x264 AAC-V3nom",
-    "The Matrix (1999) 1080p 5.1 BrRip x264 - Judas",
-    "The.Matrix.1999.720p.HDDVDRip.XviD.AC3-ViSiON mulisubs",
-    "The.Matrix.1999.REMASTERED.1080p.BluRay.AC35.1.x265-GREP",
-    "The.Matrix.1999.REMASTERED.720p.BluRay.X264-AMIABLE",
-    "The Matrix [1999] 720p BluRay.x264.AAC-ZoNe",
-    "The Matrix 1999 1080p HDDVDRip H264 AAC - IceBane (Kingdom Relea",
-    "The.Matrix.1999.iNTERNAL.DVDRip.x264-FADE",
-    "The.Matrix.1999.1080p.Bluray.x264.Codres",
-    "The Matrix (1999) 1080p iTunes",
-    "The.Matrix.1999.1080p.BluRay.x264.AC3.-.Ozlem.mp4",
-    "The Matrix 1999 720p BluRay x264-MgB",
-    "The Matrix 1999 720p BRRip x264 AAC Ali Baloch Silver RG",
-    "The.Matrix.1999.iNTERNAL.DVDRip.x264-FADE",
-    "The.Matrix.(1999).BRRip.272p.H264.AAC-FaCTFiCTioN",
-    "The.Matrix.1999.iNTERNAL.DVDRip.x264-FADE",
-    "The Matrix 1999 UHD Blu-ray 2160p HDR Remux Multi Atmos 7.1-DTOn",
-    "The Matrix 1999 BluRay 1080p DTS-HD MA 5.1 AC3 x264-MgB",
-    "The.Matrix.1999.720p.BRRip.x264-x0r",
-    "The Matrix 1999 BDRip XviD AC3 Subs-TmG BOZX",
-    "The Matrix [1999]DvDrip[x265+Subs]-Nikon",
-    "The.Matrix.1999.iNTERNAL.DVDRip.x264-WaLMaRT",
-    "The Matrix (1999) HDDVDRip 720p [Rus/Eng]",
-    "The.Matrix.1999.RERIP.2160p.BluRay.x265.10bit.SDR.DTS-HD.MA.True",
-    "The Matrix (1999) SciFi [NL subs] [NLtoppers] [FilmSpot]",
-    "The.Matrix.1999.iNTERNAL.DVDRip.XviD.AC3-XviK",
-    "The Matrix (1999) 720p iTunes",
-    "The.Matrix.1999.DVDRip.XviD.AC3-5.1-SPASTiKUS",
-    "The Matrix 1999 Reloaded 2003 Revolutions 2003 - threesixtyp",
-    "The Matrix 1999 (1080p for AppleTViPad with NL subs)--TBS",
-    "The.Matrix.1999.BRRip.480p.x264.AAC-VYTO [P2PDL]",
-    "The.Matrix.1999.720p.BRRip.x264.ogg.mkv-anoXmous",
-    "The Matrix[1999]BRRip[3 in 1][720p]-[UKB h264 by D-L33T3]",
-    "The Matrix 1999 1080p BDRip(6ch)[Hindi-English]~TheAaax9",
-    "The.Matrix.1999.REMASTERED.720p.BluRay.999MB.x265.10bit-Galax",
-];
+// #[cfg(test)]
+use crate::{Quality, Source, VideoCodec};
+use derive_getters::Getters;
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug, Clone, Getters)]
+pub struct TestMatrixTorrent {
+    name: String,
+    codec: VideoCodec,
+    source: Source,
+    quality: Quality,
+    parsed: String,
+}
+
+pub struct TestMatrixTorrents {
+    torrents: Vec<TestMatrixTorrent>,
+}
+
+impl TestMatrixTorrents {
+    fn init() -> Vec<TestMatrixTorrent> {
+        serde_json::from_str(include_str!("matrix_torrents.json")).unwrap()
+    }
+
+    pub fn new() -> Self {
+        Self {
+            torrents: Self::init(),
+        }
+    }
+
+    pub fn get(&self) -> &Vec<TestMatrixTorrent> {
+        &self.torrents
+    }
+}

@@ -4,6 +4,7 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize, Default, PartialEq)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+#[cfg_attr(test, derive(serde::Deserialize))]
 pub enum Quality {
     #[default]
     Unknown,
@@ -46,5 +47,28 @@ impl Quality {
             s if P2160_REGEX.is_match(s) => Quality::P2160,
             _ => Self::Unknown,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::r#static::tests::matrix_torrents::TestMatrixTorrents;
+    use lazy_static::lazy_static;
+
+    lazy_static! {
+        static ref TEST_MATRIX_TORRENTS: TestMatrixTorrents = TestMatrixTorrents::new();
+    }
+
+    #[test]
+    fn test_qualities() {
+        TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
+            assert_eq!(
+                &Quality::from_str(torrent.name()),
+                torrent.quality(),
+                "{}",
+                torrent.name()
+            );
+        });
     }
 }

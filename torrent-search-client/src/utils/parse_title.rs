@@ -54,16 +54,23 @@ pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {
 #[cfg(test)]
 
 mod tests {
-    use crate::r#static::tests::matrix_torrents::TEST_MOVIE_TITLES;
-
     use super::*;
+    use crate::r#static::tests::matrix_torrents::TestMatrixTorrents;
+    use lazy_static::lazy_static;
 
-    const PARSED_TEST_TITLE: &str = "the matrix (1999)";
+    lazy_static! {
+        static ref TEST_MATRIX_TORRENTS: TestMatrixTorrents = TestMatrixTorrents::new();
+    }
 
     #[test]
     fn test_parse_title() {
-        TEST_MOVIE_TITLES.iter().for_each(|title| {
-            assert_eq!(parse_title(title), PARSED_TEST_TITLE);
+        TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
+            assert_eq!(
+                &parse_title(torrent.name()),
+                torrent.parsed(),
+                "{}",
+                torrent.name()
+            );
         });
     }
 
