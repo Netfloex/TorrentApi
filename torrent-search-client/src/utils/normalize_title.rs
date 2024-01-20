@@ -12,3 +12,23 @@ pub fn normalize_title(title: &str) -> String {
 
     title.trim().to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_normalize_title() {
+        assert_eq!(normalize_title(" test    TEST   test "), "test test test");
+    }
+
+    #[test]
+    fn test_normalize_title_unicode() {
+        assert_eq!(normalize_title("test👍🏻"), "test");
+    }
+
+    #[test]
+    fn test_space_regex() {
+        assert_eq!(MULTIPLE_SPACES.find("test  test").unwrap().as_str(), "  ");
+    }
+}
