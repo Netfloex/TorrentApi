@@ -30,6 +30,9 @@ jobs:
             - name: Cargo Fetch
               run: cargo fetch --locked
 
+            - name: Test
+              run: cargo test --locked
+
             - name: Cargo Build
               run: cargo build --release
 

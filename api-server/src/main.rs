@@ -90,6 +90,7 @@ async fn rocket() -> _ {
             .add_filter_ignore_str("tracing")
             .add_filter_ignore_str("hyper")
             .add_filter_ignore_str("selectors")
+            .add_filter_ignore_str("html5ever")
             .build(),
         TerminalMode::Mixed,
         ColorChoice::Auto,

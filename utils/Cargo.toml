@@ -19,6 +19,7 @@ surf = { version = "2.3.2", features = [
 	"encoding",
 ], default-features = false }
 log = "0.4.20"
+multimap = "0.10.0"
 
 
 # [features]
