@@ -8,7 +8,7 @@ use crate::{
 };
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
-use movie_info::MovieInfo;
+use movie_info::{Filters, MovieInfo};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
 use rocket::{response::content::RawHtml, State};
 
@@ -62,11 +62,17 @@ impl Query {
         #[graphql(context)] context: &ContextPointer,
         query: String,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
-        let movie_info = context
-            .lock()
-            .await
+        let ctx = context.lock().await;
+        let config = ctx.config();
+        let movie_info = ctx
             .movie_info_client()
-            .search(query)
+            .search(
+                query,
+                Filters::new(
+                    *config.hide_movies_no_imdb(),
+                    *config.hide_movies_below_runtime(),
+                ),
+            )
             .await?;
 
         Ok(movie_info)

@@ -46,6 +46,12 @@ pub struct Config {
 
     #[serde_inline_default(String::new())]
     category_after_import: String,
+
+    #[serde_inline_default(true)]
+    hide_movies_no_imdb: bool,
+
+    #[serde_inline_default(30)]
+    hide_movies_below_runtime: u64,
 }
 
 pub fn get_config() -> Result<Config, Error> {

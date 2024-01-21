@@ -1,6 +1,9 @@
 use serde::Serialize;
 
-use crate::{models::movie_info::MovieInfo, Error, MovieInfoClient};
+use crate::{
+    models::{filters::Filters, movie_info::MovieInfo},
+    Error, MovieInfoClient,
+};
 
 #[derive(Serialize)]
 struct Query {
@@ -14,11 +17,12 @@ impl Query {
 }
 
 impl MovieInfoClient {
-    pub async fn search(&self, query: String) -> Result<Vec<MovieInfo>, Error> {
+    pub async fn search(&self, query: String, filters: Filters) -> Result<Vec<MovieInfo>, Error> {
         if query.is_empty() {
             return Ok(Vec::new());
         }
-        let movie: Vec<MovieInfo> = self
+
+        let mut movies: Vec<MovieInfo> = self
             .http
             .get("search")
             .query(&Query::new(query))
@@ -26,6 +30,14 @@ impl MovieInfoClient {
             .recv_json()
             .await?;
 
-        Ok(movie)
+        if *filters.imdb() {
+            movies.retain(|m| m.imdb_id().is_some())
+        }
+
+        if *filters.min_minutes() > 0 {
+            movies.retain(|m| m.runtime() >= &(*filters.min_minutes() as i32))
+        }
+
+        Ok(movies)
     }
 }
