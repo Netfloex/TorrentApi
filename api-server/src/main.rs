@@ -17,7 +17,7 @@ use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Mutation, Que
 use juniper::EmptySubscription;
 use qbittorrent_api::QbittorrentClient;
 use rocket::{serde::json::Json, State};
-use search_handler::{search_handler, SearchHandlerParams};
+use search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse};
 use search_params::SearchParams;
 use simplelog::{
     ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
@@ -25,7 +25,6 @@ use simplelog::{
 use std::sync::Arc;
 use std::{process, vec};
 use tokio::sync::Mutex;
-use torrent::ApiTorrent;
 use torrent_search_client::{
     Category, Order, Quality, SortColumn, Source, TorrentClient, VideoCodec,
 };
@@ -37,7 +36,7 @@ extern crate rocket;
 async fn search(
     search_params: SearchParams,
     context: &State<ContextPointer>,
-) -> Result<Json<Vec<ApiTorrent>>, HttpErrorKind> {
+) -> Result<Json<SearchHandlerResponse>, HttpErrorKind> {
     let category: Category = search_params
         .category()
         .as_ref()

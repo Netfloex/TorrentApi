@@ -4,7 +4,7 @@ use crate::{
     search_options::{movie_options::MovieOptions, SearchOptions},
     torrent::Torrent,
     utils::get_json::get_json,
-    Category, SortColumn, TorrentProvider,
+    Category, Provider, SortColumn, TorrentProvider,
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
@@ -119,6 +119,8 @@ impl Yts {
 
 #[async_trait]
 impl TorrentProvider for Yts {
+    const PROVIDER: Provider = Provider::Yts;
+
     async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         if !matches!(search_options.category(), Category::All | Category::Video) {
             return Ok(Vec::new());

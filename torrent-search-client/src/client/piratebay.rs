@@ -3,7 +3,7 @@ use crate::{
     search_options::{category::Category, movie_options::MovieOptions, SearchOptions},
     torrent::Torrent,
     utils::get_json::get_json,
-    TorrentProvider,
+    Provider, TorrentProvider,
 };
 use async_trait::async_trait;
 use derive_getters::Getters;
@@ -87,6 +87,8 @@ impl PirateBay {
 
 #[async_trait]
 impl TorrentProvider for PirateBay {
+    const PROVIDER: Provider = Provider::PirateBay;
+
     async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         let url = PirateBay::format_url(search_options);
 

@@ -4,6 +4,7 @@ use crate::{
     torrent::Torrent,
 };
 use async_trait::async_trait;
+use derive_getters::Getters;
 use serde::Serialize;
 use surf::Client;
 
@@ -13,14 +14,43 @@ pub mod piratebay;
 pub mod x1337;
 pub mod yts;
 
+pub struct ProviderResponse {
+    pub provider: Provider,
+    pub torrents: Result<Vec<Torrent>, Error>,
+}
+
 #[async_trait]
 pub trait TorrentProvider {
+    const PROVIDER: Provider;
+
+    fn create_response(torrents: Result<Vec<Torrent>, Error>) -> ProviderResponse {
+        ProviderResponse {
+            provider: Self::PROVIDER,
+            torrents,
+        }
+    }
+
     async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error>;
 
     async fn search_movie(
         movie_options: &MovieOptions,
         http: &Client,
     ) -> Result<Vec<Torrent>, Error>;
+
+    async fn search_provider(search_options: &SearchOptions, http: &Client) -> ProviderResponse {
+        let torrents = Self::search(search_options, http).await;
+
+        Self::create_response(torrents)
+    }
+
+    async fn search_movies_provider(
+        movie_options: &MovieOptions,
+        http: &Client,
+    ) -> ProviderResponse {
+        let torrents = Self::search_movie(movie_options, http).await;
+
+        Self::create_response(torrents)
+    }
 }
 
 #[derive(Serialize, Debug, Clone)]

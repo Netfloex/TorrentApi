@@ -2,7 +2,7 @@ use crate::{
     add_torrent_options::ApiAddTorrentOptions,
     context::ContextPointer,
     http_error::HttpErrorKind,
-    search_handler::{search_handler, SearchHandlerParams},
+    search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse},
     torrent::ApiTorrent,
     utils::track_movie::track_movie,
 };
@@ -19,7 +19,7 @@ impl Query {
     async fn search(
         #[graphql(context)] context: &ContextPointer,
         params: SearchHandlerParams,
-    ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
+    ) -> Result<SearchHandlerResponse, HttpErrorKind> {
         let ctx = context.lock().await;
         let torrents =
             search_handler(params, ctx.torrent_client(), ctx.movie_info_client()).await?;

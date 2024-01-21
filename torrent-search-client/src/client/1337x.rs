@@ -94,6 +94,8 @@ impl X1137 {
 
 #[async_trait]
 impl TorrentProvider for X1137 {
+    const PROVIDER: Provider = Provider::X1337;
+
     async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         let url = X1137::format_url(search_options);
         let body = get_text::get_text(url, http).await?;

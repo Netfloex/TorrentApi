@@ -12,6 +12,7 @@ use client::piratebay::PirateBay;
 use client::x1337::X1137;
 use client::yts::Yts;
 pub use client::Provider;
+use client::ProviderResponse;
 use client::TorrentProvider;
 pub use error::Error;
 pub use error::ErrorKind;
@@ -36,35 +37,30 @@ pub struct TorrentClient {
 }
 
 impl TorrentClient {
-    pub async fn search_all(
-        &self,
-        search_options: &SearchOptions,
-    ) -> Vec<Result<Vec<Torrent>, Error>> {
+    pub async fn search_all(&self, search_options: &SearchOptions) -> Vec<ProviderResponse> {
         if search_options.query().is_empty() {
             return vec![];
         }
 
         join_all(vec![
-            X1137::search(search_options, &self.http),
-            PirateBay::search(search_options, &self.http),
-            Yts::search(search_options, &self.http),
-            BitSearch::search(search_options, &self.http),
+            X1137::search_provider(search_options, &self.http),
+            PirateBay::search_provider(search_options, &self.http),
+            BitSearch::search_provider(search_options, &self.http),
+            Yts::search_provider(search_options, &self.http),
         ])
         .await
     }
 
-    pub async fn search_movie_all(
-        &self,
-        movie_options: &MovieOptions,
-    ) -> Vec<Result<Vec<Torrent>, Error>> {
+    pub async fn search_movie_all(&self, movie_options: &MovieOptions) -> Vec<ProviderResponse> {
         if movie_options.imdb().is_empty() {
             return vec![];
         }
+
         join_all(vec![
-            // X1137::search_movie(movie_options, &self.http),
-            PirateBay::search_movie(movie_options, &self.http),
-            BitSearch::search_movie(movie_options, &self.http),
-            Yts::search_movie(movie_options, &self.http),
+            // X1137::search_movie_provider(movie_options, &self.http),
+            PirateBay::search_movies_provider(movie_options, &self.http),
+            BitSearch::search_movies_provider(movie_options, &self.http),
+            Yts::search_movies_provider(movie_options, &self.http),
         ])
         .await
     }

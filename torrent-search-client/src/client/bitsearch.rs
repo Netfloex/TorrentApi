@@ -89,6 +89,8 @@ impl BitSearch {
 
 #[async_trait]
 impl TorrentProvider for BitSearch {
+    const PROVIDER: Provider = Provider::BitSearch;
+
     async fn search(search_options: &SearchOptions, http: &Client) -> Result<Vec<Torrent>, Error> {
         let url = BitSearch::format_url(search_options);
 

@@ -1,9 +1,10 @@
-use juniper::GraphQLInputObject;
+use juniper::{GraphQLInputObject, GraphQLObject};
 use movie_info::MovieInfoClient;
+use serde::Serialize;
 use std::collections::HashMap;
 use torrent_search_client::{
-    Category, MovieOptions, Order, Quality, SearchOptions, SortColumn, Source, TorrentClient,
-    VideoCodec,
+    Category, MovieOptions, Order, Provider, Quality, SearchOptions, SortColumn, Source,
+    TorrentClient, VideoCodec,
 };
 
 use crate::{http_error::HttpErrorKind, torrent::ApiTorrent};
@@ -21,17 +22,30 @@ pub struct SearchHandlerParams {
     pub source: Option<Vec<Source>>,
 }
 
+#[derive(GraphQLObject, Serialize)]
+pub struct ProviderError {
+    provider: Provider,
+    error: String,
+}
+
+#[derive(GraphQLObject, Serialize)]
+pub struct SearchHandlerResponse {
+    torrents: Vec<ApiTorrent>,
+    errors: Vec<ProviderError>,
+}
+
 pub async fn search_handler(
     search_params: SearchHandlerParams,
     client: &TorrentClient,
     movie_info_client: &MovieInfoClient,
-) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
+) -> Result<SearchHandlerResponse, HttpErrorKind> {
     let sort = search_params.sort.unwrap_or_default();
     let category = search_params.category.unwrap_or_default();
     let order = search_params.order.unwrap_or_default();
 
     let response = if let Some(query) = search_params.query {
         let options = SearchOptions::new(query, category, sort.to_owned(), order.to_owned());
+
         client.search_all(&options).await
     } else if let Some(imdb) = search_params.imdb {
         let movie_info = movie_info_client.from_imdb(&imdb).await?;
@@ -53,18 +67,26 @@ pub async fn search_handler(
     };
 
     let mut grouped: HashMap<String, ApiTorrent> = HashMap::new();
+    let mut errors: Vec<ProviderError> = Vec::new();
 
     for result in response {
-        match result {
+        match result.torrents {
             Ok(provider_torrents) => {
                 for torrent in provider_torrents {
+                    let torrent: ApiTorrent = torrent.into();
                     grouped
-                        .entry(torrent.info_hash.to_string())
-                        .and_modify(|existing| existing.merge(torrent.clone().into()))
-                        .or_insert(torrent.into());
+                        .entry(torrent.info_hash().to_string())
+                        .and_modify(|existing| existing.merge(torrent.clone()))
+                        .or_insert(torrent);
                 }
             }
-            Err(err) => error!("Error:\n{:?}", err),
+            Err(err) => {
+                error!("Error:\n{:?}", err);
+                errors.push(ProviderError {
+                    provider: result.provider,
+                    error: format!("{:?}: {}", err.kind(), err),
+                });
+            }
         }
     }
 
@@ -112,5 +134,5 @@ pub async fn search_handler(
         torrents.truncate(limit as usize);
     }
 
-    Ok(torrents)
+    Ok(SearchHandlerResponse { torrents, errors })
 }
