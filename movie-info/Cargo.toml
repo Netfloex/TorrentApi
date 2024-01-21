@@ -14,6 +14,8 @@ surf = { version = "2.3.2", features = [
 utils = { path = "../utils", version = "0.1.0" }
 juniper = { version = "0.15.12", optional = true }
 http-cache-surf = "0.12.1"
+lazy_static = "1.4.0"
+regex = "1.10.3"
 
 [features]
 graphql = ["dep:juniper"]

@@ -1,6 +1,6 @@
 use derive_getters::Getters;
 
-#[derive(Debug, Getters)]
+#[derive(Debug, Getters, Default)]
 pub struct Filters {
     imdb: bool,
     min_minutes: u64,
