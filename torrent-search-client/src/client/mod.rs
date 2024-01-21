@@ -1,6 +1,6 @@
 use crate::{
     error::Error,
-    search_options::{MovieOptions, SearchOptions},
+    search_options::{movie_options::MovieOptions, SearchOptions},
     torrent::Torrent,
 };
 use async_trait::async_trait;

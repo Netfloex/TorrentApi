@@ -1,10 +1,10 @@
+use self::{codec::VideoCodec, quality::Quality, source::Source};
 use derive_getters::Getters;
 use serde::Serialize;
 
-pub use self::{codec::VideoCodec, quality::Quality, source::Source};
-mod codec;
-mod quality;
-mod source;
+pub mod codec;
+pub mod quality;
+pub mod source;
 
 #[derive(Debug, Clone, Serialize, Getters)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]

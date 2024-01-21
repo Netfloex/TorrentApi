@@ -1,4 +1,4 @@
-use crate::utils::normalize_title;
+use crate::utils::normalize_title::normalize_title;
 use distance::levenshtein;
 use lazy_static::lazy_static;
 use log::debug;

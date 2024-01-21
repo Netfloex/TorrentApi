@@ -3,9 +3,9 @@ use crate::{
     client::Provider,
     error::Error,
     movie_properties::MovieProperties,
-    search_options::{MovieOptions, SearchOptions, SortColumn},
+    search_options::{movie_options::MovieOptions, sort_column::SortColumn, SearchOptions},
     torrent::Torrent,
-    utils::{is_title_match, RoundRobin},
+    utils::{parse_title::is_title_match, round_robin::RoundRobin},
     Category, TorrentProvider,
 };
 use crate::{Quality, Source, VideoCodec};

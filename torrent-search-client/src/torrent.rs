@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
     movie_properties::MovieProperties,
-    r#static::trackers::{PIRATEBAY_TRACKERS, YTS_TRACKERS},
+    r#static::trackers::{piratebay::PIRATEBAY_TRACKERS, yts::YTS_TRACKERS},
     Quality, Source, VideoCodec,
 };
 use chrono::{DateTime, TimeZone, Utc};

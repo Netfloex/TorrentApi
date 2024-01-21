@@ -2,9 +2,11 @@ use crate::utils::get_text;
 use crate::{
     client::Provider,
     error::{Error, ErrorKind},
-    search_options::{Category, MovieOptions, SearchOptions, SortColumn},
+    search_options::{
+        category::Category, movie_options::MovieOptions, sort_column::SortColumn, SearchOptions,
+    },
     torrent::Torrent,
-    utils::RoundRobin,
+    utils::round_robin::RoundRobin,
     TorrentProvider,
 };
 use async_trait::async_trait;
