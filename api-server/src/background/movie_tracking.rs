@@ -111,40 +111,48 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                                 .movie_info_client()
                                 .from_tmdb(tmdb)
                                 .await?;
-                            let movie_name = movie.format();
 
-                            info!("Importing \"{}\" as \"{}\"", name, movie_name);
+                            if let Some(movie) = movie {
+                                let movie_name = movie.format();
 
-                            let remote_path = torrent
-                                .content_path()
-                                .as_ref()
-                                .expect("Content path should be available at sync");
+                                info!("Importing \"{}\" as \"{}\"", name, movie_name);
 
-                            let local_path =
-                                remote_path.replace(&remote_download_path, &local_download_path);
-                            let local_path = PathBuf::from(local_path);
+                                let remote_path = torrent
+                                    .content_path()
+                                    .as_ref()
+                                    .expect("Content path should be available at sync");
 
-                            let dest_folder = movies_path.join(filenamify(&movie_name));
+                                let local_path = remote_path
+                                    .replace(&remote_download_path, &local_download_path);
+                                let local_path = PathBuf::from(local_path);
 
-                            import_movie(local_path, dest_folder).await?;
+                                let dest_folder = movies_path.join(filenamify(&movie_name));
 
-                            if *config.delete_torrent_after_import() {
-                                context
-                                    .lock()
-                                    .await
-                                    .qbittorrent_client()
-                                    .delete_torrent(hash.to_owned(), *config.delete_torrent_files())
-                                    .await?;
+                                import_movie(local_path, dest_folder).await?;
+
+                                if *config.delete_torrent_after_import() {
+                                    context
+                                        .lock()
+                                        .await
+                                        .qbittorrent_client()
+                                        .delete_torrent(
+                                            hash.to_owned(),
+                                            *config.delete_torrent_files(),
+                                        )
+                                        .await?;
+                                } else {
+                                    context
+                                        .lock()
+                                        .await
+                                        .qbittorrent_client()
+                                        .set_category(
+                                            hash.to_owned(),
+                                            config.category_after_import().to_owned(),
+                                        )
+                                        .await?;
+                                }
                             } else {
-                                context
-                                    .lock()
-                                    .await
-                                    .qbittorrent_client()
-                                    .set_category(
-                                        hash.to_owned(),
-                                        config.category_after_import().to_owned(),
-                                    )
-                                    .await?;
+                                warn!("No movie found for TMDB id: {}", tmdb);
                             }
                         } else {
                             warn!("No TMDB id found for {}", name);

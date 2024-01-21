@@ -17,3 +17,7 @@ http-cache-surf = "0.12.1"
 
 [features]
 graphql = ["dep:juniper"]
+
+[dev-dependencies]
+lazy_static = "1.4.0"
+tokio = "1.35.1"

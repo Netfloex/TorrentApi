@@ -52,7 +52,7 @@ impl Quality {
                         caps.get(0).unwrap().as_str().to_string() + "p"
                     })
                     .to_string();
-                dbg!(&new_string);
+
                 match new_string.as_str() {
                     s if P480_REGEX.is_match(s) => Quality::P480,
                     s if P540_REGEX.is_match(s) => Quality::P540,

@@ -1,4 +1,5 @@
 use juniper::GraphQLInputObject;
+use movie_info::MovieInfoClient;
 use std::collections::HashMap;
 use torrent_search_client::{
     Category, MovieOptions, Order, Quality, SearchOptions, SortColumn, Source, TorrentClient,
@@ -11,7 +12,6 @@ use crate::{http_error::HttpErrorKind, torrent::ApiTorrent};
 pub struct SearchHandlerParams {
     pub query: Option<String>,
     pub imdb: Option<String>,
-    pub title: Option<String>,
     pub category: Option<Category>,
     pub sort: Option<SortColumn>,
     pub order: Option<Order>,
@@ -24,6 +24,7 @@ pub struct SearchHandlerParams {
 pub async fn search_handler(
     search_params: SearchHandlerParams,
     client: &TorrentClient,
+    movie_info_client: &MovieInfoClient,
 ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
     let sort = search_params.sort.unwrap_or_default();
     let category = search_params.category.unwrap_or_default();
@@ -33,9 +34,20 @@ pub async fn search_handler(
         let options = SearchOptions::new(query, category, sort.to_owned(), order.to_owned());
         client.search_all(&options).await
     } else if let Some(imdb) = search_params.imdb {
-        let options =
-            MovieOptions::new(imdb, search_params.title, sort.to_owned(), order.to_owned());
-        client.search_movie_all(&options).await
+        let movie_info = movie_info_client.from_imdb(&imdb).await?;
+
+        if let Some(movie_info) = movie_info {
+            let options = MovieOptions::new(
+                imdb,
+                Some(movie_info.format()),
+                sort.to_owned(),
+                order.to_owned(),
+            );
+
+            client.search_movie_all(&options).await
+        } else {
+            return Err(HttpErrorKind::MovieInfoError("Movie not found".to_owned()));
+        }
     } else {
         return Err(HttpErrorKind::missing_query());
     };

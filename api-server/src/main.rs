@@ -53,11 +53,11 @@ async fn search(
         .as_ref()
         .map_or_else(|| Ok(Order::default()), |f| f.parse())?;
 
+    let ctx = context.lock().await;
     let torrents = search_handler(
         SearchHandlerParams {
             query: search_params.query().clone(),
             imdb: search_params.imdb().clone(),
-            title: search_params.title().clone(),
             category: Some(category),
             sort: Some(sort),
             order: Some(order),
@@ -75,7 +75,8 @@ async fn search(
                 .as_ref()
                 .map(|s| s.into_iter().map(|s| Source::from_str(s)).collect()),
         },
-        context.lock().await.torrent_client(),
+        ctx.torrent_client(),
+        ctx.movie_info_client(),
     )
     .await?;
     Ok(Json(torrents))

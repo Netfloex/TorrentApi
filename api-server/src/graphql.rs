@@ -20,7 +20,9 @@ impl Query {
         #[graphql(context)] context: &ContextPointer,
         params: SearchHandlerParams,
     ) -> Result<Vec<ApiTorrent>, HttpErrorKind> {
-        let torrents = search_handler(params, context.lock().await.torrent_client()).await?;
+        let ctx = context.lock().await;
+        let torrents =
+            search_handler(params, ctx.torrent_client(), ctx.movie_info_client()).await?;
         Ok(torrents)
     }
 
@@ -41,7 +43,7 @@ impl Query {
     async fn movie_info(
         #[graphql(context)] context: &ContextPointer,
         tmdb: i32,
-    ) -> Result<MovieInfo, HttpErrorKind> {
+    ) -> Result<Option<MovieInfo>, HttpErrorKind> {
         if tmdb.is_negative() {
             return Err(HttpErrorKind::InvalidParam("tmdb".into()));
         };

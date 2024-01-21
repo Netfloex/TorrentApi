@@ -7,9 +7,6 @@ pub mod sort_column;
 use self::category::Category;
 use self::{order::Order, sort_column::SortColumn};
 use derive_getters::Getters;
-use invalid_option_error::InvalidOptionError;
-use invalid_option_error::SearchOption;
-use movie_options::MovieOptions;
 
 #[derive(Getters)]
 pub struct SearchOptions {
