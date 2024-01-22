@@ -77,6 +77,20 @@ impl Query {
 
         Ok(movie_info)
     }
+
+    async fn tmdb_bulk(
+        #[graphql(context)] context: &ContextPointer,
+        tmdb_ids: Vec<i32>,
+    ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
+        let movie_info = context
+            .lock()
+            .await
+            .movie_info_client()
+            .bulk(&tmdb_ids)
+            .await?;
+
+        Ok(movie_info)
+    }
 }
 
 pub struct Mutation;
