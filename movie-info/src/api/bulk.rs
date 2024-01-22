@@ -1,4 +1,5 @@
 use crate::{models::movie_info::MovieInfo, Error, MovieInfoClient};
+use log::debug;
 
 impl MovieInfoClient {
     pub async fn bulk(&self, tmdb_ids: &Vec<i32>) -> Result<Vec<MovieInfo>, Error> {
@@ -10,11 +11,13 @@ impl MovieInfoClient {
             .recv_json()
             .await?;
 
-        dbg!(&movies.len());
-
-        movies.retain(|m| m["Year"] != 0);
-
-        dbg!(&movies.len());
+        movies.retain(|m| {
+            let retain = m["Year"] != 0;
+            if !retain {
+                debug!("No movie found for tmdb_id: {}", m["TmdbId"])
+            };
+            retain
+        });
 
         Ok(movies
             .into_iter()

@@ -17,6 +17,7 @@ http-cache-surf = "0.12.1"
 lazy_static = "1.4.0"
 regex = "1.10.3"
 serde_json = "1.0.111"
+log = "0.4.20"
 
 [features]
 graphql = ["dep:juniper"]

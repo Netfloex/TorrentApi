@@ -4,8 +4,6 @@ impl MovieInfoClient {
     pub async fn from_tmdb(&self, tmdb: u32) -> Result<Option<MovieInfo>, Error> {
         let mut resp = self.http.get(format!("movie/{}", tmdb)).send().await?;
 
-        dbg!(resp.status());
-
         if resp.status().is_client_error() {
             return Ok(None);
         }

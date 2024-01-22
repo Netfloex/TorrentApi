@@ -2081,6 +2081,7 @@ dependencies = [
  "http-cache-surf",
  "juniper",
  "lazy_static",
+ "log",
  "regex",
  "serde",
  "serde_json",
