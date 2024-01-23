@@ -1,5 +1,5 @@
 use crate::{http_error::HttpErrorKind, r#static::media_file_extensions::MEDIA_FILE_EXTENSIONS};
-use std::path::PathBuf;
+use std::{ffi::OsStr, path::PathBuf};
 use tokio::fs::{self, DirEntry};
 
 pub async fn import_movie(local_path: PathBuf, dest_folder: PathBuf) -> Result<(), HttpErrorKind> {
@@ -10,10 +10,8 @@ pub async fn import_movie(local_path: PathBuf, dest_folder: PathBuf) -> Result<(
         )));
     }
 
-    if !local_path.metadata()?.is_dir() {
-        Err(HttpErrorKind::TorrentIsFile(
-            "Single file torrents are not yet supported.".into(),
-        ))
+    let movie = if !local_path.metadata()?.is_dir() {
+        local_path
     } else {
         let mut files = fs::read_dir(local_path).await?;
         let mut movie_file: Option<DirEntry> = None;
@@ -33,19 +31,20 @@ pub async fn import_movie(local_path: PathBuf, dest_folder: PathBuf) -> Result<(
         }
 
         if let Some(movie_file) = movie_file {
-            fs::create_dir_all(&dest_folder).await?;
-
-            let dest_file = dest_folder.join(movie_file.file_name());
-
-            info!("Copying to {:?}", dest_file);
-            fs::copy(movie_file.path(), &dest_file).await?;
-            info!("Movie copied to: {:?}", dest_file);
-
-            Ok(())
+            movie_file.path()
         } else {
-            Err(HttpErrorKind::MovieFileNotFound(
+            return Err(HttpErrorKind::MovieFileNotFound(
                 "No movie file found in torrent.".into(),
-            ))
+            ));
         }
-    }
+    };
+    fs::create_dir_all(&dest_folder).await?;
+
+    let dest_file = dest_folder.join(movie.file_name().unwrap_or(OsStr::new("Unknown Movie")));
+
+    info!("Copying to {:?}", dest_file);
+    fs::copy(movie, &dest_file).await?;
+    info!("Movie copied to: {:?}", dest_file);
+
+    Ok(())
 }
