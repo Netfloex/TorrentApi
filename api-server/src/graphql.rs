@@ -1,19 +1,42 @@
+use std::{
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
+
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
     context::ContextPointer,
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse},
-    torrent::ApiTorrent,
-    utils::track_movie::track_movie,
+    utils::{get_tmdb::get_tmdb, track_movie::track_movie},
 };
 use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
 use movie_info::{Filters, MovieInfo};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
 use rocket::{response::content::RawHtml, State};
+use rocket_http::ext::IntoCollection;
 
 // impl juniper::Context for Context {}
+
+#[derive(juniper::GraphQLObject, PartialEq, Eq, Hash)]
+struct TorrentMovieInfo {
+    title: String,
+    year: i32,
+    imdb: Option<String>,
+    tmdb: i32,
+    runtime: i32,
+
+    for_torrents: Vec<String>,
+}
+
+#[derive(juniper::GraphQLObject)]
+struct ActiveTorrentsResponse {
+    torrents: Vec<Torrent>,
+    movie_info: Vec<TorrentMovieInfo>,
+}
 pub struct Query;
+
 #[graphql_object(context = ContextPointer)]
 impl Query {
     async fn search(
@@ -29,7 +52,7 @@ impl Query {
     async fn torrents(
         #[graphql(context)] context: &ContextPointer,
         params: GetTorrentsParameters,
-    ) -> Result<Vec<Torrent>, HttpErrorKind> {
+    ) -> Result<ActiveTorrentsResponse, HttpErrorKind> {
         let torrents = context
             .lock()
             .await
@@ -37,7 +60,59 @@ impl Query {
             .torrents(params)
             .await?;
 
-        Ok(torrents)
+        let mut torrent_movie_info: HashMap<u32, TorrentMovieInfo> = HashMap::new();
+
+        let tmdb_ids: Vec<i32> = torrents
+            .iter()
+            .filter_map(|torrent| get_tmdb(torrent.name()).as_ref().map(|tmdb| *tmdb as i32))
+            .collect();
+
+        let movie_info = context
+            .lock()
+            .await
+            .movie_info_client()
+            .bulk(&tmdb_ids)
+            .await?;
+
+        movie_info.iter().for_each(|info| {
+            let torrents = torrents.iter().filter_map(|torrent| {
+                get_tmdb(torrent.name())
+                    .as_ref()
+                    .map(|tmdb| {
+                        if info.tmdb_id().eq(&(*tmdb as i32)) {
+                            Some(torrent)
+                        } else {
+                            None
+                        }
+                    })
+                    .flatten()
+            });
+
+            torrents.for_each(|torrent| {
+                if let Some(tmdb) = get_tmdb(torrent.name()) {
+                    if let Some(info) = torrent_movie_info.get_mut(&tmdb) {
+                        info.for_torrents.push(torrent.hash().clone());
+                    } else {
+                        torrent_movie_info.insert(
+                            tmdb,
+                            TorrentMovieInfo {
+                                title: info.title().to_owned(),
+                                year: info.year().to_owned(),
+                                imdb: info.imdb_id().as_ref().map(|s| s.to_owned()),
+                                tmdb: info.tmdb_id().to_owned(),
+                                runtime: info.runtime().to_owned(),
+                                for_torrents: vec![torrent.hash().clone()],
+                            },
+                        );
+                    }
+                }
+            })
+        });
+
+        Ok(ActiveTorrentsResponse {
+            torrents,
+            movie_info: torrent_movie_info.into_values().collect(),
+        })
     }
 
     async fn movie_info(
