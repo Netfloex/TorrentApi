@@ -128,7 +128,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                                 let dest_folder = movies_path.join(filenamify(&movie_name));
 
-                                import_movie(local_path, dest_folder).await?;
+                                import_movie(&local_path, &dest_folder).await?;
 
                                 if *config.delete_torrent_after_import() {
                                     context

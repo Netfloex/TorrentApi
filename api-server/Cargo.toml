@@ -37,3 +37,4 @@ cargo-husky = { version = "1.5.0", default-features = false, features = [
 	"run-cargo-check",
 	"run-cargo-fmt",
 ] }
+tempdir = "0.3.7"
