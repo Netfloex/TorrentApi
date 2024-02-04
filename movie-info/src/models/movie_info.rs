@@ -61,6 +61,7 @@ pub struct MovieInfo {
     physical_release: Option<DateTime<Utc>>,
     digital_release: Option<DateTime<Utc>>,
     in_cinema: Option<DateTime<Utc>>,
+    youtube_trailer_id: Option<String>,
 }
 
 impl MovieInfo {
