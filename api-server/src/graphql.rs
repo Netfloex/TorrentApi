@@ -1,7 +1,4 @@
-use std::{
-    collections::{HashMap, HashSet},
-    hash::Hash,
-};
+use std::{collections::HashMap, hash::Hash};
 
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
@@ -15,7 +12,6 @@ use juniper_rocket::graphiql_source;
 use movie_info::{Filters, MovieInfo};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
 use rocket::{response::content::RawHtml, State};
-use rocket_http::ext::IntoCollection;
 
 // impl juniper::Context for Context {}
 

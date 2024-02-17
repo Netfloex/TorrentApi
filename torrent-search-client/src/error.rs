@@ -1,5 +1,7 @@
 use std::{error, fmt};
 
+use derive_getters::Getters;
+
 #[derive(Debug)]
 pub enum ErrorKind {
     HttpRequestError(surf::Error),
@@ -8,7 +10,7 @@ pub enum ErrorKind {
     ScrapingError(),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Getters)]
 pub struct Error {
     kind: ErrorKind,
     message: String,
@@ -20,10 +22,6 @@ impl Error {
             kind,
             message: message.into(),
         }
-    }
-
-    pub fn kind(&self) -> &ErrorKind {
-        &self.kind
     }
 }
 

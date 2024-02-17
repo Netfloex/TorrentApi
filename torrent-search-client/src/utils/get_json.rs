@@ -12,3 +12,25 @@ pub async fn get_json<T: for<'de> Deserialize<'de>>(url: Url, http: &Client) -> 
 
     Ok(json)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lazy_static::lazy_static;
+    lazy_static! {
+        static ref TEST_CLIENT: Client = Client::new();
+    }
+
+    #[tokio::test]
+    async fn test_json() {
+        #[derive(Deserialize)]
+        struct IpData {
+            pub origin: String,
+        }
+
+        let url = Url::parse("https://httpbin.org/ip").unwrap();
+        let response: IpData = get_json(url, &TEST_CLIENT).await.unwrap();
+
+        assert!(!response.origin.is_empty())
+    }
+}

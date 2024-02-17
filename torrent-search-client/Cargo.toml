@@ -30,3 +30,6 @@ log = "0.4.20"
 
 [features]
 graphql = ["dep:juniper"]
+
+[dev-dependencies]
+tokio = "1.36.0"

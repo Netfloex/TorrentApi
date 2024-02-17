@@ -4,7 +4,6 @@ use crate::{
     torrent::Torrent,
 };
 use async_trait::async_trait;
-use derive_getters::Getters;
 use serde::Serialize;
 use surf::Client;
 
