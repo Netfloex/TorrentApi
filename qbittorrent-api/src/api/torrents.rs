@@ -11,14 +11,16 @@ impl QbittorrentClient {
 
         if resp.status().is_success() {
             let text = resp.body_string().await?;
+
             let json = serde_json::from_str::<Vec<Torrent>>(&text);
             if let Err(error) = json {
                 error!("Serde error");
                 dbg!(text);
                 dbg!(&error);
-                return Err(error)?;
+                Err(error)?
+            } else {
+                Ok(json?)
             }
-            Ok(resp.body_json().await?)
         } else {
             let body = resp.body_string().await?;
             if body.ends_with("parameter is invalid") {
