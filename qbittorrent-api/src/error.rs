@@ -12,6 +12,7 @@ pub enum ErrorKind {
     TorrentNotFound,
     TorrentNotDownloading,
     CategoryDoesNotExist,
+    SerdeError(serde_json::Error),
 }
 
 impl ToString for ErrorKind {
@@ -25,6 +26,7 @@ impl ToString for ErrorKind {
             ErrorKind::TorrentNotFound => "TorrentNotFound".into(),
             ErrorKind::TorrentNotDownloading => "TorrentNotDownloading".into(),
             ErrorKind::CategoryDoesNotExist => "CategoryDoesNotExist".into(),
+            ErrorKind::SerdeError(error) => format!("SerdeError: {}", error),
         }
     }
 }
@@ -61,5 +63,11 @@ impl From<surf::Error> for Error {
             return Self::new(ErrorKind::IncorrectLogin, "Incorrect login");
         }
         Self::new(ErrorKind::HttpRequestError(request_error), "Request Error")
+    }
+}
+
+impl From<serde_json::Error> for Error {
+    fn from(value: serde_json::Error) -> Self {
+        Self::new(ErrorKind::SerdeError(value), "Serde Error")
     }
 }

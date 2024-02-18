@@ -53,7 +53,7 @@ pub struct Torrent {
     total_size: IntScalar<i64>,
     tracker: String,
     up_limit: i32,
-    uploaded: i32,
-    uploaded_session: i32,
+    uploaded: IntScalar<u64>,
+    uploaded_session: IntScalar<u64>,
     upspeed: i32,
 }

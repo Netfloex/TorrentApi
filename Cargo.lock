@@ -2564,6 +2564,7 @@ dependencies = [
  "derive-getters",
  "derive_setters",
  "juniper",
+ "log",
  "serde",
  "serde_json",
  "surf",

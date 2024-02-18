@@ -1,4 +1,5 @@
 use crate::{error::ErrorKind, Error, GetTorrentsParameters, QbittorrentClient, Torrent};
+use log::error;
 
 impl QbittorrentClient {
     pub async fn torrents(&self, options: GetTorrentsParameters) -> Result<Vec<Torrent>, Error> {
@@ -9,6 +10,14 @@ impl QbittorrentClient {
             .await?;
 
         if resp.status().is_success() {
+            let text = resp.body_string().await?;
+            let json = serde_json::from_str::<Vec<Torrent>>(&text);
+            if let Err(error) = json {
+                error!("Serde error");
+                dbg!(text);
+                dbg!(&error);
+                return Err(error)?;
+            }
             Ok(resp.body_json().await?)
         } else {
             let body = resp.body_string().await?;
