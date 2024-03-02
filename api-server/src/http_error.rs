@@ -2,17 +2,17 @@ use juniper::{graphql_value, FieldError, IntoFieldError, ScalarValue};
 use std::io::Error as IoError;
 use torrent_search_client::InvalidOptionError;
 
-#[derive(Debug, Responder)]
+#[derive(Debug)]
 pub enum HttpErrorKind {
-    #[response(status = 400)]
     InvalidParam(String),
     MissingQuery(String),
-    QbittorrentError(String),
+    QbittorrentError(qbittorrent_api::Error),
     IoError(IoError),
     InvalidMagnet(String),
     MovieFileNotFound(String),
     TorrentNotFound(String),
-    MovieInfoError(String),
+    MovieInfoError(movie_info::Error),
+    ImdbNotFound(String),
 }
 
 impl HttpErrorKind {
@@ -21,6 +21,9 @@ impl HttpErrorKind {
     }
     pub fn missing_query() -> Self {
         Self::MissingQuery("At least `imdb` or `query` must be defined.".into())
+    }
+    pub fn imdb_not_found(imdb: String) -> Self {
+        Self::ImdbNotFound(format!("IMDB ID not found: {}", imdb))
     }
 }
 
@@ -45,12 +48,19 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "MISSING_QUERY"
                 }),
             ),
-            HttpErrorKind::QbittorrentError(error) => FieldError::new(
-                error,
-                graphql_value!({
-                    "type": "QBITTORRENT_ERROR",
-                }),
-            ),
+            HttpErrorKind::QbittorrentError(error) => {
+                let kind = error.kind().to_string();
+                let message = error.message();
+
+                FieldError::new(
+                    error.to_string(),
+                    graphql_value!({
+                        "type": "QBITTORRENT_ERROR",
+                        "kind": kind,
+                        "message": message,
+                    }),
+                )
+            }
             HttpErrorKind::IoError(error) => FieldError::new(
                 error,
                 graphql_value!({
@@ -70,7 +80,7 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                 }),
             ),
             HttpErrorKind::MovieInfoError(error) => FieldError::new(
-                error,
+                error.to_string(),
                 graphql_value!({
                     "type": "MOVIE_INFO_ERROR",
                 }),
@@ -81,24 +91,30 @@ impl<S: ScalarValue> IntoFieldError<S> for HttpErrorKind {
                     "type": "MOVIE_FILE_NOT_FOUND",
                 }),
             ),
+            HttpErrorKind::ImdbNotFound(error) => FieldError::new(
+                error,
+                graphql_value!({
+                    "type": "IMDB_NOT_FOUND",
+                }),
+            ),
         }
     }
 }
 
 impl From<qbittorrent_api::Error> for HttpErrorKind {
     fn from(err: qbittorrent_api::Error) -> Self {
-        Self::QbittorrentError(err.kind().to_string())
+        Self::QbittorrentError(err)
     }
 }
 
 impl From<IoError> for HttpErrorKind {
-    fn from(value: IoError) -> Self {
-        Self::IoError(value)
+    fn from(err: IoError) -> Self {
+        Self::IoError(err)
     }
 }
 
 impl From<movie_info::Error> for HttpErrorKind {
-    fn from(value: movie_info::Error) -> Self {
-        Self::MovieInfoError(value.to_string())
+    fn from(err: movie_info::Error) -> Self {
+        Self::MovieInfoError(err)
     }
 }

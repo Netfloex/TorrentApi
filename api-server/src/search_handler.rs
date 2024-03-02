@@ -60,7 +60,7 @@ pub async fn search_handler(
 
             client.search_movie_all(&options).await
         } else {
-            return Err(HttpErrorKind::MovieInfoError("Movie not found".to_owned()));
+            return Err(HttpErrorKind::imdb_not_found(imdb));
         }
     } else {
         return Err(HttpErrorKind::missing_query());

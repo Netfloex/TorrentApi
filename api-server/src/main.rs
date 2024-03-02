@@ -5,81 +5,25 @@ mod context;
 mod graphql;
 mod http_error;
 mod search_handler;
-mod search_params;
 mod r#static;
 mod torrent;
 mod utils;
 
-use crate::http_error::HttpErrorKind;
 use config::get_config;
 use context::{Context, ContextPointer};
 use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Mutation, Query, Schema};
 use juniper::EmptySubscription;
 use qbittorrent_api::QbittorrentClient;
-use rocket::{serde::json::Json, State};
-use search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse};
-use search_params::SearchParams;
 use simplelog::{
     ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
 };
 use std::sync::Arc;
 use std::{process, vec};
 use tokio::sync::Mutex;
-use torrent_search_client::{
-    Category, Order, Quality, SortColumn, Source, TorrentClient, VideoCodec,
-};
+use torrent_search_client::TorrentClient;
 
 #[macro_use]
 extern crate rocket;
-
-#[get("/search?<search_params..>")]
-async fn search(
-    search_params: SearchParams,
-    context: &State<ContextPointer>,
-) -> Result<Json<SearchHandlerResponse>, HttpErrorKind> {
-    let category: Category = search_params
-        .category()
-        .as_ref()
-        .map_or_else(|| Ok(Category::default()), |c| c.parse())?;
-
-    let sort: SortColumn = search_params
-        .sort()
-        .as_ref()
-        .map_or_else(|| Ok(SortColumn::default()), |f| f.parse())?;
-
-    let order: Order = search_params
-        .order()
-        .as_ref()
-        .map_or_else(|| Ok(Order::default()), |f| f.parse())?;
-
-    let ctx = context.lock().await;
-    let torrents = search_handler(
-        SearchHandlerParams {
-            query: search_params.query().clone(),
-            imdb: search_params.imdb().clone(),
-            category: Some(category),
-            sort: Some(sort),
-            order: Some(order),
-            limit: search_params.limit().clone(),
-            quality: search_params
-                .quality()
-                .as_ref()
-                .map(|q| q.into_iter().map(|q| Quality::from_str(q)).collect()),
-            codec: search_params
-                .codec()
-                .as_ref()
-                .map(|c| c.into_iter().map(|c| VideoCodec::from_str(c)).collect()),
-            source: search_params
-                .source()
-                .as_ref()
-                .map(|s| s.into_iter().map(|s| Source::from_str(s)).collect()),
-        },
-        ctx.torrent_client(),
-        ctx.movie_info_client(),
-    )
-    .await?;
-    Ok(Json(torrents))
-}
 
 #[launch]
 async fn rocket() -> _ {
@@ -124,6 +68,6 @@ async fn rocket() -> _ {
         ))
         .mount(
             "/",
-            routes![search, graphiql, get_graphql_handler, post_graphql_handler,],
+            routes![graphiql, get_graphql_handler, post_graphql_handler,],
         )
 }

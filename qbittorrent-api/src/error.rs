@@ -48,11 +48,15 @@ impl Error {
     pub fn kind(&self) -> &ErrorKind {
         &self.kind
     }
+
+    pub fn message(&self) -> &str {
+        &self.message
+    }
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.message)
+impl ToString for Error {
+    fn to_string(&self) -> String {
+        format!("<{}>: {}", self.kind.to_string(), self.message)
     }
 }
 
