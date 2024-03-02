@@ -52,7 +52,7 @@ pub trait TorrentProvider {
     }
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 pub enum Provider {
     #[cfg_attr(feature = "graphql", graphql(name = "PIRATEBAY"))]

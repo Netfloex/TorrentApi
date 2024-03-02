@@ -6,7 +6,7 @@ pub mod codec;
 pub mod quality;
 pub mod source;
 
-#[derive(Debug, Clone, Serialize, Getters)]
+#[derive(Debug, Clone, Serialize, Getters, PartialEq)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
 pub struct MovieProperties {
     quality: Quality,
@@ -38,5 +38,34 @@ impl MovieProperties {
             source,
             imdb: if imdb.is_empty() { None } else { Some(imdb) },
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_merge() {
+        let mut props1 = MovieProperties::new(
+            "1".to_string(),
+            Quality::Unknown,
+            VideoCodec::AVC,
+            Source::Unknown,
+        );
+
+        let props2 = MovieProperties::new(
+            "2".to_string(),
+            Quality::P1080,
+            VideoCodec::Unknown,
+            Source::BluRay,
+        );
+
+        props1.merge(props2);
+
+        assert_eq!(props1.quality(), &Quality::P1080);
+        assert_eq!(props1.codec(), &VideoCodec::AVC);
+        assert_eq!(props1.source(), &Source::BluRay);
+        assert_eq!(props1.imdb(), &Some("1".to_string()));
     }
 }

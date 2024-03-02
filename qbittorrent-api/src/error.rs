@@ -1,4 +1,3 @@
-use std::fmt;
 use surf::StatusCode;
 
 #[derive(Debug)]
