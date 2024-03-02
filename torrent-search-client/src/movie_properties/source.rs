@@ -38,9 +38,9 @@ lazy_static! {
         Regex::new(r"\b(?:blu-?ray|bdrip|brip|brrip|bdr|bd|bdiso|bdmv|bdremux)\b").unwrap();
 }
 
-impl Source {
-    pub fn from_str(s: &str) -> Self {
-        match s.to_ascii_lowercase().as_str() {
+impl<S: Into<String>> From<S> for Source {
+    fn from(s: S) -> Self {
+        match s.into().to_ascii_lowercase().as_str() {
             s if CAM_REGEX.is_match(s) => Source::Cam,
             s if TELESYNC_REGEX.is_match(s) => Source::Telesync,
             s if TELECINE_REGEX.is_match(s) => Source::Telecine,
@@ -70,7 +70,7 @@ mod tests {
     fn test_sources() {
         TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
             assert_eq!(
-                &Source::from_str(torrent.name()),
+                &Source::from(torrent.name()),
                 torrent.source(),
                 "{}",
                 torrent.name()

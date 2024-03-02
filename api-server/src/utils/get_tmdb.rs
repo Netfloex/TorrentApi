@@ -6,7 +6,6 @@ lazy_static! {
 pub fn get_tmdb(name: &str) -> Option<u32> {
     IMDB_REGEX
         .captures(name)
-        .map(|c| c.get(1).map(|m| m.as_str().parse().ok()))
-        .flatten()
+        .and_then(|c| c.get(1).map(|m| m.as_str().parse().ok()))
         .flatten()
 }

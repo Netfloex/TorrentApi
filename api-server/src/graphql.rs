@@ -72,16 +72,13 @@ impl Query {
 
         movie_info.iter().for_each(|info| {
             let torrents = torrents.iter().filter_map(|torrent| {
-                get_tmdb(torrent.name())
-                    .as_ref()
-                    .map(|tmdb| {
-                        if info.tmdb_id().eq(&(*tmdb as i32)) {
-                            Some(torrent)
-                        } else {
-                            None
-                        }
-                    })
-                    .flatten()
+                get_tmdb(torrent.name()).as_ref().and_then(|tmdb| {
+                    if info.tmdb_id().eq(&(*tmdb as i32)) {
+                        Some(torrent)
+                    } else {
+                        None
+                    }
+                })
             });
 
             torrents.for_each(|torrent| {

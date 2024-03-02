@@ -156,9 +156,9 @@ impl TorrentProvider for BitSearch {
                 magnet,
                 movie_properties: Some(MovieProperties::new(
                     String::new(),
-                    Quality::from_str(&name),
-                    VideoCodec::from_str(&name),
-                    Source::from_str(&name),
+                    Quality::from(&name),
+                    VideoCodec::from(&name),
+                    Source::from(&name),
                 )),
             })
         });

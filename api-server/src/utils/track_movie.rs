@@ -7,7 +7,7 @@ pub async fn track_movie(
     url: String,
     tmdb: u32,
 ) -> Result<(), HttpErrorKind> {
-    let magnet = Magnet::from_url(&url).map_err(|err| HttpErrorKind::InvalidMagnet(err))?;
+    let magnet = Magnet::from_url(&url).map_err(HttpErrorKind::InvalidMagnet)?;
     let display_name = magnet.display_name().to_owned();
 
     let mut ctx = context.lock().await;

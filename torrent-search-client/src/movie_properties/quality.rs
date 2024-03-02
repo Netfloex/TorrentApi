@@ -37,8 +37,9 @@ lazy_static! {
     static ref SOME_DIGITS_REGEX: Regex = Regex::new(r"\d{3,4}").unwrap();
 }
 
-impl Quality {
-    pub fn from_str(s: &str) -> Self {
+impl<S: Into<String>> From<S> for Quality {
+    fn from(s: S) -> Self {
+        let s = s.into();
         match s.to_ascii_lowercase().as_str() {
             s if P480_REGEX.is_match(s) => Quality::P480,
             s if P540_REGEX.is_match(s) => Quality::P540,
@@ -48,7 +49,7 @@ impl Quality {
             s if P2160_REGEX.is_match(s) => Quality::P2160,
             _ => {
                 let new_string = SOME_DIGITS_REGEX
-                    .replace_all(s, |caps: &regex::Captures| {
+                    .replace_all(&s, |caps: &regex::Captures| {
                         caps.get(0).unwrap().as_str().to_string() + "p"
                     })
                     .to_string();
@@ -81,7 +82,7 @@ mod tests {
     fn test_qualities() {
         TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
             assert_eq!(
-                &Quality::from_str(torrent.name()),
+                &Quality::from(torrent.name()),
                 torrent.quality(),
                 "{}",
                 torrent.name()

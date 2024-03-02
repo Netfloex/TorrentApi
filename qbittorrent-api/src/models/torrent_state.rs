@@ -48,15 +48,15 @@ pub enum TorrentState {
 
 impl TorrentState {
     pub fn is_active(&self) -> bool {
-        match self {
+        matches!(
+            self,
             TorrentState::Allocating
-            | TorrentState::Downloading
-            | TorrentState::MetaDL
-            | TorrentState::CheckingDL
-            | TorrentState::ForcedDL
-            | TorrentState::CheckingResumeData
-            | TorrentState::Unknown => true,
-            _ => false,
-        }
+                | TorrentState::Downloading
+                | TorrentState::MetaDL
+                | TorrentState::CheckingDL
+                | TorrentState::ForcedDL
+                | TorrentState::CheckingResumeData
+                | TorrentState::Unknown
+        )
     }
 }

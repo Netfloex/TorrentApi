@@ -21,9 +21,9 @@ lazy_static! {
     static ref XVID_REGEX: Regex = Regex::new(r"\bx-?vid(?:hd)?\b").unwrap();
 }
 
-impl VideoCodec {
-    pub fn from_str(s: &str) -> Self {
-        match s.to_ascii_lowercase().as_str() {
+impl<S: Into<String>> From<S> for VideoCodec {
+    fn from(s: S) -> Self {
+        match s.into().to_ascii_lowercase().as_str() {
             s if AVC_REGEX.is_match(s) => VideoCodec::AVC,
             s if HEVC_REGEX.is_match(s) => VideoCodec::HEVC,
             s if XVID_REGEX.is_match(s) => VideoCodec::XVid,
@@ -47,7 +47,7 @@ mod tests {
     fn test_codecs() {
         TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
             assert_eq!(
-                &VideoCodec::from_str(torrent.name()),
+                &VideoCodec::from(torrent.name()),
                 torrent.codec(),
                 "{}",
                 torrent.name()

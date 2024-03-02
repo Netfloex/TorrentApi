@@ -92,9 +92,9 @@ impl From<PirateBayTorrent> for Torrent {
             magnet: format_magnet(value.info_hash(), value.name(), PIRATEBAY_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
-                Quality::from_str(value.name()),
-                VideoCodec::from_str(value.name()),
-                Source::from_str(value.name()),
+                Quality::from(value.name()),
+                VideoCodec::from(value.name()),
+                Source::from(value.name()),
             )),
         }
     }
@@ -128,9 +128,9 @@ impl From<YtsTorrent> for Torrent {
             magnet: format_magnet(torrent.hash(), &name, YTS_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
-                Quality::from_str(&name),
-                VideoCodec::from_str(&name),
-                Source::from_str(&name),
+                Quality::from(&name),
+                VideoCodec::from(&name),
+                Source::from(&name),
             )),
         }
     }

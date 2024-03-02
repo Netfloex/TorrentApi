@@ -21,7 +21,7 @@ pub async fn import_movie(
         let mut max_size = 0;
 
         while let Some(file) = files.next_entry().await? {
-            if let Some(ext) = file.path().extension().map(|s| s.to_str()).flatten() {
+            if let Some(ext) = file.path().extension().and_then(|s| s.to_str()) {
                 if MEDIA_FILE_EXTENSIONS.contains(&ext) && !file.path().is_dir() {
                     let metadata = file.metadata().await?;
                     debug!("Found file: {:?}, {}b", file.path(), metadata.len());

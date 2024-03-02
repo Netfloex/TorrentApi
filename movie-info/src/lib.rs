@@ -8,6 +8,8 @@ use http_cache_surf::{CACacheManager, Cache, CacheMode, HttpCache, HttpCacheOpti
 pub use models::filters::Filters;
 pub use models::movie_info::MovieInfo;
 use surf::{Client, Config};
+
+#[derive(Default)]
 pub struct MovieInfoClient {
     http: Client,
 }

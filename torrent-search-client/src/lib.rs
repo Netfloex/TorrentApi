@@ -32,6 +32,7 @@ use std::vec;
 use surf::Client;
 pub use torrent::Torrent;
 
+#[derive(Default)]
 pub struct TorrentClient {
     http: Client,
 }

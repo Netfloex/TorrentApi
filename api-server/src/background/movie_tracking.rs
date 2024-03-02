@@ -46,7 +46,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
             .to_owned()
         {
             info!("Progress tracking (temporarily) disabled");
-            let ntfy = Arc::clone(&context.lock().await.movie_tracking_ntfy());
+            let ntfy = Arc::clone(context.lock().await.movie_tracking_ntfy());
             ntfy.notified().await;
         }
 
@@ -103,60 +103,55 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                             eta / 60,
                             state
                         );
-                    } else {
-                        if let Some(tmdb) = get_tmdb(name) {
-                            let movie = context
-                                .lock()
-                                .await
-                                .movie_info_client()
-                                .from_tmdb(tmdb)
-                                .await?;
+                    } else if let Some(tmdb) = get_tmdb(name) {
+                        let movie = context
+                            .lock()
+                            .await
+                            .movie_info_client()
+                            .from_tmdb(tmdb)
+                            .await?;
 
-                            if let Some(movie) = movie {
-                                let movie_name = movie.format();
+                        if let Some(movie) = movie {
+                            let movie_name = movie.format();
 
-                                info!("Importing \"{}\" as \"{}\"", name, movie_name);
+                            info!("Importing \"{}\" as \"{}\"", name, movie_name);
 
-                                let remote_path = torrent
-                                    .content_path()
-                                    .as_ref()
-                                    .expect("Content path should be available at sync");
+                            let remote_path = torrent
+                                .content_path()
+                                .as_ref()
+                                .expect("Content path should be available at sync");
 
-                                let local_path = remote_path
-                                    .replace(&remote_download_path, &local_download_path);
-                                let local_path = PathBuf::from(local_path);
+                            let local_path =
+                                remote_path.replace(&remote_download_path, &local_download_path);
+                            let local_path = PathBuf::from(local_path);
 
-                                let dest_folder = movies_path.join(filenamify(&movie_name));
+                            let dest_folder = movies_path.join(filenamify(&movie_name));
 
-                                import_movie(&local_path, &dest_folder).await?;
+                            import_movie(&local_path, &dest_folder).await?;
 
-                                if *config.delete_torrent_after_import() {
-                                    context
-                                        .lock()
-                                        .await
-                                        .qbittorrent_client()
-                                        .delete_torrent(
-                                            hash.to_owned(),
-                                            *config.delete_torrent_files(),
-                                        )
-                                        .await?;
-                                } else {
-                                    context
-                                        .lock()
-                                        .await
-                                        .qbittorrent_client()
-                                        .set_category(
-                                            hash.to_owned(),
-                                            config.category_after_import().to_owned(),
-                                        )
-                                        .await?;
-                                }
+                            if *config.delete_torrent_after_import() {
+                                context
+                                    .lock()
+                                    .await
+                                    .qbittorrent_client()
+                                    .delete_torrent(hash.to_owned(), *config.delete_torrent_files())
+                                    .await?;
                             } else {
-                                warn!("No movie found for TMDB id: {}", tmdb);
+                                context
+                                    .lock()
+                                    .await
+                                    .qbittorrent_client()
+                                    .set_category(
+                                        hash.to_owned(),
+                                        config.category_after_import().to_owned(),
+                                    )
+                                    .await?;
                             }
                         } else {
-                            warn!("No TMDB id found for {}", name);
+                            warn!("No movie found for TMDB id: {}", tmdb);
                         }
+                    } else {
+                        warn!("No TMDB id found for {}", name);
                     }
                 }
             }
