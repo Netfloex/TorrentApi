@@ -3,8 +3,8 @@ use movie_info::MovieInfoClient;
 use serde::Serialize;
 use std::collections::HashMap;
 use torrent_search_client::{
-    Category, MovieOptions, Order, Provider, Quality, SearchOptions, SortColumn, Source,
-    TorrentClient, VideoCodec,
+    Category, Codec, MovieOptions, Order, Provider, Quality, SearchOptions, SortColumn, Source,
+    TorrentClient,
 };
 
 use crate::{http_error::HttpErrorKind, torrent::ApiTorrent};
@@ -18,7 +18,7 @@ pub struct SearchHandlerParams {
     pub order: Option<Order>,
     pub limit: Option<i32>,
     pub quality: Option<Vec<Quality>>,
-    pub codec: Option<Vec<VideoCodec>>,
+    pub codec: Option<Vec<Codec>>,
     pub source: Option<Vec<Source>>,
 }
 

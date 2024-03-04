@@ -1,4 +1,4 @@
-use self::{codec::VideoCodec, quality::Quality, source::Source};
+use self::{codec::Codec, quality::Quality, source::Source};
 use derive_getters::Getters;
 use serde::Serialize;
 
@@ -10,14 +10,14 @@ pub mod source;
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
 pub struct MovieProperties {
     quality: Quality,
-    codec: VideoCodec,
+    codec: Codec,
     source: Source,
     imdb: Option<String>,
 }
 
 impl MovieProperties {
     pub fn merge(&mut self, other: Self) {
-        if matches!(self.codec, VideoCodec::Unknown) {
+        if matches!(self.codec, Codec::Unknown) {
             self.codec = other.codec
         }
         if matches!(self.quality, Quality::Unknown) {
@@ -31,7 +31,7 @@ impl MovieProperties {
         }
     }
 
-    pub fn new(imdb: String, quality: Quality, codec: VideoCodec, source: Source) -> Self {
+    pub fn new(imdb: String, quality: Quality, codec: Codec, source: Source) -> Self {
         Self {
             quality,
             codec,
@@ -50,21 +50,21 @@ mod tests {
         let mut props1 = MovieProperties::new(
             "1".to_string(),
             Quality::Unknown,
-            VideoCodec::AVC,
+            Codec::AVC,
             Source::Unknown,
         );
 
         let props2 = MovieProperties::new(
             "2".to_string(),
             Quality::P1080,
-            VideoCodec::Unknown,
+            Codec::Unknown,
             Source::BluRay,
         );
 
         props1.merge(props2);
 
         assert_eq!(props1.quality(), &Quality::P1080);
-        assert_eq!(props1.codec(), &VideoCodec::AVC);
+        assert_eq!(props1.codec(), &Codec::AVC);
         assert_eq!(props1.source(), &Source::BluRay);
         assert_eq!(props1.imdb(), &Some("1".to_string()));
     }

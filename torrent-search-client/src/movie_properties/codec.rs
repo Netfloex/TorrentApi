@@ -7,7 +7,7 @@ use strum_macros::EnumIter;
 #[serde(rename_all = "lowercase")]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 #[cfg_attr(test, derive(serde::Deserialize))]
-pub enum VideoCodec {
+pub enum Codec {
     #[default]
     #[serde(rename = "Unknown")]
     Unknown,
@@ -22,12 +22,12 @@ lazy_static! {
     static ref XVID_REGEX: Regex = Regex::new(r"\bx-?vid(?:hd)?\b").unwrap();
 }
 
-impl<S: Into<String>> From<S> for VideoCodec {
+impl<S: Into<String>> From<S> for Codec {
     fn from(s: S) -> Self {
         match s.into().to_ascii_lowercase().as_str() {
-            s if AVC_REGEX.is_match(s) => VideoCodec::AVC,
-            s if HEVC_REGEX.is_match(s) => VideoCodec::HEVC,
-            s if XVID_REGEX.is_match(s) => VideoCodec::XVid,
+            s if AVC_REGEX.is_match(s) => Codec::AVC,
+            s if HEVC_REGEX.is_match(s) => Codec::HEVC,
+            s if XVID_REGEX.is_match(s) => Codec::XVid,
 
             _ => Self::Unknown,
         }
@@ -48,7 +48,7 @@ mod tests {
     fn test_codecs() {
         TEST_MATRIX_TORRENTS.get().iter().for_each(|torrent| {
             assert_eq!(
-                &VideoCodec::from(torrent.name()),
+                &Codec::from(torrent.name()),
                 torrent.codec(),
                 "{}",
                 torrent.name()

@@ -4,7 +4,7 @@ use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
     movie_properties::MovieProperties,
     r#static::trackers::{piratebay::PIRATEBAY_TRACKERS, yts::YTS_TRACKERS},
-    Quality, Source, VideoCodec,
+    Codec, Quality, Source,
 };
 use chrono::{DateTime, TimeZone, Utc};
 use derive_getters::Getters;
@@ -93,7 +93,7 @@ impl From<PirateBayTorrent> for Torrent {
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
                 Quality::from(value.name()),
-                VideoCodec::from(value.name()),
+                Codec::from(value.name()),
                 Source::from(value.name()),
             )),
         }
@@ -129,7 +129,7 @@ impl From<YtsTorrent> for Torrent {
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
                 Quality::from(&name),
-                VideoCodec::from(&name),
+                Codec::from(&name),
                 Source::from(&name),
             )),
         }

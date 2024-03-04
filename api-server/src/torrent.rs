@@ -86,7 +86,7 @@ impl From<Torrent> for ApiTorrent {
 
 #[cfg(test)]
 mod tests {
-    use torrent_search_client::{Quality, Source, VideoCodec};
+    use torrent_search_client::{Codec, Quality, Source};
 
     use super::*;
 
@@ -122,7 +122,7 @@ mod tests {
             movie_properties: Some(MovieProperties::new(
                 "2".into(),
                 Quality::Unknown,
-                VideoCodec::Unknown,
+                Codec::Unknown,
                 Source::Unknown,
             )),
         };
@@ -142,7 +142,7 @@ mod tests {
             MovieProperties::new(
                 "2".into(),
                 Quality::Unknown,
-                VideoCodec::Unknown,
+                Codec::Unknown,
                 Source::Unknown
             )
         );

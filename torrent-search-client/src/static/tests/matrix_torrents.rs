@@ -1,12 +1,12 @@
 // #[cfg(test)]
-use crate::{Quality, Source, VideoCodec};
+use crate::{Codec, Quality, Source};
 use derive_getters::Getters;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone, Getters)]
 pub struct TestMatrixTorrent {
     name: String,
-    codec: VideoCodec,
+    codec: Codec,
     source: Source,
     quality: Quality,
     parsed: String,

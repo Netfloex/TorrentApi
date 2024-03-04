@@ -18,7 +18,7 @@ pub use error::Error;
 pub use error::ErrorKind;
 use futures::future::join_all;
 use http_cache_surf::{CACacheManager, Cache, CacheMode, HttpCache, HttpCacheOptions};
-pub use movie_properties::codec::VideoCodec;
+pub use movie_properties::codec::Codec;
 pub use movie_properties::quality::Quality;
 pub use movie_properties::source::Source;
 pub use movie_properties::MovieProperties;

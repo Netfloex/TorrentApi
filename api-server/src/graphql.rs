@@ -15,7 +15,7 @@ use rocket::{form, response::content::RawHtml, State};
 use serde_variant::to_variant_name;
 use std::{any::Any, collections::HashMap, hash::Hash};
 use strum::IntoEnumIterator;
-use torrent_search_client::{Quality, Source, VideoCodec};
+use torrent_search_client::{Codec, Quality, Source};
 
 // impl juniper::Context for Context {}
 
@@ -167,7 +167,7 @@ impl Query {
     fn search_filters() -> Vec<Filter> {
         vec![
             Filter::new(Quality::iter(), "Quality".into(), "quality".into()),
-            Filter::new(VideoCodec::iter(), "Codec".into(), "codec".into()),
+            Filter::new(Codec::iter(), "Codec".into(), "codec".into()),
             Filter::new(Source::iter(), "Source".into(), "source".into()),
         ]
     }

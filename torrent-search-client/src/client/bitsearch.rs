@@ -8,7 +8,7 @@ use crate::{
     utils::{parse_title::is_title_match, round_robin::RoundRobin},
     Category, TorrentProvider,
 };
-use crate::{Quality, Source, VideoCodec};
+use crate::{Codec, Quality, Source};
 use async_trait::async_trait;
 use bytesize::ByteSize;
 use chrono::{NaiveDateTime, Utc};
@@ -157,7 +157,7 @@ impl TorrentProvider for BitSearch {
                 movie_properties: Some(MovieProperties::new(
                     String::new(),
                     Quality::from(&name),
-                    VideoCodec::from(&name),
+                    Codec::from(&name),
                     Source::from(&name),
                 )),
             })
