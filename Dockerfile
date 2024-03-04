@@ -1,8 +1,4 @@
-FROM clux/muslrust:stable AS chef
-USER root
-
-RUN cargo install cargo-chef
-
+FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -11,14 +7,13 @@ RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
-RUN rustup target add x86_64-unknown-linux-musl
-RUN cargo chef cook --release --target x86_64-unknown-linux-musl --recipe-path recipe.json
+
+RUN cargo chef cook --release --recipe-path recipe.json
+
 COPY . .
+RUN cargo build --release --bin api-server
 
-# RUN cargo fetch --locked
-RUN cargo build --release --target x86_64-unknown-linux-musl --bin api-server
-
-FROM alpine AS runtime
+FROM debian:bookworm-slim AS runtime
 COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/api-server /usr/local/bin/
 
 ENV ROCKET_ADDRESS=0.0.0.0

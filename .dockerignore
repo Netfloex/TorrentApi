@@ -3,5 +3,7 @@
 !/.cargo
 !/api-server
 !/torrent-search-client
+!/qbittorrent-api
+!/movie-info
 !/Cargo.lock
 !/Cargo.toml
