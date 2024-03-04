@@ -1,4 +1,4 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.76.0 AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -14,7 +14,9 @@ COPY . .
 RUN cargo build --release --bin api-server
 
 FROM debian:bookworm-slim AS runtime
-COPY --from=builder /app/target/x86_64-unknown-linux-musl/release/api-server /usr/local/bin/
+COPY --from=builder /app/target/release/api-server /usr/local/bin/
+RUN apt update && apt install -y curl
+RUN rm -rf /var/lib/apt/lists/*
 
 ENV ROCKET_ADDRESS=0.0.0.0
 EXPOSE 8000
