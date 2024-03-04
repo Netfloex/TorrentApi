@@ -2,7 +2,8 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use serde::Serialize;
 
-#[derive(Debug, Clone, Serialize, Default, PartialEq)]
+use strum_macros::EnumIter;
+#[derive(EnumIter, Debug, Clone, Serialize, Default, PartialEq)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 #[cfg_attr(test, derive(serde::Deserialize))]
 pub enum Source {

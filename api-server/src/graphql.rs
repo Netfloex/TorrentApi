@@ -1,17 +1,21 @@
-use std::{collections::HashMap, hash::Hash};
-
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
     context::ContextPointer,
+    filter::{Filter, FilterItem},
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse},
     utils::{get_tmdb::get_tmdb, track_movie::track_movie},
 };
-use juniper::{graphql_object, EmptySubscription, RootNode};
+use chrono::format;
+use juniper::{graphql_object, EmptySubscription, GraphQLType, RootNode};
 use juniper_rocket::graphiql_source;
 use movie_info::{Filters, MovieInfo};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
-use rocket::{response::content::RawHtml, State};
+use rocket::{form, response::content::RawHtml, State};
+use serde_variant::to_variant_name;
+use std::{any::Any, collections::HashMap, hash::Hash};
+use strum::IntoEnumIterator;
+use torrent_search_client::{Quality, Source, VideoCodec};
 
 // impl juniper::Context for Context {}
 
@@ -158,6 +162,14 @@ impl Query {
             .await?;
 
         Ok(movie_info)
+    }
+
+    fn search_filters() -> Vec<Filter> {
+        vec![
+            Filter::new(Quality::iter(), "Quality".into(), "quality".into()),
+            Filter::new(VideoCodec::iter(), "Codec".into(), "codec".into()),
+            Filter::new(Source::iter(), "Source".into(), "source".into()),
+        ]
     }
 }
 

@@ -2,6 +2,7 @@ mod add_torrent_options;
 mod background;
 mod config;
 mod context;
+mod filter;
 mod graphql;
 mod http_error;
 mod search_handler;

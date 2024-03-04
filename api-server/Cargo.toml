@@ -29,6 +29,9 @@ regex = "1.10.2"
 lazy_static = "1.4.0"
 serde-inline-default = "0.1.1"
 simplelog = "0.12.1"
+strum = "0.26.1"
+strum_macros = "0.26.1"
+serde_variant = "0.1.2"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = [

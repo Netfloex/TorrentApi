@@ -13,7 +13,7 @@ pub struct Magnet {
 
 impl Magnet {
     pub fn from_url(url: &str) -> Result<Self, String> {
-        let url = Url::parse(&url).map_err(|e| e.to_string())?;
+        let url = Url::parse(url).map_err(|e| e.to_string())?;
 
         if url.scheme() != "magnet" {
             return Err("Not a magnet link".into());
@@ -27,7 +27,7 @@ impl Magnet {
                 .unwrap_or_else(|| "Unknown".into()),
             trackers: qp
                 .get_vec("tr")
-                .map(|v| v.into_iter().map(|v| v.to_string()).collect())
+                .map(|v| v.iter().map(|v| v.to_string()).collect())
                 .unwrap_or_default(),
             info_hash: qp
                 .get("xt")
