@@ -1,19 +1,17 @@
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
     context::ContextPointer,
-    filter::{Filter, FilterItem},
+    filter::Filter,
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse},
     utils::{get_tmdb::get_tmdb, track_movie::track_movie},
 };
-use chrono::format;
-use juniper::{graphql_object, EmptySubscription, GraphQLType, RootNode};
+use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
 use movie_info::{Filters, MovieInfo};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
-use rocket::{form, response::content::RawHtml, State};
-use serde_variant::to_variant_name;
-use std::{any::Any, collections::HashMap, hash::Hash};
+use rocket::{response::content::RawHtml, State};
+use std::{collections::HashMap, hash::Hash};
 use strum::IntoEnumIterator;
 use torrent_search_client::{Codec, Quality, Source};
 
@@ -162,6 +160,22 @@ impl Query {
             .movie_info_client()
             .bulk(&tmdb_ids)
             .await?;
+
+        Ok(movie_info)
+    }
+
+    async fn popular_movies(
+        #[graphql(context)] context: &ContextPointer,
+    ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
+        let movie_info = context.lock().await.movie_info_client().popular().await?;
+
+        Ok(movie_info)
+    }
+
+    async fn trending_movies(
+        #[graphql(context)] context: &ContextPointer,
+    ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
+        let movie_info = context.lock().await.movie_info_client().trending().await?;
 
         Ok(movie_info)
     }
