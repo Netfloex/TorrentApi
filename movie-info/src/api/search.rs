@@ -56,6 +56,13 @@ impl MovieInfoClient {
             movies.retain(|m| m.runtime() >= &(*filters.min_minutes() as i32))
         }
 
+        if !filters.languages().is_empty() {
+            movies.iter_mut().for_each(|m| {
+                m.certifications_mut()
+                    .retain(|c| filters.languages().contains(c.country()))
+            })
+        }
+
         Ok(movies)
     }
 }
@@ -107,7 +114,10 @@ mod tests {
     #[tokio::test]
     async fn test_imdb_filter() {
         let movies = CLIENT
-            .search("quantum".to_string(), Filters::new(true, 0))
+            .search(
+                "quantum".to_string(),
+                Filters::new(true, 0, Default::default()),
+            )
             .await
             .unwrap();
 
@@ -118,7 +128,10 @@ mod tests {
     #[tokio::test]
     async fn test_min_minutes_filter() {
         let movies = CLIENT
-            .search("the matrix".to_string(), Filters::new(false, 120))
+            .search(
+                "the matrix".to_string(),
+                Filters::new(false, 120, Default::default()),
+            )
             .await
             .unwrap();
 

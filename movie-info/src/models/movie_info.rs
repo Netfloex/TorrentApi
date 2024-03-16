@@ -54,4 +54,8 @@ impl MovieInfo {
     pub fn format(&self) -> String {
         format!("{} ({})", self.title, self.year)
     }
+
+    pub fn certifications_mut(&mut self) -> &mut Vec<Certification> {
+        &mut self.certifications
+    }
 }

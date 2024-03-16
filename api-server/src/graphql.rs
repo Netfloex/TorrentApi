@@ -133,19 +133,21 @@ impl Query {
     async fn search_movies(
         #[graphql(context)] context: &ContextPointer,
         query: String,
+        languages: Option<Vec<String>>,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
         let ctx = context.lock().await;
-        let config = ctx.config();
-        let movie_info = ctx
-            .movie_info_client()
-            .search(
-                query,
-                Filters::new(
-                    *config.hide_movies_no_imdb(),
-                    *config.hide_movies_below_runtime(),
-                ),
+
+        let filters = {
+            let config = ctx.config();
+
+            Filters::new(
+                *config.hide_movies_no_imdb(),
+                *config.hide_movies_below_runtime(),
+                languages.unwrap_or_default().into_iter().collect(),
             )
-            .await?;
+        };
+
+        let movie_info = ctx.movie_info_client().search(query, filters).await?;
 
         Ok(movie_info)
     }
