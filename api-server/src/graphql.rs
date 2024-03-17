@@ -37,7 +37,7 @@ pub struct Query;
 
 #[graphql_object(context = ContextPointer)]
 impl Query {
-    async fn search(
+    async fn searchTorrents(
         #[graphql(context)] context: &ContextPointer,
         params: SearchHandlerParams,
     ) -> Result<SearchHandlerResponse, HttpErrorKind> {
@@ -47,7 +47,7 @@ impl Query {
         Ok(torrents)
     }
 
-    async fn torrents(
+    async fn activeTorrents(
         #[graphql(context)] context: &ContextPointer,
         params: GetTorrentsParameters,
     ) -> Result<ActiveTorrentsResponse, HttpErrorKind> {

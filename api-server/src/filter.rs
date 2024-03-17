@@ -2,7 +2,6 @@ use std::fmt::Debug;
 
 use juniper::GraphQLObject;
 use serde_variant::to_variant_name;
-use strum::IntoEnumIterator;
 
 #[derive(GraphQLObject, Debug)]
 pub struct FilterItem {
