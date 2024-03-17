@@ -1,5 +1,6 @@
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
+    config::Config,
     context::ContextPointer,
     filter::Filter,
     http_error::HttpErrorKind,
@@ -10,7 +11,7 @@ use juniper::{graphql_object, EmptySubscription, RootNode};
 use juniper_rocket::graphiql_source;
 use movie_info::{Filters, MovieInfo};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
-use rocket::{response::content::RawHtml, State};
+use rocket::{config, response::content::RawHtml, State};
 use std::{collections::HashMap, hash::Hash};
 use strum::IntoEnumIterator;
 use torrent_search_client::{Codec, Quality, Source};
@@ -33,6 +34,15 @@ struct ActiveTorrentsResponse {
     torrents: Vec<Torrent>,
     movie_info: Vec<TorrentMovieInfo>,
 }
+
+fn filters_from_config(config: &Config, languages: Option<Vec<String>>) -> Filters {
+    Filters::new(
+        *config.hide_movies_no_imdb(),
+        *config.hide_movies_below_runtime(),
+        languages.unwrap_or_default().into_iter().collect(),
+    )
+}
+
 pub struct Query;
 
 #[graphql_object(context = ContextPointer)]
@@ -131,21 +141,13 @@ impl Query {
     async fn search_movies(
         #[graphql(context)] context: &ContextPointer,
         query: String,
-        languages: Option<Vec<String>>,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
         let ctx = context.lock().await;
 
-        let filters = {
-            let config = ctx.config();
-
-            Filters::new(
-                *config.hide_movies_no_imdb(),
-                *config.hide_movies_below_runtime(),
-                languages.unwrap_or_default().into_iter().collect(),
-            )
-        };
-
-        let movie_info = ctx.movie_info_client().search(query, filters).await?;
+        let movie_info = ctx
+            .movie_info_client()
+            .search(query, &ctx.config().filters())
+            .await?;
 
         Ok(movie_info)
     }
@@ -167,7 +169,11 @@ impl Query {
     async fn popular_movies(
         #[graphql(context)] context: &ContextPointer,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
-        let movie_info = context.lock().await.movie_info_client().popular().await?;
+        let ctx = context.lock().await;
+        let movie_info = ctx
+            .movie_info_client()
+            .popular(ctx.config().filters())
+            .await?;
 
         Ok(movie_info)
     }
@@ -175,7 +181,11 @@ impl Query {
     async fn trending_movies(
         #[graphql(context)] context: &ContextPointer,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
-        let movie_info = context.lock().await.movie_info_client().trending().await?;
+        let ctx = context.lock().await;
+        let movie_info = ctx
+            .movie_info_client()
+            .trending(ctx.config().filters())
+            .await?;
 
         Ok(movie_info)
     }

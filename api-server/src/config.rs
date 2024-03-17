@@ -1,10 +1,11 @@
-use std::path::PathBuf;
+use std::{collections::HashSet, path::PathBuf};
 
 use derive_getters::Getters;
 use figment::{
     providers::{Env, Format, Yaml},
     Error,
 };
+use movie_info::Filters;
 use serde::{Deserialize, Serialize};
 use serde_inline_default::serde_inline_default;
 
@@ -24,6 +25,8 @@ pub struct Config {
     qbittorrent: QbittorrentConf,
     remote_download_path: String,
     local_download_path: String,
+    #[serde_inline_default(vec!["US".to_string()].into_iter().collect())]
+    languages: HashSet<String>,
     movies_path: PathBuf,
 
     #[serde_inline_default(false)]
@@ -52,6 +55,16 @@ pub struct Config {
 
     #[serde_inline_default(30)]
     hide_movies_below_runtime: u64,
+}
+
+impl Config {
+    pub fn filters(&self) -> Filters {
+        Filters::new(
+            *self.hide_movies_no_imdb(),
+            *self.hide_movies_below_runtime(),
+            self.languages().iter().cloned().collect(),
+        )
+    }
 }
 
 pub fn get_config() -> Result<Config, Error> {

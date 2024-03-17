@@ -1,8 +1,8 @@
 use std::collections::HashSet;
 
-use derive_getters::Getters;
+use crate::MovieInfo;
 
-#[derive(Debug, Getters, Default)]
+#[derive(Debug, Default)]
 pub struct Filters {
     imdb: bool,
     min_minutes: u64,
@@ -15,6 +15,23 @@ impl Filters {
             imdb,
             min_minutes,
             languages,
+        }
+    }
+
+    pub fn filter(&self, movies: &mut Vec<MovieInfo>) {
+        if self.imdb {
+            movies.retain(|m| m.imdb_id().is_some())
+        }
+
+        if self.min_minutes > 0 {
+            movies.retain(|m| m.runtime() >= &(self.min_minutes as i32))
+        }
+
+        if !self.languages.is_empty() {
+            movies.iter_mut().for_each(|m| {
+                m.certifications_mut()
+                    .retain(|c| self.languages.contains(c.country()))
+            })
         }
     }
 }

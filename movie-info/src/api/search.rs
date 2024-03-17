@@ -28,7 +28,7 @@ impl MovieInfoClient {
             .await?)
     }
 
-    pub async fn search(&self, query: String, filters: Filters) -> Result<Vec<MovieInfo>, Error> {
+    pub async fn search(&self, query: String, filters: &Filters) -> Result<Vec<MovieInfo>, Error> {
         let query = query.trim().to_lowercase();
 
         if query.is_empty() {
@@ -48,20 +48,7 @@ impl MovieInfoClient {
             None => self.force_search(query).await?,
         };
 
-        if *filters.imdb() {
-            movies.retain(|m| m.imdb_id().is_some())
-        }
-
-        if *filters.min_minutes() > 0 {
-            movies.retain(|m| m.runtime() >= &(*filters.min_minutes() as i32))
-        }
-
-        if !filters.languages().is_empty() {
-            movies.iter_mut().for_each(|m| {
-                m.certifications_mut()
-                    .retain(|c| filters.languages().contains(c.country()))
-            })
-        }
+        filters.filter(&mut movies);
 
         Ok(movies)
     }
@@ -79,7 +66,7 @@ mod tests {
     #[tokio::test]
     async fn test_empty_search() {
         let movies = CLIENT
-            .search("".to_string(), Filters::default())
+            .search("".to_string(), &Filters::default())
             .await
             .unwrap();
 
@@ -89,7 +76,7 @@ mod tests {
     #[tokio::test]
     async fn test_spaces_search() {
         let movies = CLIENT
-            .search("   ".to_string(), Filters::default())
+            .search("   ".to_string(), &Filters::default())
             .await
             .unwrap();
 
@@ -99,7 +86,7 @@ mod tests {
     #[tokio::test]
     async fn test_search() {
         let movies = CLIENT
-            .search("the matrix".to_string(), Filters::default())
+            .search("the matrix".to_string(), &Filters::default())
             .await
             .unwrap();
 
@@ -116,7 +103,7 @@ mod tests {
         let movies = CLIENT
             .search(
                 "quantum".to_string(),
-                Filters::new(true, 0, Default::default()),
+                &Filters::new(true, 0, Default::default()),
             )
             .await
             .unwrap();
@@ -130,7 +117,7 @@ mod tests {
         let movies = CLIENT
             .search(
                 "the matrix".to_string(),
-                Filters::new(false, 120, Default::default()),
+                &Filters::new(false, 120, Default::default()),
             )
             .await
             .unwrap();
@@ -142,7 +129,7 @@ mod tests {
     #[tokio::test]
     async fn test_imdb_id_search() {
         let movies = CLIENT
-            .search("tt0133093".to_string(), Filters::default())
+            .search("tt0133093".to_string(), &Filters::default())
             .await
             .unwrap();
 
