@@ -35,14 +35,6 @@ struct ActiveTorrentsResponse {
     movie_info: Vec<TorrentMovieInfo>,
 }
 
-fn filters_from_config(config: &Config, languages: Option<Vec<String>>) -> Filters {
-    Filters::new(
-        *config.hide_movies_no_imdb(),
-        *config.hide_movies_below_runtime(),
-        languages.unwrap_or_default().into_iter().collect(),
-    )
-}
-
 pub struct Query;
 
 #[graphql_object(context = ContextPointer)]
