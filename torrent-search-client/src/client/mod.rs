@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use crate::{
     error::Error,
     search_options::{movie_options::MovieOptions, SearchOptions},
@@ -5,6 +7,7 @@ use crate::{
 };
 use async_trait::async_trait;
 use serde::Serialize;
+use strum::IntoEnumIterator;
 use surf::Client;
 
 pub mod bitsearch;
@@ -52,7 +55,8 @@ pub trait TorrentProvider {
     }
 }
 
-#[derive(Serialize, Debug, Clone, PartialEq)]
+use strum_macros::EnumIter;
+#[derive(EnumIter, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
 pub enum Provider {
     #[cfg_attr(feature = "graphql", graphql(name = "PIRATEBAY"))]
@@ -62,4 +66,10 @@ pub enum Provider {
     Yts,
     #[cfg_attr(feature = "graphql", graphql(name = "BITSEARCH"))]
     BitSearch,
+}
+
+impl Provider {
+    pub fn all() -> HashSet<Provider> {
+        Provider::iter().collect()
+    }
 }

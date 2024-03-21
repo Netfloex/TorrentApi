@@ -28,6 +28,7 @@ pub use search_options::movie_options::MovieOptions;
 pub use search_options::order::Order;
 pub use search_options::sort_column::SortColumn;
 pub use search_options::SearchOptions;
+use std::collections::HashSet;
 use std::vec;
 use surf::Client;
 pub use torrent::Torrent;
@@ -39,31 +40,79 @@ pub struct TorrentClient {
 
 impl TorrentClient {
     pub async fn search_all(&self, search_options: &SearchOptions) -> Vec<ProviderResponse> {
+        self.search(search_options, Provider::all()).await
+    }
+
+    pub async fn search_movie_all(&self, movie_options: &MovieOptions) -> Vec<ProviderResponse> {
+        self.search_movie(movie_options, Provider::all()).await
+    }
+
+    pub async fn search(
+        &self,
+        search_options: &SearchOptions,
+        providers: HashSet<Provider>,
+    ) -> Vec<ProviderResponse> {
         if search_options.query().is_empty() {
             return vec![];
         }
 
-        join_all(vec![
-            X1137::search_provider(search_options, &self.http),
-            PirateBay::search_provider(search_options, &self.http),
-            BitSearch::search_provider(search_options, &self.http),
-            Yts::search_provider(search_options, &self.http),
-        ])
-        .await
+        let mut futures = vec![];
+
+        let providers = if providers.is_empty() {
+            Provider::all()
+        } else {
+            providers
+        };
+
+        for provider in providers {
+            match provider {
+                Provider::X1337 => futures.push(X1137::search_provider(search_options, &self.http)),
+                Provider::PirateBay => {
+                    futures.push(PirateBay::search_provider(search_options, &self.http))
+                }
+                Provider::BitSearch => {
+                    futures.push(BitSearch::search_provider(search_options, &self.http))
+                }
+                Provider::Yts => futures.push(Yts::search_provider(search_options, &self.http)),
+            }
+        }
+
+        join_all(futures).await
     }
 
-    pub async fn search_movie_all(&self, movie_options: &MovieOptions) -> Vec<ProviderResponse> {
+    pub async fn search_movie(
+        &self,
+        movie_options: &MovieOptions,
+        providers: HashSet<Provider>,
+    ) -> Vec<ProviderResponse> {
         if movie_options.imdb().is_empty() {
             return vec![];
         }
 
-        join_all(vec![
-            // X1137::search_movie_provider(movie_options, &self.http),
-            PirateBay::search_movies_provider(movie_options, &self.http),
-            BitSearch::search_movies_provider(movie_options, &self.http),
-            Yts::search_movies_provider(movie_options, &self.http),
-        ])
-        .await
+        let mut futures = vec![];
+
+        let providers = if providers.is_empty() {
+            Provider::all()
+        } else {
+            providers
+        };
+
+        for provider in providers {
+            match provider {
+                Provider::X1337 => {}
+                Provider::PirateBay => {
+                    futures.push(PirateBay::search_movies_provider(movie_options, &self.http))
+                }
+                Provider::BitSearch => {
+                    futures.push(BitSearch::search_movies_provider(movie_options, &self.http))
+                }
+                Provider::Yts => {
+                    futures.push(Yts::search_movies_provider(movie_options, &self.http))
+                }
+            }
+        }
+
+        join_all(futures).await
     }
 
     pub fn new() -> Self {

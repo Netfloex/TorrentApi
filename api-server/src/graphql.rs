@@ -14,7 +14,7 @@ use qbittorrent_api::{GetTorrentsParameters, Torrent};
 use rocket::{config, response::content::RawHtml, State};
 use std::{collections::HashMap, hash::Hash};
 use strum::IntoEnumIterator;
-use torrent_search_client::{Codec, Quality, Source};
+use torrent_search_client::{Codec, Provider, Quality, Source};
 
 // impl juniper::Context for Context {}
 
@@ -184,9 +184,30 @@ impl Query {
 
     fn search_filters() -> Vec<Filter> {
         vec![
-            Filter::new(Quality::iter(), "Quality".into(), "quality".into()),
-            Filter::new(Codec::iter(), "Codec".into(), "codec".into()),
-            Filter::new(Source::iter(), "Source".into(), "source".into()),
+            Filter::new(
+                Quality::iter(),
+                "Quality".into(),
+                "quality".into(),
+                "Quality".into(),
+            ),
+            Filter::new(
+                Codec::iter(),
+                "Codec".into(),
+                "codec".into(),
+                "Codec".into(),
+            ),
+            Filter::new(
+                Source::iter(),
+                "Source".into(),
+                "source".into(),
+                "Source".into(),
+            ),
+            Filter::new(
+                Provider::iter(),
+                "Providers".into(),
+                "providers".into(),
+                "Provider".into(),
+            ),
         ]
     }
 }

@@ -1,7 +1,7 @@
 use juniper::{GraphQLInputObject, GraphQLObject};
 use movie_info::MovieInfoClient;
 use serde::Serialize;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use torrent_search_client::{
     Category, Codec, MovieOptions, Order, Provider, Quality, SearchOptions, SortColumn, Source,
     TorrentClient,
@@ -20,6 +20,7 @@ pub struct SearchHandlerParams {
     pub quality: Option<Vec<Quality>>,
     pub codec: Option<Vec<Codec>>,
     pub source: Option<Vec<Source>>,
+    pub providers: Option<Vec<Provider>>,
 }
 
 #[derive(GraphQLObject, Serialize)]
@@ -46,7 +47,16 @@ pub async fn search_handler(
     let response = if let Some(query) = search_params.query {
         let options = SearchOptions::new(query, category, sort.to_owned(), order.to_owned());
 
-        client.search_all(&options).await
+        client
+            .search(
+                &options,
+                search_params
+                    .providers
+                    .unwrap_or_default()
+                    .into_iter()
+                    .collect(),
+            )
+            .await
     } else if let Some(imdb) = search_params.imdb {
         let movie_info = movie_info_client.from_imdb(&imdb).await?;
 
@@ -58,7 +68,16 @@ pub async fn search_handler(
                 order.to_owned(),
             );
 
-            client.search_movie_all(&options).await
+            client
+                .search_movie(
+                    &options,
+                    search_params
+                        .providers
+                        .unwrap_or_default()
+                        .into_iter()
+                        .collect(),
+                )
+                .await
         } else {
             return Err(HttpErrorKind::imdb_not_found(imdb));
         }
