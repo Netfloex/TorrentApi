@@ -61,6 +61,9 @@ impl BitSearch {
         if number.contains('M') {
             return number.replace('M', "000000").replace('.', "");
         }
+        if number.contains('B') {
+            return number.replace('B', "000000000").replace('.', "");
+        }
 
         number.to_owned()
     }
