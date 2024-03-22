@@ -11,16 +11,16 @@ use crate::{http_error::HttpErrorKind, torrent::ApiTorrent};
 
 #[derive(GraphQLInputObject)]
 pub struct SearchHandlerParams {
-    pub query: Option<String>,
-    pub imdb: Option<String>,
-    pub category: Option<Category>,
-    pub sort: Option<SortColumn>,
-    pub order: Option<Order>,
-    pub limit: Option<i32>,
-    pub quality: Option<Vec<Quality>>,
-    pub codec: Option<Vec<Codec>>,
-    pub source: Option<Vec<Source>>,
-    pub providers: Option<Vec<Provider>>,
+    query: Option<String>,
+    imdb: Option<String>,
+    category: Option<Category>,
+    sort: Option<SortColumn>,
+    order: Option<Order>,
+    limit: Option<i32>,
+    quality: Option<Vec<Quality>>,
+    codec: Option<Vec<Codec>>,
+    source: Option<Vec<Source>>,
+    providers: Option<Vec<Provider>>,
 }
 
 #[derive(GraphQLObject, Serialize)]
