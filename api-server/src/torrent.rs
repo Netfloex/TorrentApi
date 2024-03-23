@@ -1,11 +1,11 @@
+use async_graphql::SimpleObject;
 use chrono::{DateTime, Utc};
-use derive_getters::Getters;
-use juniper::GraphQLObject;
+use getset::Getters;
 use serde::Serialize;
 use torrent_search_client::{MovieProperties, Provider, Torrent};
-use utils::int_scalar::IntScalar;
 
-#[derive(Serialize, Debug, Getters, Clone, GraphQLObject)]
+#[derive(Serialize, Debug, Clone, SimpleObject, Getters)]
+#[getset(get = "pub with_prefix")]
 pub struct ApiTorrent {
     added: DateTime<Utc>,
     category: String,
@@ -15,7 +15,7 @@ pub struct ApiTorrent {
     leechers: i32,
     name: String,
     seeders: i32,
-    size: IntScalar<u64>,
+    size: u64,
     provider: Vec<Provider>,
     magnet: String,
     movie_properties: Option<MovieProperties>,
@@ -51,7 +51,7 @@ impl ApiTorrent {
         if self.seeders == 0 {
             self.seeders = other.seeders;
         }
-        if **self.size() == 0 {
+        if self.size == 0 {
             self.size = other.size
         }
         if self.magnet.is_empty() {
@@ -76,7 +76,7 @@ impl From<Torrent> for ApiTorrent {
             leechers: value.leechers,
             name: value.name,
             seeders: value.seeders,
-            size: value.size.into(),
+            size: value.size,
             provider: vec![value.provider],
             magnet: value.magnet,
             movie_properties: value.movie_properties,
@@ -101,7 +101,7 @@ mod tests {
             leechers: 1,
             name: "1".into(),
             seeders: 1,
-            size: IntScalar::from(1),
+            size: 1,
             provider: vec![Provider::PirateBay],
             magnet: "1".into(),
             movie_properties: None,
@@ -116,7 +116,7 @@ mod tests {
             leechers: 2,
             name: "2".into(),
             seeders: 2,
-            size: IntScalar::from(2),
+            size: 2,
             provider: vec![Provider::Yts, Provider::PirateBay],
             magnet: "2".into(),
             movie_properties: Some(MovieProperties::new(
@@ -134,7 +134,7 @@ mod tests {
         assert_eq!(torrent1.leechers, 1);
         assert_eq!(torrent1.name, "1");
         assert_eq!(torrent1.seeders, 1);
-        assert_eq!(**torrent1.size(), 1);
+        assert_eq!(torrent1.size, 1);
         assert_eq!(torrent1.provider, vec![Provider::PirateBay, Provider::Yts]);
         assert_eq!(torrent1.magnet, "1");
         assert_eq!(

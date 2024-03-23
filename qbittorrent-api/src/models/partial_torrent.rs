@@ -1,24 +1,24 @@
-use derive_getters::Getters;
+use getset::Getters;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use utils::int_scalar::IntScalar;
 
 use super::torrent_state::TorrentState;
 
 #[derive(Serialize, Deserialize, Debug, Getters, Clone)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::InputObject))]
+#[get = "pub"]
 pub struct PartialTorrent {
-    amount_left: Option<IntScalar<u64>>,
+    amount_left: Option<u64>,
     category: Option<String>,
-    completed: Option<IntScalar<u64>>,
+    completed: Option<u64>,
     content_path: Option<String>,
     dlspeed: Option<i32>,
-    downloaded_session: Option<IntScalar<u64>>,
-    downloaded: Option<IntScalar<u64>>,
-    eta: Option<IntScalar<u64>>,
+    downloaded_session: Option<u64>,
+    downloaded: Option<u64>,
+    eta: Option<u64>,
     name: Option<String>,
     progress: Option<f64>,
-    size: Option<IntScalar<u64>>,
+    size: Option<u64>,
     state: Option<TorrentState>,
 }
 

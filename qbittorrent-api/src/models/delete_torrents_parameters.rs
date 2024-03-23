@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 #[derive(Serialize, Deserialize, Debug, Default)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLInputObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::InputObject))]
 #[serde(rename_all = "camelCase")]
 pub struct DeleteTorrentsParameters {
     delete_files: bool,

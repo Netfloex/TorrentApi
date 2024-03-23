@@ -1,4 +1,4 @@
-use derive_getters::Getters;
+use getset::Getters;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
@@ -7,6 +7,7 @@ use crate::Categories;
 use super::partial_torrent::PartialTorrent;
 
 #[derive(Serialize, Deserialize, Debug, Getters, Clone)]
+#[get = "pub"]
 pub struct SyncMainData {
     rid: usize,
     #[serde(default)]
@@ -24,7 +25,7 @@ impl SyncMainData {
         self.rid = other.rid;
         self.full_update = other.full_update;
 
-        other.torrents_removed().iter().for_each(|hash| {
+        other.torrents_removed.iter().for_each(|hash| {
             self.torrents.remove(hash);
         });
 

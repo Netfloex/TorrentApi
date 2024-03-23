@@ -3,8 +3,8 @@ use regex::Regex;
 use serde::Serialize;
 
 use strum_macros::EnumIter;
-#[derive(EnumIter, Debug, Clone, Serialize, Default, PartialEq)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+#[derive(EnumIter, Debug, Clone, Serialize, Default, PartialEq, Copy, Eq)]
+#[cfg_attr(feature = "graphql", derive(async_graphql::Enum))]
 #[cfg_attr(test, derive(serde::Deserialize))]
 pub enum Quality {
     #[default]

@@ -32,8 +32,8 @@ mod tests {
         assert!(movie.is_some());
         let movie = movie.unwrap();
 
-        assert_eq!(movie.title(), "The Matrix");
-        assert_eq!(*movie.tmdb_id() as u32, TMDB_ID);
+        assert_eq!(movie.get_title(), "The Matrix");
+        assert_eq!(*movie.get_tmdb_id() as u32, TMDB_ID);
     }
 
     #[tokio::test]

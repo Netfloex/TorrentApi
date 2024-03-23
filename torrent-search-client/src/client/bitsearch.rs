@@ -177,8 +177,8 @@ impl TorrentProvider for BitSearch {
             let options = SearchOptions::new(
                 title.to_string(),
                 Category::Video,
-                movie_options.sort().clone(),
-                movie_options.order().clone(),
+                *movie_options.sort(),
+                *movie_options.order(),
             );
 
             let mut torrents = Self::search(&options, http).await?;

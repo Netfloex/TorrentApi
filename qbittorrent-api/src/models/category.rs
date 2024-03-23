@@ -1,8 +1,9 @@
-use derive_getters::Getters;
+use getset::Getters;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashMap, fmt::Debug};
 
 #[derive(Serialize, Deserialize, Debug, Getters, Clone)]
+#[get = "pub"]
 pub struct Category {
     name: String,
     #[serde(rename = "savePath")]

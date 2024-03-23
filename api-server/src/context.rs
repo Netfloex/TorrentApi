@@ -1,13 +1,13 @@
-use derive_getters::Getters;
+use crate::config::Config;
+use getset::Getters;
 use movie_info::MovieInfoClient;
 use qbittorrent_api::QbittorrentClient;
 use std::sync::Arc;
 use tokio::sync::{Mutex, Notify};
 use torrent_search_client::TorrentClient;
 
-use crate::config::Config;
-
 #[derive(Getters)]
+#[get = "pub"]
 pub struct Context {
     torrent_client: TorrentClient,
     qbittorrent_client: QbittorrentClient,

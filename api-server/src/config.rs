@@ -1,16 +1,17 @@
 use std::{collections::HashSet, path::PathBuf};
 
-use derive_getters::Getters;
 use figment::{
     providers::{Env, Format, Yaml},
     Error,
 };
+use getset::Getters;
 use movie_info::Filters;
 use serde::{Deserialize, Serialize};
 use serde_inline_default::serde_inline_default;
 
 #[serde_inline_default]
 #[derive(Debug, Serialize, Deserialize, Getters, Clone)]
+#[get = "pub"]
 pub struct QbittorrentConf {
     username: String,
     password: String,
@@ -21,6 +22,7 @@ pub struct QbittorrentConf {
 
 #[serde_inline_default]
 #[derive(Debug, Serialize, Deserialize, Getters, Clone)]
+#[get = "pub"]
 pub struct Config {
     qbittorrent: QbittorrentConf,
     remote_download_path: String,

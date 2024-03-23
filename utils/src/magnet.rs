@@ -1,10 +1,9 @@
-use derive_getters::Getters;
-use derive_setters::Setters;
+use getset::{Getters, Setters};
 use multimap::MultiMap;
 use url::Url;
 
 #[derive(Getters, Debug, Setters)]
-#[setters(prefix = "set_")]
+#[getset(get = "pub", set = "pub")]
 pub struct Magnet {
     display_name: String,
     trackers: Vec<String>,

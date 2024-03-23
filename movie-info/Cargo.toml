@@ -5,22 +5,22 @@ edition = "2021"
 
 [dependencies]
 chrono = { version = "0.4.35", features = ["serde"] }
-derive-getters = "0.3.0"
 serde = "1.0.197"
 surf = { version = "2.3.2", features = [
 	"curl-client",
 	"encoding",
 ], default-features = false }
 utils = { path = "../utils", version = "0.1.0" }
-juniper = { version = "0.15.12", optional = true }
+async-graphql = { version = "7.0.3", optional = true }
 http-cache-surf = "0.12.1"
 lazy_static = "1.4.0"
 regex = "1.10.3"
 serde_json = "1.0.114"
 log = "0.4.21"
+getset = "0.1.2"
 
 [features]
-graphql = ["dep:juniper"]
+graphql = ["dep:async-graphql"]
 
 [dev-dependencies]
 lazy_static = "1.4.0"

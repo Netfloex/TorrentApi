@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone, Eq, Copy, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::Enum))]
 
 pub enum TorrentState {
     /// Some error occurred, applies to paused torrents

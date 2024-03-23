@@ -31,8 +31,8 @@ mod tests {
         assert!(movie.is_some());
         let movie = movie.unwrap();
 
-        assert_eq!(movie.title(), "The Matrix");
-        assert_eq!(movie.imdb_id().as_ref().unwrap(), IMDB_ID);
+        assert_eq!(movie.get_title(), "The Matrix");
+        assert_eq!(movie.get_imdb_id().as_ref().unwrap(), IMDB_ID);
     }
 
     #[tokio::test]

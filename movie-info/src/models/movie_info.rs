@@ -1,5 +1,5 @@
 use chrono::{DateTime, Utc};
-use derive_getters::Getters;
+use getset::Getters;
 use serde::{Deserialize, Deserializer};
 
 use super::{
@@ -23,7 +23,8 @@ where
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
+#[getset(get = "pub with_prefix")]
 pub struct MovieInfo {
     imdb_id: Option<String>,
     overview: String,

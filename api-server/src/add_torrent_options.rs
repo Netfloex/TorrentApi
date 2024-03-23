@@ -1,6 +1,6 @@
-use juniper::GraphQLInputObject;
+use async_graphql::InputObject;
 use qbittorrent_api::AddTorrentOptions;
-#[derive(GraphQLInputObject, Default)]
+#[derive(InputObject, Default)]
 pub struct ApiAddTorrentOptions {
     savepath: Option<String>,
     cookie: Option<String>,

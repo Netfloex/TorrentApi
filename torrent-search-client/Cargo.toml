@@ -10,10 +10,9 @@ utils = { path = "../utils", version = "0.1" }
 async-trait = "0.1.78"
 bytesize = "1.3.0"
 chrono = "0.4.35"
-derive-getters = "0.3.0"
 distance = "0.4.0"
 futures = "0.3.30"
-juniper = { version = "0.15.12", optional = true }
+async-graphql = { version = "7.0.3", optional = true }
 lazy_static = "1.4.0"
 regex = "1.10.3"
 scraper = "0.16.0"
@@ -29,9 +28,11 @@ http-cache-surf = "0.12.1"
 log = "0.4.21"
 strum_macros = "0.26.2"
 strum = "0.26.2"
+getset = "0.1.2"
+derive-getters = "0.3.0"
 
 [features]
-graphql = ["dep:juniper"]
+graphql = ["dep:async-graphql"]
 
 [dev-dependencies]
 tokio = "1.36.0"

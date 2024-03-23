@@ -1,28 +1,28 @@
 use super::torrent_state::TorrentState;
 use chrono::{serde::ts_seconds::deserialize as ts_seconds, DateTime, Utc};
-use derive_getters::Getters;
+use getset::Getters;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
-use utils::int_scalar::IntScalar;
 
 #[derive(Serialize, Deserialize, Debug, Getters, Clone)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[get = "pub with_prefix"]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
 pub struct Torrent {
     #[serde(deserialize_with = "ts_seconds")]
     added_on: DateTime<Utc>,
-    amount_left: IntScalar<u64>,
+    amount_left: u64,
     auto_tmm: bool,
     availability: f64,
     category: String,
-    completed: IntScalar<u64>,
+    completed: u64,
     #[serde(deserialize_with = "ts_seconds")]
     completion_on: DateTime<Utc>,
     content_path: String,
     dl_limit: i32,
     dlspeed: i32,
-    downloaded: IntScalar<u64>,
-    downloaded_session: IntScalar<u64>,
-    eta: IntScalar<u64>,
+    downloaded: u64,
+    downloaded_session: u64,
+    eta: u64,
     f_l_piece_prio: bool,
     force_start: bool,
     hash: String,
@@ -45,15 +45,15 @@ pub struct Torrent {
     #[serde(deserialize_with = "ts_seconds")]
     seen_complete: DateTime<Utc>,
     seq_dl: bool,
-    size: IntScalar<u64>,
+    size: u64,
     state: TorrentState,
     super_seeding: bool,
     tags: String,
     time_active: i32,
-    total_size: IntScalar<i64>,
+    total_size: i64,
     tracker: String,
     up_limit: i32,
-    uploaded: IntScalar<u64>,
-    uploaded_session: IntScalar<u64>,
+    uploaded: u64,
+    uploaded_session: u64,
     upspeed: i32,
 }

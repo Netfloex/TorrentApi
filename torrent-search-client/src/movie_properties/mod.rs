@@ -1,13 +1,14 @@
 use self::{codec::Codec, quality::Quality, source::Source};
-use derive_getters::Getters;
+use getset::Getters;
 use serde::Serialize;
 
 pub mod codec;
 pub mod quality;
 pub mod source;
 
-#[derive(Debug, Clone, Serialize, Getters, PartialEq)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[derive(Debug, Clone, Serialize, PartialEq, Getters)]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
+#[getset(get = "pub with_prefix")]
 pub struct MovieProperties {
     quality: Quality,
     codec: Codec,
@@ -26,7 +27,7 @@ impl MovieProperties {
         if matches!(self.source, Source::Unknown) {
             self.source = other.source
         }
-        if self.imdb().is_none() {
+        if self.imdb.is_none() {
             self.imdb = other.imdb
         }
     }
@@ -63,9 +64,9 @@ mod tests {
 
         props1.merge(props2);
 
-        assert_eq!(props1.quality(), &Quality::P1080);
-        assert_eq!(props1.codec(), &Codec::AVC);
-        assert_eq!(props1.source(), &Source::BluRay);
-        assert_eq!(props1.imdb(), &Some("1".to_string()));
+        assert_eq!(props1.quality, Quality::P1080);
+        assert_eq!(props1.codec, Codec::AVC);
+        assert_eq!(props1.source, Source::BluRay);
+        assert_eq!(props1.imdb, Some("1".to_string()));
     }
 }

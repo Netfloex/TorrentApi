@@ -3,9 +3,9 @@ use regex::Regex;
 use serde::Serialize;
 
 use strum_macros::EnumIter;
-#[derive(EnumIter, Debug, Clone, Serialize, Default, PartialEq)]
+#[derive(EnumIter, Debug, Clone, Serialize, Default, PartialEq, Copy, Eq)]
 #[serde(rename_all = "lowercase")]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::Enum))]
 #[cfg_attr(test, derive(serde::Deserialize))]
 pub enum Codec {
     #[default]

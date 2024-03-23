@@ -10,10 +10,10 @@ mod r#static;
 mod torrent;
 mod utils;
 
+use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use config::get_config;
 use context::{Context, ContextPointer};
-use graphql::{get_graphql_handler, graphiql, post_graphql_handler, Mutation, Query, Schema};
-use juniper::EmptySubscription;
+use graphql::{graphiql, graphql_query, graphql_request, Query};
 use qbittorrent_api::QbittorrentClient;
 use simplelog::{
     ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
@@ -36,6 +36,7 @@ async fn rocket() -> _ {
             .add_filter_ignore_str("hyper")
             .add_filter_ignore_str("selectors")
             .add_filter_ignore_str("html5ever")
+            .add_filter_ignore_str("rocket")
             .build(),
         TerminalMode::Mixed,
         ColorChoice::Auto,
@@ -60,15 +61,11 @@ async fn rocket() -> _ {
 
     tokio::spawn(background::background(context.clone()));
 
+    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
+        .data(context)
+        .finish();
+
     rocket::build()
-        .manage(context)
-        .manage(Schema::new(
-            Query,
-            Mutation,
-            EmptySubscription::<ContextPointer>::new(),
-        ))
-        .mount(
-            "/",
-            routes![graphiql, get_graphql_handler, post_graphql_handler,],
-        )
+        .manage(schema)
+        .mount("/", routes![graphql_query, graphql_request, graphiql])
 }

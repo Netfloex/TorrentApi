@@ -56,8 +56,8 @@ pub trait TorrentProvider {
 }
 
 use strum_macros::EnumIter;
-#[derive(EnumIter, Serialize, Debug, Clone, PartialEq, Eq, Hash)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+#[derive(EnumIter, Serialize, Debug, Clone, PartialEq, Eq, Hash, Copy)]
+#[cfg_attr(feature = "graphql", derive(async_graphql::Enum))]
 pub enum Provider {
     #[cfg_attr(feature = "graphql", graphql(name = "PIRATEBAY"))]
     PirateBay,

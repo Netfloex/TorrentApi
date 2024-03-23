@@ -1,24 +1,25 @@
 use crate::{
     add_torrent_options::ApiAddTorrentOptions,
-    config::Config,
     context::ContextPointer,
     filter::Filter,
     http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse},
     utils::{get_tmdb::get_tmdb, track_movie::track_movie},
 };
-use juniper::{graphql_object, EmptySubscription, RootNode};
-use juniper_rocket::graphiql_source;
-use movie_info::{Filters, MovieInfo};
+use async_graphql::{http::GraphiQLSource, EmptyMutation, EmptySubscription, Schema, SimpleObject};
+use async_graphql::{Context, Object};
+use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
+use movie_info::MovieInfo;
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
-use rocket::{config, response::content::RawHtml, State};
-use std::{collections::HashMap, hash::Hash};
+use rocket::{
+    response::content::{self},
+    State,
+};
+use std::collections::HashMap;
 use strum::IntoEnumIterator;
+use tokio::sync::MutexGuard;
 use torrent_search_client::{Codec, Provider, Quality, Source};
-
-// impl juniper::Context for Context {}
-
-#[derive(juniper::GraphQLObject, PartialEq, Eq, Hash)]
+#[derive(PartialEq, Eq, Hash, SimpleObject)]
 struct TorrentMovieInfo {
     title: String,
     year: i32,
@@ -29,55 +30,58 @@ struct TorrentMovieInfo {
     for_torrents: Vec<String>,
 }
 
-#[derive(juniper::GraphQLObject)]
+#[derive(SimpleObject)]
 struct ActiveTorrentsResponse {
     torrents: Vec<Torrent>,
     movie_info: Vec<TorrentMovieInfo>,
 }
 
+pub type SchemaType = Schema<Query, EmptyMutation, EmptySubscription>;
+
 pub struct Query;
 
-#[graphql_object(context = ContextPointer)]
+async fn get_context<'ctx>(context: &Context<'ctx>) -> MutexGuard<'ctx, crate::Context> {
+    context.data::<ContextPointer>().unwrap().lock().await
+}
+
+#[Object]
 impl Query {
-    async fn searchTorrents(
-        #[graphql(context)] context: &ContextPointer,
+    async fn search_torrents<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         params: SearchHandlerParams,
     ) -> Result<SearchHandlerResponse, HttpErrorKind> {
-        let ctx = context.lock().await;
+        let ctx = get_context(context).await;
         let torrents =
             search_handler(params, ctx.torrent_client(), ctx.movie_info_client()).await?;
         Ok(torrents)
     }
 
-    async fn activeTorrents(
-        #[graphql(context)] context: &ContextPointer,
+    async fn active_torrents<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         params: GetTorrentsParameters,
     ) -> Result<ActiveTorrentsResponse, HttpErrorKind> {
-        let torrents = context
-            .lock()
-            .await
-            .qbittorrent_client()
-            .torrents(params)
-            .await?;
+        let ctx = get_context(context).await;
+        let torrents = ctx.qbittorrent_client().torrents(params).await?;
 
         let mut torrent_movie_info: HashMap<u32, TorrentMovieInfo> = HashMap::new();
 
         let tmdb_ids: Vec<i32> = torrents
             .iter()
-            .filter_map(|torrent| get_tmdb(torrent.name()).as_ref().map(|tmdb| *tmdb as i32))
+            .filter_map(|torrent| {
+                get_tmdb(torrent.get_name())
+                    .as_ref()
+                    .map(|tmdb| *tmdb as i32)
+            })
             .collect();
 
-        let movie_info = context
-            .lock()
-            .await
-            .movie_info_client()
-            .bulk(&tmdb_ids)
-            .await?;
+        let movie_info = ctx.movie_info_client().bulk(&tmdb_ids).await?;
 
         movie_info.iter().for_each(|info| {
             let torrents = torrents.iter().filter_map(|torrent| {
-                get_tmdb(torrent.name()).as_ref().and_then(|tmdb| {
-                    if info.tmdb_id().eq(&(*tmdb as i32)) {
+                get_tmdb(torrent.get_name()).as_ref().and_then(|tmdb| {
+                    if info.get_tmdb_id().eq(&(*tmdb as i32)) {
                         Some(torrent)
                     } else {
                         None
@@ -86,19 +90,19 @@ impl Query {
             });
 
             torrents.for_each(|torrent| {
-                if let Some(tmdb) = get_tmdb(torrent.name()) {
+                if let Some(tmdb) = get_tmdb(torrent.get_name()) {
                     if let Some(info) = torrent_movie_info.get_mut(&tmdb) {
-                        info.for_torrents.push(torrent.hash().clone());
+                        info.for_torrents.push(torrent.get_hash().clone());
                     } else {
                         torrent_movie_info.insert(
                             tmdb,
                             TorrentMovieInfo {
-                                title: info.title().to_owned(),
-                                year: info.year().to_owned(),
-                                imdb: info.imdb_id().as_ref().map(|s| s.to_owned()),
-                                tmdb: info.tmdb_id().to_owned(),
-                                runtime: info.runtime().to_owned(),
-                                for_torrents: vec![torrent.hash().clone()],
+                                title: info.get_title().to_owned(),
+                                year: info.get_year().to_owned(),
+                                imdb: info.get_imdb_id().as_ref().map(|s| s.to_owned()),
+                                tmdb: info.get_tmdb_id().to_owned(),
+                                runtime: info.get_runtime().to_owned(),
+                                for_torrents: vec![torrent.get_hash().clone()],
                             },
                         );
                     }
@@ -112,8 +116,9 @@ impl Query {
         })
     }
 
-    async fn movie_info(
-        #[graphql(context)] context: &ContextPointer,
+    async fn movie_info<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         tmdb: i32,
     ) -> Result<Option<MovieInfo>, HttpErrorKind> {
         if tmdb.is_negative() {
@@ -121,6 +126,8 @@ impl Query {
         };
 
         let movie_info = context
+            .data::<&ContextPointer>()
+            .unwrap()
             .lock()
             .await
             .movie_info_client()
@@ -130,11 +137,12 @@ impl Query {
         Ok(movie_info)
     }
 
-    async fn search_movies(
-        #[graphql(context)] context: &ContextPointer,
+    async fn search_movies<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         query: String,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
-        let ctx = context.lock().await;
+        let ctx = get_context(context).await;
 
         let movie_info = ctx
             .movie_info_client()
@@ -144,11 +152,14 @@ impl Query {
         Ok(movie_info)
     }
 
-    async fn tmdb_bulk(
-        #[graphql(context)] context: &ContextPointer,
+    async fn tmdb_bulk<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         tmdb_ids: Vec<i32>,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
         let movie_info = context
+            .data::<&ContextPointer>()
+            .unwrap()
             .lock()
             .await
             .movie_info_client()
@@ -158,10 +169,11 @@ impl Query {
         Ok(movie_info)
     }
 
-    async fn popular_movies(
-        #[graphql(context)] context: &ContextPointer,
+    async fn popular_movies<'ctx>(
+        &self,
+        context: &Context<'ctx>,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
-        let ctx = context.lock().await;
+        let ctx = get_context(context).await;
         let movie_info = ctx
             .movie_info_client()
             .popular(ctx.config().filters())
@@ -170,10 +182,11 @@ impl Query {
         Ok(movie_info)
     }
 
-    async fn trending_movies(
-        #[graphql(context)] context: &ContextPointer,
+    async fn trending_movies<'ctx>(
+        &self,
+        context: &Context<'ctx>,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
-        let ctx = context.lock().await;
+        let ctx = get_context(context).await;
         let movie_info = ctx
             .movie_info_client()
             .trending(ctx.config().filters())
@@ -182,7 +195,7 @@ impl Query {
         Ok(movie_info)
     }
 
-    fn search_filters() -> Vec<Filter> {
+    async fn search_filters(&self) -> Vec<Filter> {
         vec![
             Filter::new(
                 Quality::iter(),
@@ -213,15 +226,16 @@ impl Query {
 }
 
 pub struct Mutation;
-#[graphql_object(context = ContextPointer)]
+
+#[Object]
 impl Mutation {
-    async fn add_torrent(
-        #[graphql(context)] context: &ContextPointer,
+    async fn add_torrent<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         url: String,
         options: Option<ApiAddTorrentOptions>,
     ) -> Result<String, HttpErrorKind> {
-        context
-            .lock()
+        get_context(context)
             .await
             .qbittorrent_client()
             .add_torrent(url, options.unwrap_or_default().into())
@@ -229,13 +243,13 @@ impl Mutation {
         Ok("Ok".into())
     }
 
-    async fn add_torrents(
-        #[graphql(context)] context: &ContextPointer,
+    async fn add_torrents<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         urls: Vec<String>,
         options: Option<ApiAddTorrentOptions>,
     ) -> Result<String, HttpErrorKind> {
-        context
-            .lock()
+        get_context(context)
             .await
             .qbittorrent_client()
             .add_torrents(&urls, options.unwrap_or_default().into())
@@ -243,8 +257,9 @@ impl Mutation {
         Ok("Ok".into())
     }
 
-    async fn track_movie(
-        #[graphql(context)] context: &ContextPointer,
+    async fn track_movie<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         url: String,
         tmdb: i32,
     ) -> Result<String, HttpErrorKind> {
@@ -252,17 +267,17 @@ impl Mutation {
             return Err(HttpErrorKind::InvalidParam("tmdb".into()));
         };
 
-        track_movie(context, url, tmdb as u32).await?;
+        track_movie(context.data::<ContextPointer>().unwrap(), url, tmdb as u32).await?;
         Ok("Ok".into())
     }
 
-    async fn delete_torrents(
-        #[graphql(context)] context: &ContextPointer,
+    async fn delete_torrents<'ctx>(
+        &self,
+        context: &Context<'ctx>,
         hashes: Vec<String>,
         delete_files: bool,
     ) -> Result<String, HttpErrorKind> {
-        context
-            .lock()
+        get_context(context)
             .await
             .qbittorrent_client()
             .delete_torrents(hashes, delete_files)
@@ -272,27 +287,20 @@ impl Mutation {
     }
 }
 
-pub type Schema = RootNode<'static, Query, Mutation, EmptySubscription<ContextPointer>>;
-
 #[rocket::get("/")]
-pub fn graphiql() -> RawHtml<String> {
-    graphiql_source("/graphql", None)
+pub fn graphiql() -> content::RawHtml<String> {
+    content::RawHtml(GraphiQLSource::build().endpoint("/graphql").finish())
 }
 
-#[rocket::get("/graphql?<request>")]
-pub async fn get_graphql_handler(
-    context: &State<ContextPointer>,
-    request: juniper_rocket::GraphQLRequest,
-    schema: &State<Schema>,
-) -> juniper_rocket::GraphQLResponse {
-    request.execute(schema, context).await
+#[rocket::get("/graphql?<query..>")]
+pub async fn graphql_query(schema: &State<SchemaType>, query: GraphQLQuery) -> GraphQLResponse {
+    query.execute(schema.inner()).await
 }
 
-#[rocket::post("/graphql", data = "<request>")]
-pub async fn post_graphql_handler(
-    context: &State<ContextPointer>,
-    request: juniper_rocket::GraphQLRequest,
-    schema: &State<Schema>,
-) -> juniper_rocket::GraphQLResponse {
-    request.execute(schema, context).await
+#[rocket::post("/graphql", data = "<request>", format = "application/json")]
+pub async fn graphql_request(
+    schema: &State<SchemaType>,
+    request: GraphQLRequest,
+) -> GraphQLResponse {
+    request.execute(schema.inner()).await
 }

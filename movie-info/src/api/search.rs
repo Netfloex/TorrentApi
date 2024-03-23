@@ -94,8 +94,8 @@ mod tests {
 
         let movie = movies.first().unwrap();
 
-        assert_eq!(movie.title(), "The Matrix");
-        assert_eq!(movie.year(), &1999);
+        assert_eq!(movie.get_title(), "The Matrix");
+        assert_eq!(movie.get_year(), &1999);
     }
 
     #[tokio::test]
@@ -109,7 +109,7 @@ mod tests {
             .unwrap();
 
         assert!(!movies.is_empty());
-        assert!(movies.iter().all(|m| m.imdb_id().is_some()));
+        assert!(movies.iter().all(|m| m.get_imdb_id().is_some()));
     }
 
     #[tokio::test]
@@ -123,7 +123,7 @@ mod tests {
             .unwrap();
 
         assert!(!movies.is_empty());
-        assert!(movies.iter().all(|m| m.runtime() >= &120));
+        assert!(movies.iter().all(|m| m.get_runtime() >= &120));
     }
 
     #[tokio::test]
@@ -137,7 +137,7 @@ mod tests {
 
         let movie = movies.first().unwrap();
 
-        assert_eq!(movie.title(), "The Matrix");
-        assert_eq!(movie.year(), &1999);
+        assert_eq!(movie.get_title(), "The Matrix");
+        assert_eq!(movie.get_year(), &1999);
     }
 }

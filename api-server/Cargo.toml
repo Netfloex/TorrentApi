@@ -14,13 +14,10 @@ qbittorrent-api = { path = "../qbittorrent-api", version = "0.1", features = [
 ] }
 movie-info = { path = "../movie-info", version = "0.1", features = ["graphql"] }
 utils = { path = "../utils", version = "0.1" }
-rocket = { version = "=0.5.0-rc.2", features = ["json"] }
-juniper = "0.15.12"
-juniper_rocket = "0.8.2"
-derive-getters = "0.3.0"
+rocket = { version = "0.5.0", features = ["json"] }
 serde = "1.0.197"
 chrono = "0.4.35"
-rocket_http = "=0.5.0-rc.2"
+rocket_http = "0.5.0"
 serde_json = "1.0.114"
 tokio = "1.36.0"
 figment = { version = "0.10.15", features = ["yaml"], default-features = false }
@@ -32,6 +29,9 @@ simplelog = "0.12.2"
 strum = "0.26.2"
 strum_macros = "0.26.2"
 serde_variant = "0.1.2"
+async-graphql = { version = "7.0.3", features = ["chrono"] }
+async-graphql-rocket = "7.0.3"
+getset = "0.1.2"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = [

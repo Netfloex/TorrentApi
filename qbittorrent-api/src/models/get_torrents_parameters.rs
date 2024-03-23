@@ -5,7 +5,7 @@ use std::fmt::Debug;
 
 #[derive(Serialize, Deserialize, Debug, Setters, Default)]
 #[setters(strip_option = true)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLInputObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::InputObject))]
 pub struct GetTorrentsParameters {
     filter: Option<String>,
     category: Option<String>,

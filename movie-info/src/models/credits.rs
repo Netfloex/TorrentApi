@@ -1,4 +1,4 @@
-use derive_getters::Getters;
+use getset::Getters;
 use serde::{Deserialize, Deserializer};
 
 use super::image::Image;
@@ -19,7 +19,7 @@ where
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
 pub struct CastItem {
     name: String,
     order: i32,
@@ -33,7 +33,7 @@ pub struct CastItem {
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
 pub struct CrewItem {
     name: String,
     job: String,
@@ -47,7 +47,8 @@ pub struct CrewItem {
 
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLObject))]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
+#[getset(get = "pub with_prefix")]
 pub struct Credits {
     cast: Vec<CastItem>,
     crew: Vec<CrewItem>,

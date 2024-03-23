@@ -1,14 +1,14 @@
 use std::fmt::Debug;
 
-use juniper::GraphQLObject;
+use async_graphql::SimpleObject;
 use serde_variant::to_variant_name;
 
-#[derive(GraphQLObject, Debug)]
+#[derive(Debug, SimpleObject)]
 pub struct FilterItem {
     display: String,
     name: String,
 }
-#[derive(GraphQLObject, Debug)]
+#[derive(Debug, SimpleObject)]
 
 pub struct Filter {
     display: String,

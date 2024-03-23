@@ -46,14 +46,14 @@ mod tests {
         let movies = CLIENT.bulk(&TMDB_IDS).await.unwrap();
 
         assert_eq!(movies.len(), 3);
-        assert_eq!(movies[0].title(), "The Matrix");
-        assert_eq!(movies[0].tmdb_id(), &TMDB_IDS[0]);
+        assert_eq!(movies[0].get_title(), "The Matrix");
+        assert_eq!(movies[0].get_tmdb_id(), &TMDB_IDS[0]);
 
-        assert_eq!(movies[1].title(), "The Matrix Reloaded");
-        assert_eq!(movies[1].tmdb_id(), &TMDB_IDS[1]);
+        assert_eq!(movies[1].get_title(), "The Matrix Reloaded");
+        assert_eq!(movies[1].get_tmdb_id(), &TMDB_IDS[1]);
 
-        assert_eq!(movies[2].title(), "The Matrix Revolutions");
-        assert_eq!(movies[2].tmdb_id(), &TMDB_IDS[2]);
+        assert_eq!(movies[2].get_title(), "The Matrix Revolutions");
+        assert_eq!(movies[2].get_tmdb_id(), &TMDB_IDS[2]);
     }
 
     #[tokio::test]
@@ -69,13 +69,13 @@ mod tests {
 
         assert_eq!(movies.len(), 3);
 
-        assert_eq!(movies[0].title(), "The Matrix");
-        assert_eq!(movies[0].tmdb_id(), &TMDB_IDS[0]);
+        assert_eq!(movies[0].get_title(), "The Matrix");
+        assert_eq!(movies[0].get_tmdb_id(), &TMDB_IDS[0]);
 
-        assert_eq!(movies[1].title(), "The Matrix Reloaded");
-        assert_eq!(movies[1].tmdb_id(), &TMDB_IDS[1]);
+        assert_eq!(movies[1].get_title(), "The Matrix Reloaded");
+        assert_eq!(movies[1].get_tmdb_id(), &TMDB_IDS[1]);
 
-        assert_eq!(movies[2].title(), "The Matrix Revolutions");
-        assert_eq!(movies[2].tmdb_id(), &TMDB_IDS[2]);
+        assert_eq!(movies[2].get_title(), "The Matrix Revolutions");
+        assert_eq!(movies[2].get_tmdb_id(), &TMDB_IDS[2]);
     }
 }

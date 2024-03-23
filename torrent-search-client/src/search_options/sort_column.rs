@@ -1,8 +1,8 @@
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 use std::str::FromStr;
 
-#[derive(Debug, Default, Clone)]
-#[cfg_attr(feature = "graphql", derive(juniper::GraphQLEnum))]
+#[derive(Debug, Default, Clone, Eq, Copy, PartialEq)]
+#[cfg_attr(feature = "graphql", derive(async_graphql::Enum))]
 pub enum SortColumn {
     #[default]
     Seeders,

@@ -20,17 +20,17 @@ impl Filters {
 
     pub fn filter(&self, movies: &mut Vec<MovieInfo>) {
         if self.imdb {
-            movies.retain(|m| m.imdb_id().is_some())
+            movies.retain(|m| m.get_imdb_id().is_some())
         }
 
         if self.min_minutes > 0 {
-            movies.retain(|m| m.runtime() >= &(self.min_minutes as i32))
+            movies.retain(|m| m.get_runtime() >= &(self.min_minutes as i32))
         }
 
         if !self.languages.is_empty() {
             movies.iter_mut().for_each(|m| {
                 m.certifications_mut()
-                    .retain(|c| self.languages.contains(c.country()))
+                    .retain(|c| self.languages.contains(c.get_country()))
             })
         }
     }
