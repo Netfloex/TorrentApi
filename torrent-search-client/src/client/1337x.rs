@@ -127,8 +127,6 @@ impl TorrentProvider for X1137 {
                 .and_local_timezone(Utc)
                 .unwrap();
 
-            let unsupported = String::from("unsupported");
-
             Torrent {
                 name: get_text(&tr, &NAME_SELECTOR),
                 seeders: get_text(&tr, &SEEDERS_SELECTOR).parse().unwrap_or(0),
@@ -147,10 +145,10 @@ impl TorrentProvider for X1137 {
                     })
                     .unwrap_or("")
                     .to_string(),
-                info_hash: unsupported.clone(),
+                info_hash: String::from("unsupported"),
                 file_count: 0,
                 provider: Provider::X1337,
-                magnet: unsupported.clone(),
+                magnet: String::from("unsupported"),
                 movie_properties: None,
             }
         });

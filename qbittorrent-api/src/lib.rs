@@ -40,7 +40,7 @@ impl QbittorrentClient {
     {
         let url: Url = url.try_into().expect("Invalid url");
 
-        let config = Config::new().set_base_url(url.clone());
+        let config = Config::new().set_base_url(url.to_owned());
         let client: Client = config.try_into().unwrap();
 
         Self {

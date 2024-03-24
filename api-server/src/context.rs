@@ -34,7 +34,7 @@ impl Context {
     }
 
     pub async fn enable_movie_tracking(&self) {
-        if !self.movie_tracking_enabled.lock().await.to_owned() {
+        if !*self.movie_tracking_enabled.lock().await {
             info!("Enabling movie progress tracking");
             *self.movie_tracking_enabled.lock().await = true;
             self.movie_tracking_ntfy.notify_waiters();
@@ -42,7 +42,7 @@ impl Context {
     }
 
     pub async fn disable_movie_tracking(&self) {
-        if self.movie_tracking_enabled.lock().await.to_owned() {
+        if *self.movie_tracking_enabled.lock().await {
             info!("Disabling movie progress tracking");
             *self.movie_tracking_enabled.lock().await = false;
             self.movie_tracking_ntfy.notify_waiters();

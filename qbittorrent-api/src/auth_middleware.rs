@@ -1,9 +1,9 @@
 use serde::Serialize;
-use std::sync::Mutex;
 use surf::{
     middleware::{Middleware, Next},
     Body, Client, Error, Request, Response, Result, Url,
 };
+use tokio::sync::Mutex;
 
 #[derive(Serialize)]
 struct Credentials {
@@ -48,7 +48,7 @@ impl AuthMiddleware {
 
         if let Some(cookie) = resp.header("set-cookie").and_then(|c| c.get(0)) {
             let session_id = cookie.as_str().split(';').next().unwrap().to_string();
-            *self.session_id.lock().unwrap() = Some(session_id.clone());
+            *self.session_id.lock().await = Some(session_id.to_owned());
 
             return Ok(session_id);
         }
@@ -65,8 +65,8 @@ impl AuthMiddleware {
         }
     }
 
-    fn session_id(&self) -> Option<String> {
-        self.session_id.lock().unwrap().clone()
+    async fn session_id(&self) -> Option<String> {
+        self.session_id.lock().await.to_owned()
     }
 }
 
@@ -78,7 +78,7 @@ impl Middleware for AuthMiddleware {
         client: Client,
         next: Next<'_>,
     ) -> surf::Result<Response> {
-        let session_id = match self.session_id() {
+        let session_id = match self.session_id().await {
             Some(session_id) => session_id,
             None => self.login(&client).await?,
         };

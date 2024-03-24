@@ -20,7 +20,7 @@ impl QbittorrentClient {
 
         let sync: SyncMainData = serde_json::from_str(&sync).unwrap();
 
-        sync_data.sync_rid = sync.rid().to_owned();
+        sync_data.sync_rid = *sync.rid();
 
         if *sync.full_update() {
             sync_data.sync_main_data = Some(sync);
@@ -32,6 +32,6 @@ impl QbittorrentClient {
                 .update(sync);
         }
 
-        Ok(sync_data.sync_main_data.clone().unwrap())
+        Ok(sync_data.sync_main_data.to_owned().unwrap())
     }
 }

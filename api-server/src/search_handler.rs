@@ -95,7 +95,7 @@ pub async fn search_handler(
                     let torrent: ApiTorrent = torrent.into();
                     grouped
                         .entry(torrent.get_info_hash().to_string())
-                        .and_modify(|existing| existing.merge(torrent.clone()))
+                        .and_modify(|existing| existing.merge(torrent.to_owned()))
                         .or_insert(torrent);
                 }
             }

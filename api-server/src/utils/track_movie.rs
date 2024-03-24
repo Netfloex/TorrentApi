@@ -9,9 +9,9 @@ pub async fn track_movie(
     tmdb: TmdbId,
 ) -> Result<(), HttpErrorKind> {
     let magnet = Magnet::from_url(&url).map_err(HttpErrorKind::InvalidMagnet)?;
-    let display_name = magnet.display_name().to_owned();
+    let display_name = magnet.display_name();
 
-    let category = ctx.config().qbittorrent().category().to_owned();
+    let category = ctx.config().qbittorrent().category().to_string();
     let qb = ctx.qbittorrent_client();
 
     let options = AddTorrentOptions::default()

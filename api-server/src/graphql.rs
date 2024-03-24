@@ -71,7 +71,7 @@ impl ActiveTorrentsResponse {
             torrents.for_each(|torrent| {
                 if let Some(tmdb) = get_tmdb(torrent.get_name()) {
                     if let Some(info) = torrent_movie_info.get_mut(&tmdb) {
-                        info.for_torrents.push(torrent.get_hash().clone());
+                        info.for_torrents.push(torrent.get_hash().to_owned());
                     } else {
                         torrent_movie_info.insert(
                             tmdb,
@@ -81,7 +81,7 @@ impl ActiveTorrentsResponse {
                                 imdb: info.get_imdb_id().as_ref().map(|s| s.to_owned()),
                                 tmdb: info.get_tmdb_id().to_owned(),
                                 runtime: info.get_runtime().to_owned(),
-                                for_torrents: vec![torrent.get_hash().clone()],
+                                for_torrents: vec![torrent.get_hash().to_owned()],
                             },
                         );
                     }

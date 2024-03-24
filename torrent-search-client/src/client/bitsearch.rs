@@ -146,7 +146,6 @@ impl TorrentProvider for BitSearch {
             let name: String = row.select(&NAME_SELECTOR).next().unwrap().text().collect();
 
             torrents.push(Torrent {
-                name: name.to_owned(),
                 category: get_text(row.select(&CATEGORY_SELECTOR).next()),
                 added: date,
                 file_count: 0,
@@ -163,6 +162,8 @@ impl TorrentProvider for BitSearch {
                     Codec::from(&name),
                     Source::from(&name),
                 )),
+
+                name,
             })
         });
 

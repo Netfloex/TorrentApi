@@ -4,7 +4,7 @@ use crate::{
     utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
 use filenamify::filenamify;
-use std::{path::PathBuf, sync::Arc, time::Duration};
+use std::{path::PathBuf, time::Duration};
 use tokio::time::sleep;
 
 pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind> {
@@ -17,9 +17,9 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
     info!("Starting background movie progress tracking");
 
-    let max_timeout_active = config.movie_tracking_max_timeout_active().to_owned();
-    let timeout_inactive = config.movie_tracking_timeout_inactive().to_owned();
-    let min_timeout = config.movie_tracking_min_timeout().to_owned();
+    let max_timeout_active = config.movie_tracking_max_timeout_active();
+    let timeout_inactive = config.movie_tracking_timeout_inactive();
+    let min_timeout = config.movie_tracking_min_timeout();
 
     let qb = context.qbittorrent_client();
 
@@ -27,17 +27,17 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
         .await?;
 
     loop {
-        let mut min_eta = max_timeout_active;
-        while !context.movie_tracking_enabled().lock().await.to_owned() {
+        let mut min_eta = *max_timeout_active;
+        while !*context.movie_tracking_enabled().lock().await {
             info!("Progress tracking (temporarily) disabled");
-            let ntfy = Arc::clone(context.movie_tracking_ntfy());
-            ntfy.notified().await;
+
+            context.movie_tracking_ntfy().notified().await;
         }
 
-        let category = config.qbittorrent().category().to_owned();
-        let movies_path = config.movies_path().to_owned();
-        let remote_download_path = config.remote_download_path().to_owned();
-        let local_download_path = config.local_download_path().to_owned();
+        let category = config.qbittorrent().category();
+        let movies_path = config.movies_path();
+        let remote_download_path = config.remote_download_path();
+        let local_download_path = config.local_download_path();
 
         debug!("Checking for torrents to import");
 
@@ -48,11 +48,11 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
         let mut active_torrents = 0;
 
         for (hash, torrent) in torrents {
-            if torrent.category().as_ref() == Some(&category) {
+            if torrent.category().as_ref() == Some(category) {
                 let progress = torrent
                     .progress()
                     .expect("Progress should be available at sync");
-                let eta = *torrent
+                let eta = torrent
                     .eta()
                     .as_ref()
                     .expect("ETA should be available at sync");
@@ -69,7 +69,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                         active_torrents += 1;
                     }
 
-                    min_eta = min_eta.min(eta).min(max_timeout_active).max(min_timeout);
+                    min_eta = min_eta.min(*eta).min(*max_timeout_active).max(*min_timeout);
 
                     debug!(
                         "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
@@ -92,7 +92,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                             .expect("Content path should be available at sync");
 
                         let local_path =
-                            remote_path.replace(&remote_download_path, &local_download_path);
+                            remote_path.replace(remote_download_path, local_download_path);
                         let local_path = PathBuf::from(local_path);
 
                         let dest_folder = movies_path.join(filenamify(&movie_name));
@@ -123,7 +123,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
             context.disable_movie_tracking().await;
             continue;
         } else if active_torrents == 0 {
-            min_eta = timeout_inactive;
+            min_eta = *timeout_inactive;
             info!("No active torrents")
         } else {
             info!(

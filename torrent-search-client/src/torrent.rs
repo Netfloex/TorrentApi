@@ -113,7 +113,7 @@ impl From<YtsTorrent> for Torrent {
 
         Self {
             added: Utc
-                .timestamp_opt(torrent.date_uploaded_unix().to_owned(), 0)
+                .timestamp_opt(*torrent.date_uploaded_unix(), 0)
                 .single()
                 .unwrap_or_default(),
             category: String::from("movies"),
@@ -121,7 +121,6 @@ impl From<YtsTorrent> for Torrent {
             id: torrent.hash().to_owned(),
             info_hash: torrent.hash().to_owned(),
             leechers: torrent.peers().to_owned(),
-            name: name.clone(),
             seeders: torrent.seeds().to_owned(),
             size: torrent.size_bytes().to_owned(),
             provider: Provider::Yts,
@@ -132,6 +131,8 @@ impl From<YtsTorrent> for Torrent {
                 Codec::from(&name),
                 Source::from(&name),
             )),
+
+            name,
         }
     }
 }
