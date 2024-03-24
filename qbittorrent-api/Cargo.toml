@@ -16,6 +16,7 @@ chrono = "0.4.35"
 log = "0.4.21"
 getset = "0.1.2"
 derive_setters = "0.1.6"
+tokio = "1.36.0"
 
 [features]
 graphql = ["dep:async-graphql"]

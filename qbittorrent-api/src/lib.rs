@@ -16,11 +16,17 @@ pub use models::torrent::Torrent;
 use std::fmt::Debug;
 use surf::Client;
 use surf::{Config, Url};
+use tokio::sync::Mutex;
 use utils::surf_logging::SurfLogging;
-pub struct QbittorrentClient {
-    http: Client,
+
+#[derive(Default)]
+struct SyncData {
     sync_rid: usize,
     sync_main_data: Option<SyncMainData>,
+}
+pub struct QbittorrentClient {
+    http: Client,
+    sync_data: Mutex<SyncData>,
 }
 
 impl QbittorrentClient {
@@ -41,8 +47,7 @@ impl QbittorrentClient {
             http: client
                 .with(AuthMiddleware::new(username.into(), password.into(), url))
                 .with(SurfLogging),
-            sync_rid: 0,
-            sync_main_data: None,
+            sync_data: Mutex::new(SyncData::default()),
         }
     }
 }

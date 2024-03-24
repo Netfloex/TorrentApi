@@ -20,7 +20,6 @@ use simplelog::{
 };
 use std::sync::Arc;
 use std::{process, vec};
-use tokio::sync::Mutex;
 use torrent_search_client::TorrentClient;
 
 #[macro_use]
@@ -50,7 +49,7 @@ async fn rocket() -> _ {
         process::exit(1);
     });
 
-    let context: ContextPointer = Arc::new(Mutex::new(Context::new(
+    let context: ContextPointer = Arc::new(Context::new(
         TorrentClient::new(),
         QbittorrentClient::new(
             config.qbittorrent().username(),
@@ -58,9 +57,9 @@ async fn rocket() -> _ {
             config.qbittorrent().url().as_str(),
         ),
         config,
-    )));
+    ));
 
-    tokio::spawn(background::background(context.clone()));
+    tokio::spawn(background::background(Arc::clone(&context)));
 
     let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
         .data(context)

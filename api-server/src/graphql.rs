@@ -19,7 +19,6 @@ use rocket::{
 };
 use std::collections::{HashMap, HashSet};
 use strum::IntoEnumIterator;
-use tokio::sync::MutexGuard;
 use torrent_search_client::{Codec, Provider, Quality, Source};
 #[derive(PartialEq, Eq, Hash, SimpleObject)]
 struct TorrentMovieInfo {
@@ -98,8 +97,8 @@ pub type SchemaType = Schema<Query, EmptyMutation, EmptySubscription>;
 
 pub struct Query;
 
-async fn get_context<'ctx>(context: &Context<'ctx>) -> MutexGuard<'ctx, crate::Context> {
-    context.data::<ContextPointer>().unwrap().lock().await
+async fn get_context<'ctx>(context: &Context<'ctx>) -> &'ctx crate::Context {
+    context.data::<ContextPointer>().unwrap()
 }
 
 #[Object]

@@ -6,27 +6,32 @@ struct Rid {
 }
 
 impl QbittorrentClient {
-    pub async fn sync(&mut self) -> Result<&SyncMainData, Error> {
+    pub async fn sync(&self) -> Result<SyncMainData, Error> {
+        let mut sync_data = self.sync_data.lock().await;
+
         let sync: String = self
             .http
             .get("/api/v2/sync/maindata")
-            .query(&Rid { rid: self.sync_rid })?
+            .query(&Rid {
+                rid: sync_data.sync_rid,
+            })?
             .recv_string()
             .await?;
 
         let sync: SyncMainData = serde_json::from_str(&sync).unwrap();
 
-        self.sync_rid = sync.rid().to_owned();
+        sync_data.sync_rid = sync.rid().to_owned();
 
         if *sync.full_update() {
-            self.sync_main_data = Some(sync);
+            sync_data.sync_main_data = Some(sync);
         } else {
-            self.sync_main_data
+            sync_data
+                .sync_main_data
                 .as_mut()
                 .expect("Full update is false but sync_main_data is None.")
                 .update(sync);
         }
 
-        Ok(self.sync_main_data.as_ref().unwrap())
+        Ok(sync_data.sync_main_data.clone().unwrap())
     }
 }

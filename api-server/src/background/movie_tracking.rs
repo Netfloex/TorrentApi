@@ -1,23 +1,16 @@
 use crate::{
-    config::Config,
     context::ContextPointer,
     http_error::HttpErrorKind,
     utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
 use filenamify::filenamify;
-use qbittorrent_api::PartialTorrent;
-use std::{collections::HashMap, path::PathBuf, sync::Arc, time::Duration};
+use std::{path::PathBuf, sync::Arc, time::Duration};
 use tokio::time::sleep;
 
 pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind> {
-    let config: Config;
+    let config = context.config();
 
-    {
-        let ctx = context.lock().await;
-        config = ctx.config().clone();
-    }
-
-    if config.disable_movie_tracking().to_owned() {
+    if *config.disable_movie_tracking() {
         info!("Movie progress check is disabled");
         return Ok(());
     }
@@ -28,147 +21,115 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
     let timeout_inactive = config.movie_tracking_timeout_inactive().to_owned();
     let min_timeout = config.movie_tracking_min_timeout().to_owned();
 
-    context
-        .lock()
-        .await
-        .qbittorrent_client()
-        .ensure_category(config.qbittorrent().category(), "")
+    let qb = context.qbittorrent_client();
+
+    qb.ensure_category(config.qbittorrent().category(), "")
         .await?;
 
     loop {
         let mut min_eta = max_timeout_active;
-        while !context
-            .lock()
-            .await
-            .movie_tracking_enabled()
-            .lock()
-            .await
-            .to_owned()
-        {
+        while !context.movie_tracking_enabled().lock().await.to_owned() {
             info!("Progress tracking (temporarily) disabled");
-            let ntfy = Arc::clone(context.lock().await.movie_tracking_ntfy());
+            let ntfy = Arc::clone(context.movie_tracking_ntfy());
             ntfy.notified().await;
         }
 
-        {
-            let torrents: HashMap<String, PartialTorrent>;
+        let category = config.qbittorrent().category().to_owned();
+        let movies_path = config.movies_path().to_owned();
+        let remote_download_path = config.remote_download_path().to_owned();
+        let local_download_path = config.local_download_path().to_owned();
 
-            let category = config.qbittorrent().category().to_owned();
-            let movies_path = config.movies_path().to_owned();
-            let remote_download_path = config.remote_download_path().to_owned();
-            let local_download_path = config.local_download_path().to_owned();
+        debug!("Checking for torrents to import");
 
-            {
-                let mut ctx = context.lock().await;
+        let sync = qb.sync().await?;
+        let torrents = sync.torrents();
 
-                let qb = ctx.qbittorrent_client_mut();
+        let mut watching_torrents = 0;
+        let mut active_torrents = 0;
 
-                debug!("Checking for torrents to import");
-                let sync = qb.sync().await?;
-                torrents = sync.torrents().clone();
-            }
+        for (hash, torrent) in torrents {
+            if torrent.category().as_ref() == Some(&category) {
+                let progress = torrent
+                    .progress()
+                    .expect("Progress should be available at sync");
+                let eta = *torrent
+                    .eta()
+                    .as_ref()
+                    .expect("ETA should be available at sync");
+                let state = torrent
+                    .state()
+                    .as_ref()
+                    .expect("State should be available at sync");
 
-            let mut watching_torrents = 0;
-            let mut active_torrents = 0;
+                let name = torrent.name().as_ref().unwrap_or(hash);
 
-            for (hash, torrent) in torrents {
-                if torrent.category().as_ref() == Some(&category) {
-                    let progress = torrent
-                        .progress()
-                        .expect("Progress should be available at sync");
-                    let eta = *torrent
-                        .eta()
-                        .as_ref()
-                        .expect("ETA should be available at sync");
-                    let state = torrent
-                        .state()
-                        .as_ref()
-                        .expect("State should be available at sync");
+                if progress != 1.0 {
+                    watching_torrents += 1;
+                    if state.is_active() {
+                        active_torrents += 1;
+                    }
 
-                    let unknown = "Unknown".to_owned();
-                    let name = torrent.name().as_ref().unwrap_or(&unknown);
+                    min_eta = min_eta.min(eta).min(max_timeout_active).max(min_timeout);
 
-                    if progress != 1.0 {
-                        watching_torrents += 1;
-                        if state.is_active() {
-                            active_torrents += 1;
-                        }
+                    debug!(
+                        "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
+                        name,
+                        (progress * 100.0).round(),
+                        eta / 60,
+                        state
+                    );
+                } else if let Some(tmdb) = get_tmdb(name) {
+                    let movie = context.movie_info_client().from_tmdb(tmdb).await?;
 
-                        min_eta = min_eta.min(eta).min(max_timeout_active).max(min_timeout);
+                    if let Some(movie) = movie {
+                        let movie_name = movie.format();
 
-                        debug!(
-                            "{}: Progress: {:.2}%, ETA: {} min, State: {:?}",
-                            name,
-                            (progress * 100.0).round(),
-                            eta / 60,
-                            state
-                        );
-                    } else if let Some(tmdb) = get_tmdb(name) {
-                        let movie = context
-                            .lock()
-                            .await
-                            .movie_info_client()
-                            .from_tmdb(tmdb)
-                            .await?;
+                        info!("Importing \"{}\" as \"{}\"", name, movie_name);
 
-                        if let Some(movie) = movie {
-                            let movie_name = movie.format();
+                        let remote_path = torrent
+                            .content_path()
+                            .as_ref()
+                            .expect("Content path should be available at sync");
 
-                            info!("Importing \"{}\" as \"{}\"", name, movie_name);
+                        let local_path =
+                            remote_path.replace(&remote_download_path, &local_download_path);
+                        let local_path = PathBuf::from(local_path);
 
-                            let remote_path = torrent
-                                .content_path()
-                                .as_ref()
-                                .expect("Content path should be available at sync");
+                        let dest_folder = movies_path.join(filenamify(&movie_name));
 
-                            let local_path =
-                                remote_path.replace(&remote_download_path, &local_download_path);
-                            let local_path = PathBuf::from(local_path);
+                        import_movie(&local_path, &dest_folder).await?;
 
-                            let dest_folder = movies_path.join(filenamify(&movie_name));
-
-                            import_movie(&local_path, &dest_folder).await?;
-
-                            if *config.delete_torrent_after_import() {
-                                context
-                                    .lock()
-                                    .await
-                                    .qbittorrent_client()
-                                    .delete_torrent(hash.to_owned(), *config.delete_torrent_files())
-                                    .await?;
-                            } else {
-                                context
-                                    .lock()
-                                    .await
-                                    .qbittorrent_client()
-                                    .set_category(
-                                        hash.to_owned(),
-                                        config.category_after_import().to_owned(),
-                                    )
-                                    .await?;
-                            }
+                        if *config.delete_torrent_after_import() {
+                            qb.delete_torrent(hash.to_owned(), *config.delete_torrent_files())
+                                .await?;
                         } else {
-                            warn!("No movie found for TMDB id: {}", tmdb);
+                            qb.set_category(
+                                hash.to_owned(),
+                                config.category_after_import().to_owned(),
+                            )
+                            .await?;
                         }
                     } else {
-                        warn!("No TMDB id found for {}", name);
+                        warn!("No movie found for TMDB id: {}", tmdb);
                     }
+                } else {
+                    warn!("No TMDB id found for {}", name);
                 }
             }
+        }
 
-            if watching_torrents == 0 {
-                info!("No torrents to track");
-                context.lock().await.disable_movie_tracking().await;
-                continue;
-            } else if active_torrents == 0 {
-                min_eta = timeout_inactive;
-                info!("No active torrents")
-            } else {
-                info!(
-                    "Watching {}/{} torrents",
-                    active_torrents, watching_torrents
-                )
-            }
+        if watching_torrents == 0 {
+            info!("No torrents to track");
+            context.disable_movie_tracking().await;
+            continue;
+        } else if active_torrents == 0 {
+            min_eta = timeout_inactive;
+            info!("No active torrents")
+        } else {
+            info!(
+                "Watching {}/{} torrents",
+                active_torrents, watching_torrents
+            )
         }
 
         info!("Waiting: {}s", min_eta);

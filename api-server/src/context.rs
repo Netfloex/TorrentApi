@@ -33,7 +33,7 @@ impl Context {
         }
     }
 
-    pub async fn enable_movie_tracking(&mut self) {
+    pub async fn enable_movie_tracking(&self) {
         if !self.movie_tracking_enabled.lock().await.to_owned() {
             info!("Enabling movie progress tracking");
             *self.movie_tracking_enabled.lock().await = true;
@@ -41,17 +41,13 @@ impl Context {
         }
     }
 
-    pub async fn disable_movie_tracking(&mut self) {
+    pub async fn disable_movie_tracking(&self) {
         if self.movie_tracking_enabled.lock().await.to_owned() {
             info!("Disabling movie progress tracking");
             *self.movie_tracking_enabled.lock().await = false;
             self.movie_tracking_ntfy.notify_waiters();
         }
     }
-
-    pub fn qbittorrent_client_mut(&mut self) -> &mut QbittorrentClient {
-        &mut self.qbittorrent_client
-    }
 }
 
-pub type ContextPointer = Arc<Mutex<Context>>;
+pub type ContextPointer = Arc<Context>;
