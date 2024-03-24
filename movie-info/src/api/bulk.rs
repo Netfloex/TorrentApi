@@ -1,8 +1,10 @@
+use std::collections::HashSet;
+
 use crate::{models::movie_info::MovieInfo, Error, MovieInfoClient};
 use log::debug;
 
 impl MovieInfoClient {
-    pub async fn bulk(&self, tmdb_ids: &Vec<i32>) -> Result<Vec<MovieInfo>, Error> {
+    pub async fn bulk(&self, tmdb_ids: &HashSet<i32>) -> Result<Vec<MovieInfo>, Error> {
         let mut movies: Vec<serde_json::Value> = self
             .http
             .post("movie/bulk")
@@ -34,48 +36,62 @@ mod tests {
 
     lazy_static! {
         static ref CLIENT: MovieInfoClient = MovieInfoClient::new();
-        static ref TMDB_IDS: Vec<i32> = vec![
-            603, // The Matrix
-            604, // The Matrix Reloaded
-            605, // The Matrix Revolutions
-        ];
     }
 
     #[tokio::test]
     async fn test_multiple_tmdb_ids() {
-        let movies = CLIENT.bulk(&TMDB_IDS).await.unwrap();
+        let tmdb_ids = [
+            603, // The Matrix
+            604, // The Matrix Reloaded
+            605, // The Matrix Revolutions
+        ];
+
+        let movies = CLIENT
+            .bulk(&tmdb_ids.iter().cloned().collect())
+            .await
+            .unwrap();
 
         assert_eq!(movies.len(), 3);
         assert_eq!(movies[0].get_title(), "The Matrix");
-        assert_eq!(movies[0].get_tmdb_id(), &TMDB_IDS[0]);
+        assert_eq!(movies[0].get_tmdb_id(), &tmdb_ids[0]);
 
         assert_eq!(movies[1].get_title(), "The Matrix Reloaded");
-        assert_eq!(movies[1].get_tmdb_id(), &TMDB_IDS[1]);
+        assert_eq!(movies[1].get_tmdb_id(), &tmdb_ids[1]);
 
         assert_eq!(movies[2].get_title(), "The Matrix Revolutions");
-        assert_eq!(movies[2].get_tmdb_id(), &TMDB_IDS[2]);
+        assert_eq!(movies[2].get_tmdb_id(), &tmdb_ids[2]);
     }
 
     #[tokio::test]
     async fn test_tmdb_not_found() {
-        let movies = CLIENT.bulk(&vec![0]).await.unwrap();
+        let movies = CLIENT.bulk(&[0].into_iter().collect()).await.unwrap();
 
         assert!(movies.is_empty());
     }
 
     #[tokio::test]
     async fn test_tmdb_ids_with_missing() {
-        let movies = CLIENT.bulk(&vec![0, 603, 0, 604, 0, 605, 0]).await.unwrap();
+        let tmdb_ids = [
+            0,   // Missing
+            603, // The Matrix
+            604, // The Matrix Reloaded
+            605, // The Matrix Revolutions
+        ];
+
+        let movies = CLIENT
+            .bulk(&tmdb_ids.iter().cloned().collect())
+            .await
+            .unwrap();
 
         assert_eq!(movies.len(), 3);
 
         assert_eq!(movies[0].get_title(), "The Matrix");
-        assert_eq!(movies[0].get_tmdb_id(), &TMDB_IDS[0]);
+        assert_eq!(movies[0].get_tmdb_id(), &tmdb_ids[0]);
 
         assert_eq!(movies[1].get_title(), "The Matrix Reloaded");
-        assert_eq!(movies[1].get_tmdb_id(), &TMDB_IDS[1]);
+        assert_eq!(movies[1].get_tmdb_id(), &tmdb_ids[1]);
 
         assert_eq!(movies[2].get_title(), "The Matrix Revolutions");
-        assert_eq!(movies[2].get_tmdb_id(), &TMDB_IDS[2]);
+        assert_eq!(movies[2].get_tmdb_id(), &tmdb_ids[2]);
     }
 }
