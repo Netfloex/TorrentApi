@@ -13,6 +13,7 @@ pub enum Codec {
     Unknown,
     AVC,
     HEVC,
+    #[graphql(name = "XVID")]
     XVid,
 }
 
