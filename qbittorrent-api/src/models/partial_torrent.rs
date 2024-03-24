@@ -8,17 +8,17 @@ use super::torrent_state::TorrentState;
 #[cfg_attr(feature = "graphql", derive(async_graphql::InputObject))]
 #[get = "pub"]
 pub struct PartialTorrent {
-    amount_left: Option<u64>,
+    amount_left: Option<usize>,
     category: Option<String>,
-    completed: Option<u64>,
+    completed: Option<usize>,
     content_path: Option<String>,
-    dlspeed: Option<i32>,
-    downloaded_session: Option<u64>,
-    downloaded: Option<u64>,
-    eta: Option<u64>,
+    dlspeed: Option<u32>,
+    downloaded: Option<usize>,
+    downloaded_session: Option<usize>,
+    eta: Option<usize>,
     name: Option<String>,
     progress: Option<f64>,
-    size: Option<u64>,
+    size: Option<usize>,
     state: Option<TorrentState>,
 }
 

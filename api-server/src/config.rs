@@ -35,13 +35,13 @@ pub struct Config {
     disable_movie_tracking: bool,
 
     #[serde_inline_default(60)]
-    movie_tracking_max_timeout_active: u64,
+    movie_tracking_max_timeout_active: usize,
 
     #[serde_inline_default(3600)]
-    movie_tracking_timeout_inactive: u64,
+    movie_tracking_timeout_inactive: usize,
 
     #[serde_inline_default(1)]
-    movie_tracking_min_timeout: u64,
+    movie_tracking_min_timeout: usize,
 
     #[serde_inline_default(false)]
     delete_torrent_after_import: bool,
@@ -56,7 +56,7 @@ pub struct Config {
     hide_movies_no_imdb: bool,
 
     #[serde_inline_default(30)]
-    hide_movies_below_runtime: u64,
+    hide_movies_below_runtime: u16,
 }
 
 impl Config {

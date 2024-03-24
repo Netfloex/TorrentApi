@@ -1,7 +1,10 @@
-use crate::{models::movie_info::MovieInfo, Error, MovieInfoClient};
+use crate::{
+    models::{movie_info::MovieInfo, tmdb_id::TmdbId},
+    Error, MovieInfoClient,
+};
 
 impl MovieInfoClient {
-    pub async fn from_tmdb(&self, tmdb: u32) -> Result<Option<MovieInfo>, Error> {
+    pub async fn from_tmdb(&self, tmdb: TmdbId) -> Result<Option<MovieInfo>, Error> {
         let mut resp = self.http.get(format!("movie/{}", tmdb)).send().await?;
 
         if resp.status().is_client_error() {
@@ -23,7 +26,7 @@ mod tests {
         static ref CLIENT: MovieInfoClient = MovieInfoClient::new();
     }
 
-    const TMDB_ID: u32 = 603;
+    const TMDB_ID: TmdbId = 603;
 
     #[tokio::test]
     async fn from_tmdb() {
@@ -33,7 +36,7 @@ mod tests {
         let movie = movie.unwrap();
 
         assert_eq!(movie.get_title(), "The Matrix");
-        assert_eq!(*movie.get_tmdb_id() as u32, TMDB_ID);
+        assert_eq!(*movie.get_tmdb_id(), TMDB_ID);
     }
 
     #[tokio::test]

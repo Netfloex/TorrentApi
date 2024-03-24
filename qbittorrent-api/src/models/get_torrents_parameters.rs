@@ -12,8 +12,8 @@ pub struct GetTorrentsParameters {
     tag: Option<String>,
     sort: Option<String>,
     reverse: Option<bool>,
-    limit: Option<i32>,
-    offset: Option<i32>,
+    limit: Option<u8>,
+    offset: Option<i8>,
     #[serde(serialize_with = "Option::serialize_hashes")]
     hashes: Option<Vec<String>>,
 }

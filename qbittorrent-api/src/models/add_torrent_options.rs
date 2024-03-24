@@ -15,9 +15,9 @@ pub struct AddTorrentOptions {
     root_folder: Option<bool>,
     rename: Option<String>,
     #[serde(rename = "upLimit")]
-    up_limit: Option<i64>,
+    up_limit: Option<i32>,
     #[serde(rename = "dlLimit")]
-    dl_limit: Option<i64>,
+    dl_limit: Option<i32>,
     #[serde(rename = "autoTMM")]
     auto_tmm: Option<bool>,
     #[serde(rename = "sequentialDownload")]

@@ -1,7 +1,7 @@
 use getset::Getters;
 use serde::{Deserialize, Deserializer};
 
-use super::image::Image;
+use super::{image::Image, tmdb_id::TmdbId};
 
 fn deserialize_headshot_url<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where
@@ -24,7 +24,7 @@ pub struct CastItem {
     name: String,
     order: i32,
     character: String,
-    tmdb_id: i32,
+    tmdb_id: TmdbId,
     credit_id: String,
     #[serde(deserialize_with = "deserialize_headshot_url")]
     #[serde(rename = "Images")]
@@ -38,7 +38,7 @@ pub struct CrewItem {
     name: String,
     job: String,
     department: String,
-    tmdb_id: i32,
+    tmdb_id: TmdbId,
     credit_id: String,
     #[serde(deserialize_with = "deserialize_headshot_url")]
     #[serde(rename = "Images")]

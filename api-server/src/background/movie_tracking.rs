@@ -172,6 +172,6 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
         }
 
         info!("Waiting: {}s", min_eta);
-        sleep(Duration::from_secs(min_eta)).await;
+        sleep(Duration::from_secs(min_eta as u64)).await;
     }
 }

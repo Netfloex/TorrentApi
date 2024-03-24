@@ -4,7 +4,7 @@ use serde::{Deserialize, Deserializer};
 
 use super::{
     certification::Certification, collection::Collection, credits::Credits, image::Image,
-    ratings::MovieRatings, recommendation::Recommendation,
+    ratings::MovieRatings, recommendation::Recommendation, tmdb_id::TmdbId,
 };
 
 fn deserialize_poster_url<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
@@ -30,8 +30,8 @@ pub struct MovieInfo {
     overview: String,
     title: String,
     original_title: String,
-    runtime: i32,
-    year: i32,
+    runtime: u16,
+    year: u16,
     movie_ratings: MovieRatings,
     genres: Vec<String>,
     #[serde(deserialize_with = "deserialize_poster_url")]
@@ -48,7 +48,7 @@ pub struct MovieInfo {
     collection: Option<Collection>,
     original_language: String,
     homepage: String,
-    tmdb_id: i32,
+    tmdb_id: TmdbId,
 }
 
 impl MovieInfo {

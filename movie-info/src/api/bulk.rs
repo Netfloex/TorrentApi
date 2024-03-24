@@ -1,10 +1,13 @@
 use std::collections::HashSet;
 
-use crate::{models::movie_info::MovieInfo, Error, MovieInfoClient};
+use crate::{
+    models::{movie_info::MovieInfo, tmdb_id::TmdbId},
+    Error, MovieInfoClient,
+};
 use log::debug;
 
 impl MovieInfoClient {
-    pub async fn bulk(&self, tmdb_ids: &HashSet<i32>) -> Result<Vec<MovieInfo>, Error> {
+    pub async fn bulk(&self, tmdb_ids: &HashSet<TmdbId>) -> Result<Vec<MovieInfo>, Error> {
         let mut movies: Vec<serde_json::Value> = self
             .http
             .post("movie/bulk")

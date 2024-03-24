@@ -1,11 +1,12 @@
 use crate::{context::ContextPointer, http_error::HttpErrorKind};
+use movie_info::TmdbId;
 use qbittorrent_api::AddTorrentOptions;
 use utils::magnet::Magnet;
 
 pub async fn track_movie(
     context: &ContextPointer,
     url: String,
-    tmdb: u32,
+    tmdb: TmdbId,
 ) -> Result<(), HttpErrorKind> {
     let magnet = Magnet::from_url(&url).map_err(HttpErrorKind::InvalidMagnet)?;
     let display_name = magnet.display_name().to_owned();

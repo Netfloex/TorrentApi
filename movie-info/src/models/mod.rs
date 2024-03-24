@@ -6,3 +6,4 @@ pub mod image;
 pub mod movie_info;
 pub mod ratings;
 pub mod recommendation;
+pub mod tmdb_id;

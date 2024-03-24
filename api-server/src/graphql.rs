@@ -11,7 +11,7 @@ use async_graphql::{
 };
 use async_graphql::{Context, Object};
 use async_graphql_rocket::{GraphQLQuery, GraphQLRequest, GraphQLResponse};
-use movie_info::MovieInfo;
+use movie_info::{MovieInfo, TmdbId};
 use qbittorrent_api::{GetTorrentsParameters, Torrent};
 use rocket::{
     response::content::{self},
@@ -24,10 +24,10 @@ use torrent_search_client::{Codec, Provider, Quality, Source};
 #[derive(PartialEq, Eq, Hash, SimpleObject)]
 struct TorrentMovieInfo {
     title: String,
-    year: i32,
+    year: u16,
     imdb: Option<String>,
-    tmdb: i32,
-    runtime: i32,
+    tmdb: TmdbId,
+    runtime: u16,
 
     for_torrents: Vec<String>,
 }
@@ -44,16 +44,12 @@ impl ActiveTorrentsResponse {
         &self,
         context: &Context<'ctx>,
     ) -> Result<Vec<TorrentMovieInfo>, HttpErrorKind> {
-        let mut torrent_movie_info: HashMap<u32, TorrentMovieInfo> = HashMap::new();
+        let mut torrent_movie_info: HashMap<TmdbId, TorrentMovieInfo> = HashMap::new();
 
-        let tmdb_ids: HashSet<i32> = self
+        let tmdb_ids: HashSet<TmdbId> = self
             .torrents
             .iter()
-            .filter_map(|torrent| {
-                get_tmdb(torrent.get_name())
-                    .as_ref()
-                    .map(|tmdb| *tmdb as i32)
-            })
+            .filter_map(|torrent| get_tmdb(torrent.get_name()))
             .collect();
 
         let movie_info = get_context(context)
@@ -65,7 +61,7 @@ impl ActiveTorrentsResponse {
         movie_info.iter().for_each(|info| {
             let torrents = self.torrents.iter().filter_map(|torrent| {
                 get_tmdb(torrent.get_name()).as_ref().and_then(|tmdb| {
-                    if info.get_tmdb_id().eq(&(*tmdb as i32)) {
+                    if info.get_tmdb_id().eq(tmdb) {
                         Some(torrent)
                     } else {
                         None
@@ -133,19 +129,12 @@ impl Query {
     async fn movie_info<'ctx>(
         &self,
         context: &Context<'ctx>,
-        tmdb: i32,
+        tmdb: TmdbId,
     ) -> Result<Option<MovieInfo>, HttpErrorKind> {
-        if tmdb.is_negative() {
-            return Err(HttpErrorKind::InvalidParam("tmdb".into()));
-        };
-
-        let movie_info = context
-            .data::<&ContextPointer>()
-            .unwrap()
-            .lock()
+        let movie_info = get_context(context)
             .await
             .movie_info_client()
-            .from_tmdb(tmdb as u32)
+            .from_tmdb(tmdb)
             .await?;
 
         Ok(movie_info)
@@ -169,7 +158,7 @@ impl Query {
     async fn tmdb_bulk<'ctx>(
         &self,
         context: &Context<'ctx>,
-        tmdb_ids: HashSet<i32>,
+        tmdb_ids: HashSet<TmdbId>,
     ) -> Result<Vec<MovieInfo>, HttpErrorKind> {
         let movie_info = get_context(context)
             .await
@@ -272,13 +261,9 @@ impl Mutation {
         &self,
         context: &Context<'ctx>,
         url: String,
-        tmdb: i32,
+        tmdb: TmdbId,
     ) -> Result<String, HttpErrorKind> {
-        if tmdb.is_negative() {
-            return Err(HttpErrorKind::InvalidParam("tmdb".into()));
-        };
-
-        track_movie(context.data::<ContextPointer>().unwrap(), url, tmdb as u32).await?;
+        track_movie(context.data::<ContextPointer>().unwrap(), url, tmdb).await?;
         Ok("Ok".into())
     }
 

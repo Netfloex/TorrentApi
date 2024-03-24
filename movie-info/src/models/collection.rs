@@ -1,11 +1,13 @@
 use getset::Getters;
 use serde::Deserialize;
 
+use super::tmdb_id::TmdbId;
+
 #[derive(Deserialize, Debug, Getters)]
 #[serde(rename_all = "PascalCase")]
 #[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
 #[getset(get = "pub with_prefix")]
 pub struct Collection {
     name: String,
-    tmdb_id: i32,
+    tmdb_id: TmdbId,
 }

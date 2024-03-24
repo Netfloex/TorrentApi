@@ -5,12 +5,12 @@ use crate::MovieInfo;
 #[derive(Debug, Default)]
 pub struct Filters {
     imdb: bool,
-    min_minutes: u64,
+    min_minutes: u16,
     languages: HashSet<String>,
 }
 
 impl Filters {
-    pub fn new(imdb: bool, min_minutes: u64, languages: HashSet<String>) -> Self {
+    pub fn new(imdb: bool, min_minutes: u16, languages: HashSet<String>) -> Self {
         Self {
             imdb,
             min_minutes,
@@ -24,7 +24,7 @@ impl Filters {
         }
 
         if self.min_minutes > 0 {
-            movies.retain(|m| m.get_runtime() >= &(self.min_minutes as i32))
+            movies.retain(|m| m.get_runtime() >= &(self.min_minutes))
         }
 
         if !self.languages.is_empty() {

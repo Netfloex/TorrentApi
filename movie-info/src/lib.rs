@@ -7,6 +7,7 @@ pub use error::Error;
 use http_cache_surf::{CACacheManager, Cache, CacheMode, HttpCache, HttpCacheOptions};
 pub use models::filters::Filters;
 pub use models::movie_info::MovieInfo;
+pub use models::tmdb_id::TmdbId;
 use surf::{Client, Config};
 
 #[derive(Default)]

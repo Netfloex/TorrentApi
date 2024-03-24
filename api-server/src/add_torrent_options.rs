@@ -37,8 +37,8 @@ impl From<ApiAddTorrentOptions> for AddTorrentOptions {
         option_check!(value.paused, paused);
         option_check!(value.root_folder, root_folder);
         option_check!(value.rename, rename);
-        option_check!(value.up_limit.map(|f| f.into()), up_limit);
-        option_check!(value.dl_limit.map(|f| f.into()), dl_limit);
+        option_check!(value.up_limit, up_limit);
+        option_check!(value.dl_limit, dl_limit);
         option_check!(value.auto_tmm, auto_tmm);
         option_check!(value.sequential_download, sequential_download);
         option_check!(value.first_last_piece_prio, first_last_piece_prio);
