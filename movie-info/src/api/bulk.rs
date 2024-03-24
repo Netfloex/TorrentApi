@@ -77,6 +77,7 @@ mod tests {
         let tmdb_ids = [
             0,   // Missing
             603, // The Matrix
+            1,   // Missing
             604, // The Matrix Reloaded
             605, // The Matrix Revolutions
         ];
@@ -89,12 +90,12 @@ mod tests {
         assert_eq!(movies.len(), 3);
 
         assert_eq!(movies[0].get_title(), "The Matrix");
-        assert_eq!(movies[0].get_tmdb_id(), &tmdb_ids[0]);
+        assert_eq!(movies[0].get_tmdb_id(), &tmdb_ids[1]);
 
         assert_eq!(movies[1].get_title(), "The Matrix Reloaded");
-        assert_eq!(movies[1].get_tmdb_id(), &tmdb_ids[1]);
+        assert_eq!(movies[1].get_tmdb_id(), &tmdb_ids[3]);
 
         assert_eq!(movies[2].get_title(), "The Matrix Revolutions");
-        assert_eq!(movies[2].get_tmdb_id(), &tmdb_ids[2]);
+        assert_eq!(movies[2].get_tmdb_id(), &tmdb_ids[4]);
     }
 }
