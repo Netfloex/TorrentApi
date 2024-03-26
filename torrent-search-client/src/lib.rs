@@ -40,17 +40,17 @@ pub struct TorrentClient {
 
 impl TorrentClient {
     pub async fn search_all(&self, search_options: &SearchOptions) -> Vec<ProviderResponse> {
-        self.search(search_options, Provider::all()).await
+        self.search(search_options, &Provider::all()).await
     }
 
     pub async fn search_movie_all(&self, movie_options: &MovieOptions) -> Vec<ProviderResponse> {
-        self.search_movie(movie_options, Provider::all()).await
+        self.search_movie(movie_options, &Provider::all()).await
     }
 
     pub async fn search(
         &self,
         search_options: &SearchOptions,
-        providers: HashSet<Provider>,
+        providers: &HashSet<Provider>,
     ) -> Vec<ProviderResponse> {
         if search_options.query().is_empty() {
             return vec![];
@@ -58,8 +58,10 @@ impl TorrentClient {
 
         let mut futures = vec![];
 
+        let all_providers = Provider::all();
+
         let providers = if providers.is_empty() {
-            Provider::all()
+            &all_providers
         } else {
             providers
         };
@@ -83,7 +85,7 @@ impl TorrentClient {
     pub async fn search_movie(
         &self,
         movie_options: &MovieOptions,
-        providers: HashSet<Provider>,
+        providers: &HashSet<Provider>,
     ) -> Vec<ProviderResponse> {
         if movie_options.imdb().is_empty() {
             return vec![];
@@ -91,8 +93,10 @@ impl TorrentClient {
 
         let mut futures = vec![];
 
+        let all_providers = Provider::all();
+
         let providers = if providers.is_empty() {
-            Provider::all()
+            &all_providers
         } else {
             providers
         };

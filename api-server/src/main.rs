@@ -2,7 +2,6 @@ mod api;
 mod background;
 mod graphql;
 mod models;
-mod search_handler;
 mod r#static;
 mod utils;
 
