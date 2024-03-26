@@ -5,6 +5,7 @@ use figment::{
     Error,
 };
 use getset::Getters;
+use log::{debug, error};
 use movie_info::Filters;
 use serde::{Deserialize, Serialize};
 use serde_inline_default::serde_inline_default;

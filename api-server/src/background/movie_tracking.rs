@@ -4,6 +4,7 @@ use crate::{
     utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
 use filenamify::filenamify;
+use log::{debug, info, warn};
 use std::{path::PathBuf, time::Duration};
 use tokio::time::sleep;
 

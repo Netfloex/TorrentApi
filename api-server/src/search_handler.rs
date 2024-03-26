@@ -1,4 +1,5 @@
 use async_graphql::{InputObject, SimpleObject};
+use log::error;
 use movie_info::MovieInfoClient;
 use serde::Serialize;
 use std::collections::HashMap;

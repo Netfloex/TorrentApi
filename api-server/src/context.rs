@@ -1,5 +1,6 @@
 use crate::config::Config;
 use getset::Getters;
+use log::info;
 use movie_info::MovieInfoClient;
 use qbittorrent_api::QbittorrentClient;
 use std::sync::Arc;

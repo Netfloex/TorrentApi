@@ -136,6 +136,7 @@ dependencies = [
  "filenamify",
  "getset",
  "lazy_static",
+ "log",
  "movie-info",
  "qbittorrent-api",
  "regex",

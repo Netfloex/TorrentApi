@@ -1,8 +1,7 @@
 mod movie_tracking;
-
-use crate::context::ContextPointer;
-
 use self::movie_tracking::movie_tracking;
+use crate::context::ContextPointer;
+use log::error;
 
 pub async fn background(context: ContextPointer) {
     if let Err(error) = movie_tracking(context).await {

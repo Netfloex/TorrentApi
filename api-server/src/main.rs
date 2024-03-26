@@ -1,19 +1,22 @@
 mod add_torrent_options;
+mod api;
 mod background;
 mod config;
 mod context;
 mod filter;
 mod graphql;
 mod http_error;
+mod models;
 mod search_handler;
 mod r#static;
 mod torrent;
 mod utils;
 
-use async_graphql::{EmptyMutation, EmptySubscription, Schema};
+use async_graphql::{EmptySubscription, Schema};
 use config::get_config;
 use context::{Context, ContextPointer};
-use graphql::{graphiql, graphql_query, graphql_request, Query};
+use graphql::{graphiql, graphql_query, graphql_request, Mutation, Query, SchemaType};
+use log::error;
 use qbittorrent_api::QbittorrentClient;
 use simplelog::{
     ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
@@ -22,10 +25,7 @@ use std::sync::Arc;
 use std::{process, vec};
 use torrent_search_client::TorrentClient;
 
-#[macro_use]
-extern crate rocket;
-
-#[launch]
+#[rocket::launch]
 async fn rocket() -> _ {
     TermLogger::init(
         LevelFilter::Debug,
@@ -35,7 +35,7 @@ async fn rocket() -> _ {
             .add_filter_ignore_str("hyper")
             .add_filter_ignore_str("selectors")
             .add_filter_ignore_str("html5ever")
-            .add_filter_ignore_str("rocket")
+            // .add_filter_ignore_str("rocket")
             .add_filter_ignore_str("handlebars")
             .build(),
         TerminalMode::Mixed,
@@ -61,11 +61,13 @@ async fn rocket() -> _ {
 
     tokio::spawn(background::background(Arc::clone(&context)));
 
-    let schema = Schema::build(Query, EmptyMutation, EmptySubscription)
-        .data(context)
-        .finish();
+    let schema: SchemaType =
+        Schema::build(Query::default(), Mutation::default(), EmptySubscription)
+            .data(context)
+            .finish();
 
-    rocket::build()
-        .manage(schema)
-        .mount("/", routes![graphql_query, graphql_request, graphiql])
+    rocket::build().manage(schema).mount(
+        "/",
+        rocket::routes![graphql_query, graphql_request, graphiql],
+    )
 }
