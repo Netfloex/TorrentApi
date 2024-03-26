@@ -7,7 +7,7 @@ edition = "2021"
 chrono = { version = "0.4.35", features = ["serde"] }
 serde = "1.0.197"
 surf = { version = "2.3.2", features = [
-	"curl-client",
+	"h1-client",
 	"encoding",
 ], default-features = false }
 utils = { path = "../utils", version = "0.1.0" }

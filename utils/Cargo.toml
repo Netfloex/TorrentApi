@@ -4,10 +4,9 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-serde = "1.0.197"
 url = "2.5.0"
 surf = { version = "2.3.2", features = [
-	"curl-client",
+	"h1-client",
 	"encoding",
 ], default-features = false }
 log = "0.4.21"
