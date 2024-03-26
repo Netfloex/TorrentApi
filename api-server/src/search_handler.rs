@@ -8,7 +8,7 @@ use torrent_search_client::{
     Torrent, TorrentClient,
 };
 
-use crate::http_error::HttpErrorKind;
+use crate::models::http_error::HttpErrorKind;
 
 #[derive(InputObject)]
 pub struct SearchHandlerParams {

@@ -1,4 +1,7 @@
-use crate::{context::ContextPointer, http_error::HttpErrorKind, utils::track_movie::track_movie};
+use crate::{
+    models::{context::ContextPointer, http_error::HttpErrorKind},
+    utils::track_movie::track_movie,
+};
 use async_graphql::{Context, Object};
 use movie_info::TmdbId;
 

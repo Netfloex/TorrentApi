@@ -1,4 +1,6 @@
-use crate::{http_error::HttpErrorKind, r#static::media_file_extensions::MEDIA_FILE_EXTENSIONS};
+use crate::{
+    models::http_error::HttpErrorKind, r#static::media_file_extensions::MEDIA_FILE_EXTENSIONS,
+};
 use log::{debug, info};
 use std::{ffi::OsStr, path::PathBuf};
 use tokio::fs::{self, DirEntry};

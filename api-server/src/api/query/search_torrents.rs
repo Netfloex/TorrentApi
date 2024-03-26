@@ -1,6 +1,6 @@
 use super::super::get_context;
 use crate::{
-    http_error::HttpErrorKind,
+    models::http_error::HttpErrorKind,
     search_handler::{search_handler, SearchHandlerParams, SearchHandlerResponse},
 };
 use async_graphql::{Context, Object};

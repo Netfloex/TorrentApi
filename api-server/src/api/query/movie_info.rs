@@ -1,5 +1,5 @@
 use super::super::get_context;
-use crate::http_error::HttpErrorKind;
+use crate::models::http_error::HttpErrorKind;
 use async_graphql::{Context, Object};
 use movie_info::{MovieInfo, TmdbId};
 

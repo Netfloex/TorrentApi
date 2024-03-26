@@ -1,20 +1,16 @@
 mod api;
 mod background;
-mod config;
-mod context;
-mod filter;
 mod graphql;
-mod http_error;
 mod models;
 mod search_handler;
 mod r#static;
 mod utils;
 
 use async_graphql::{EmptySubscription, Schema};
-use config::get_config;
-use context::{Context, ContextPointer};
 use graphql::{graphiql, graphql_query, graphql_request, Mutation, Query, SchemaType};
 use log::error;
+use models::config::get_config;
+use models::context::{Context, ContextPointer};
 use qbittorrent_api::QbittorrentClient;
 use simplelog::{
     ColorChoice, ConfigBuilder as LogConfigBuilder, LevelFilter, TermLogger, TerminalMode,

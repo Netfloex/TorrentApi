@@ -1,6 +1,5 @@
 use crate::{
-    context::ContextPointer,
-    http_error::HttpErrorKind,
+    models::{context::ContextPointer, http_error::HttpErrorKind},
     utils::{get_tmdb::get_tmdb, import_movie::import_movie},
 };
 use filenamify::filenamify;

@@ -1,4 +1,4 @@
-use crate::{context::ContextPointer, http_error::HttpErrorKind};
+use crate::models::{context::ContextPointer, http_error::HttpErrorKind};
 use movie_info::TmdbId;
 use qbittorrent_api::AddTorrentOptions;
 use utils::magnet::Magnet;

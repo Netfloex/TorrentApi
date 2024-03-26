@@ -1,4 +1,4 @@
-use crate::filter::Filter;
+use crate::models::filter::Filter;
 use async_graphql::Object;
 use strum::IntoEnumIterator;
 use torrent_search_client::{Codec, Provider, Quality, Source};

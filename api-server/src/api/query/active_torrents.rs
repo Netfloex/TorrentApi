@@ -1,6 +1,6 @@
 use super::super::get_context;
 use crate::{
-    http_error::HttpErrorKind, models::torrent_movie_info::TorrentMovieInfo,
+    models::http_error::HttpErrorKind, models::torrent_movie_info::TorrentMovieInfo,
     utils::get_tmdb::get_tmdb,
 };
 use async_graphql::{ComplexObject, Context, Object, SimpleObject};

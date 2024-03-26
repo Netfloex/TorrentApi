@@ -1,4 +1,4 @@
-use crate::context::ContextPointer;
+use crate::models::context::ContextPointer;
 use async_graphql::Context;
 pub mod mutation;
 pub mod query;
