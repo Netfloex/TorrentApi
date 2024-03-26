@@ -1,6 +1,7 @@
 use super::super::get_context;
-use crate::{add_torrent_options::ApiAddTorrentOptions, http_error::HttpErrorKind};
+use crate::http_error::HttpErrorKind;
 use async_graphql::{Context, Object};
+use qbittorrent_api::AddTorrentOptions;
 
 #[derive(Default)]
 pub struct AddTorrentsMutation;
@@ -11,11 +12,11 @@ impl AddTorrentsMutation {
         &self,
         context: &Context<'ctx>,
         urls: Vec<String>,
-        options: Option<ApiAddTorrentOptions>,
+        options: Option<AddTorrentOptions>,
     ) -> Result<String, HttpErrorKind> {
         get_context(context)
             .qbittorrent_client()
-            .add_torrents(&urls, options.unwrap_or_default().into())
+            .add_torrents(&urls, options.unwrap_or_default())
             .await?;
 
         Ok("Ok".into())

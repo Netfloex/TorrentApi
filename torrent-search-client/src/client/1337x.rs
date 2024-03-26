@@ -147,7 +147,7 @@ impl TorrentProvider for X1137 {
                     .to_string(),
                 info_hash: String::from("unsupported"),
                 file_count: 0,
-                provider: Provider::X1337,
+                provider: Provider::X1337.into(),
                 magnet: String::from("unsupported"),
                 movie_properties: None,
             }

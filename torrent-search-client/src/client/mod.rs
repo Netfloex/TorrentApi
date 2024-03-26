@@ -73,3 +73,9 @@ impl Provider {
         Provider::iter().collect()
     }
 }
+
+impl From<Provider> for HashSet<Provider> {
+    fn from(val: Provider) -> Self {
+        vec![val].into_iter().collect()
+    }
+}

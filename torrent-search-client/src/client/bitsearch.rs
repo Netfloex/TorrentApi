@@ -154,7 +154,7 @@ impl TorrentProvider for BitSearch {
                 leechers: leechers.parse().unwrap(),
                 seeders: seeders.parse().unwrap(),
                 size: size.parse::<ByteSize>().unwrap().0,
-                provider: Provider::BitSearch,
+                provider: Provider::BitSearch.into(),
                 magnet,
                 movie_properties: Some(MovieProperties::new(
                     String::new(),
@@ -184,7 +184,7 @@ impl TorrentProvider for BitSearch {
 
             let mut torrents = Self::search(&options, http).await?;
 
-            torrents.retain(|t| is_title_match(title, t.name()));
+            torrents.retain(|t| is_title_match(title, &t.name));
 
             return Ok(torrents);
         }

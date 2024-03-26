@@ -1,4 +1,4 @@
-use std::borrow::Cow;
+use std::{borrow::Cow, collections::HashSet};
 
 use crate::{
     client::{piratebay::PirateBayTorrent, yts::YtsTorrent, Provider},
@@ -7,22 +7,22 @@ use crate::{
     Codec, Quality, Source,
 };
 use chrono::{DateTime, TimeZone, Utc};
-use derive_getters::Getters;
 use serde::Serialize;
 use urlencoding::encode;
 
-#[derive(Serialize, Debug, Getters, Clone)]
+#[derive(Serialize, Debug, Clone)]
+#[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
 pub struct Torrent {
     pub added: DateTime<Utc>,
     pub category: String,
-    pub file_count: i32,
+    pub file_count: usize,
     pub id: String,
     pub info_hash: String,
-    pub leechers: i32,
+    pub leechers: usize,
     pub name: String,
-    pub seeders: i32,
+    pub seeders: usize,
     pub size: u64,
-    pub provider: Provider,
+    pub provider: HashSet<Provider>,
     pub magnet: String,
     pub movie_properties: Option<MovieProperties>,
 }
@@ -35,7 +35,9 @@ impl Torrent {
         if self.category.is_empty() {
             self.category = other.category
         }
-        self.file_count |= other.file_count;
+        if self.file_count == 0 {
+            self.file_count = other.file_count;
+        }
         if self.id.is_empty() {
             self.id = other.id
         }
@@ -46,15 +48,22 @@ impl Torrent {
         } else {
             self.movie_properties = other.movie_properties
         }
-        self.leechers |= other.leechers;
+        if self.leechers == 0 {
+            self.leechers = other.leechers;
+        }
         if self.name.is_empty() {
             self.name = other.name
         }
-        self.seeders |= other.seeders;
-        self.size |= other.size;
+        if self.seeders == 0 {
+            self.seeders = other.seeders;
+        }
+        if self.size == 0 {
+            self.size = other.size
+        }
         if self.magnet.is_empty() {
             self.magnet = other.magnet
         }
+        self.provider.extend(&other.provider)
     }
 }
 
@@ -88,7 +97,7 @@ impl From<PirateBayTorrent> for Torrent {
             name: value.name().to_string(),
             seeders: value.seeders().parse().unwrap_or(0),
             size: value.size().parse().unwrap_or(0),
-            provider: Provider::PirateBay,
+            provider: Provider::PirateBay.into(),
             magnet: format_magnet(value.info_hash(), value.name(), PIRATEBAY_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
@@ -123,7 +132,7 @@ impl From<YtsTorrent> for Torrent {
             leechers: torrent.peers().to_owned(),
             seeders: torrent.seeds().to_owned(),
             size: torrent.size_bytes().to_owned(),
-            provider: Provider::Yts,
+            provider: Provider::Yts.into(),
             magnet: format_magnet(torrent.hash(), &name, YTS_TRACKERS),
             movie_properties: Some(MovieProperties::new(
                 value.imdb().to_owned(),
@@ -134,5 +143,76 @@ impl From<YtsTorrent> for Torrent {
 
             name,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+
+    #[test]
+    fn test_merge() {
+        let mut torrent1 = Torrent {
+            added: Utc::now(),
+            category: "1".into(),
+            file_count: 1,
+            id: "1".into(),
+            info_hash: "1".into(),
+            leechers: 1,
+            name: "1".into(),
+            seeders: 1,
+            size: 1,
+            provider: Provider::PirateBay.into(),
+            magnet: "1".into(),
+            movie_properties: None,
+        };
+
+        let torrent2 = Torrent {
+            added: Utc::now(),
+            category: "2".into(),
+            file_count: 2,
+            id: "2".into(),
+            info_hash: "2".into(),
+            leechers: 2,
+            name: "2".into(),
+            seeders: 2,
+            size: 2,
+            provider: vec![Provider::Yts, Provider::PirateBay]
+                .into_iter()
+                .collect(),
+            magnet: "2".into(),
+            movie_properties: Some(MovieProperties::new(
+                "2".into(),
+                Quality::Unknown,
+                Codec::Unknown,
+                Source::Unknown,
+            )),
+        };
+
+        torrent1.merge(torrent2);
+
+        assert_eq!(torrent1.file_count, 1);
+        assert_eq!(torrent1.id, "1");
+        assert_eq!(torrent1.leechers, 1);
+        assert_eq!(torrent1.name, "1");
+        assert_eq!(torrent1.seeders, 1);
+        assert_eq!(torrent1.size, 1);
+        assert_eq!(
+            torrent1.provider,
+            vec![Provider::PirateBay, Provider::Yts]
+                .into_iter()
+                .collect()
+        );
+        assert_eq!(torrent1.magnet, "1");
+        assert_eq!(
+            torrent1.movie_properties.unwrap(),
+            MovieProperties::new(
+                "2".into(),
+                Quality::Unknown,
+                Codec::Unknown,
+                Source::Unknown
+            )
+        );
     }
 }

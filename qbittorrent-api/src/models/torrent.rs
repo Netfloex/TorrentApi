@@ -7,6 +7,7 @@ use std::fmt::Debug;
 #[derive(Serialize, Deserialize, Debug, Getters, Clone)]
 #[get = "pub with_prefix"]
 #[cfg_attr(feature = "graphql", derive(async_graphql::SimpleObject))]
+#[graphql(name = "QbittorrentTorrent")]
 pub struct Torrent {
     #[serde(deserialize_with = "ts_seconds")]
     added_on: DateTime<Utc>,
@@ -20,8 +21,8 @@ pub struct Torrent {
     content_path: String,
     dl_limit: i32,
     dlspeed: u32,
-    downloaded: usize,
-    downloaded_session: usize,
+    downloaded: u64,
+    downloaded_session: u64,
     eta: usize,
     f_l_piece_prio: bool,
     force_start: bool,
@@ -45,15 +46,15 @@ pub struct Torrent {
     #[serde(deserialize_with = "ts_seconds")]
     seen_complete: DateTime<Utc>,
     seq_dl: bool,
-    size: usize,
+    size: u64,
     state: TorrentState,
     super_seeding: bool,
     tags: String,
     time_active: usize,
-    total_size: usize,
+    total_size: u64,
     tracker: String,
     up_limit: i32,
-    uploaded: usize,
-    uploaded_session: usize,
+    uploaded: u64,
+    uploaded_session: u64,
     upspeed: u32,
 }

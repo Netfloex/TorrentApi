@@ -5,10 +5,10 @@ use serde::Serialize;
 use std::collections::HashMap;
 use torrent_search_client::{
     Category, Codec, MovieOptions, Order, Provider, Quality, SearchOptions, SortColumn, Source,
-    TorrentClient,
+    Torrent, TorrentClient,
 };
 
-use crate::{http_error::HttpErrorKind, torrent::ApiTorrent};
+use crate::http_error::HttpErrorKind;
 
 #[derive(InputObject)]
 pub struct SearchHandlerParams {
@@ -32,7 +32,7 @@ pub struct ProviderError {
 
 #[derive(SimpleObject, Serialize)]
 pub struct SearchHandlerResponse {
-    torrents: Vec<ApiTorrent>,
+    torrents: Vec<Torrent>,
     errors: Vec<ProviderError>,
 }
 
@@ -86,16 +86,15 @@ pub async fn search_handler(
         return Err(HttpErrorKind::missing_query());
     };
 
-    let mut grouped: HashMap<String, ApiTorrent> = HashMap::new();
+    let mut grouped: HashMap<String, Torrent> = HashMap::new();
     let mut errors: Vec<ProviderError> = Vec::new();
 
     for result in response {
         match result.torrents {
             Ok(provider_torrents) => {
                 for torrent in provider_torrents {
-                    let torrent: ApiTorrent = torrent.into();
                     grouped
-                        .entry(torrent.get_info_hash().to_string())
+                        .entry(torrent.info_hash.to_owned())
                         .and_modify(|existing| existing.merge(torrent.to_owned()))
                         .or_insert(torrent);
                 }
@@ -110,10 +109,10 @@ pub async fn search_handler(
         }
     }
 
-    let mut torrents: Vec<ApiTorrent> = grouped.into_values().collect();
+    let mut torrents: Vec<Torrent> = grouped.into_values().collect();
 
     torrents.retain(|torrent| {
-        if let Some(props) = torrent.get_movie_properties() {
+        if let Some(props) = &torrent.movie_properties {
             if let Some(source) = &search_params.source {
                 if source.is_empty() {
                 } else if !source.contains(props.get_source()) {
@@ -140,10 +139,10 @@ pub async fn search_handler(
     });
 
     torrents.sort_unstable_by(|a, b| match sort {
-        SortColumn::Added => a.get_added().cmp(b.get_added()),
-        SortColumn::Leechers => a.get_leechers().cmp(b.get_leechers()),
-        SortColumn::Seeders => a.get_seeders().cmp(b.get_seeders()),
-        SortColumn::Size => a.get_size().cmp(b.get_size()),
+        SortColumn::Added => a.added.cmp(&b.added),
+        SortColumn::Leechers => a.leechers.cmp(&b.leechers),
+        SortColumn::Seeders => a.seeders.cmp(&b.seeders),
+        SortColumn::Size => a.size.cmp(&b.size),
     });
 
     if order == Order::Descending {

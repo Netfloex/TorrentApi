@@ -1,4 +1,3 @@
-mod add_torrent_options;
 mod api;
 mod background;
 mod config;
@@ -9,7 +8,6 @@ mod http_error;
 mod models;
 mod search_handler;
 mod r#static;
-mod torrent;
 mod utils;
 
 use async_graphql::{EmptySubscription, Schema};
