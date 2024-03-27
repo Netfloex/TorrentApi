@@ -47,6 +47,7 @@ jobs:
               run: |
                   platform=${{ matrix.platform }}
                   echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
+                  echo "TARGET=$(uname -m)-unknown-linux-musl" >> $GITHUB_ENV
 
             - name: Checkout
               uses: actions/checkout@v4
@@ -84,6 +85,8 @@ jobs:
                   outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
+                  build-args: |
+                      TARGET=${{ env.TARGET }}
 
             - name: Export digest
               run: |
