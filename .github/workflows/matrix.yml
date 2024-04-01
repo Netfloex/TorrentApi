@@ -39,11 +39,10 @@ jobs:
         strategy:
             fail-fast: true
             matrix:
-                include:
-                    - platform: linux/amd64
-                      target: x86_64-unknown-linux-musl
-                    - platform: linux/arm64
-                      target: aarch64-unknown-linux-musl
+                platform:
+                    - linux/amd64
+                    - linux/arm64
+
         steps:
             - name: Prepare
               run: |
@@ -86,8 +85,6 @@ jobs:
                   outputs: type=image,name=${{ env.REGISTRY_IMAGE }},push-by-digest=true,name-canonical=true,push=true
                   cache-from: type=gha
                   cache-to: type=gha,mode=max
-                  build-args: |
-                      TARGET=${{ matrix.target }}
 
             - name: Export digest
               run: |
