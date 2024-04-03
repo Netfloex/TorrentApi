@@ -47,23 +47,15 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
         let mut watching_torrents = 0;
         let mut active_torrents = 0;
 
-        for (hash, torrent) in torrents {
-            if torrent.category().as_ref() == Some(category) {
-                let progress = torrent
-                    .progress()
-                    .expect("Progress should be available at sync");
-                let eta = torrent
-                    .eta()
-                    .as_ref()
-                    .expect("ETA should be available at sync");
-                let state = torrent
-                    .state()
-                    .as_ref()
-                    .expect("State should be available at sync");
+        for torrent in torrents {
+            if torrent.get_category() == category {
+                let progress = torrent.get_progress();
+                let eta = torrent.get_eta();
+                let state = torrent.get_state();
 
-                let name = torrent.name().as_ref().unwrap_or(hash);
+                let name = torrent.get_name();
 
-                if progress != 1.0 {
+                if progress != &1.0 {
                     watching_torrents += 1;
                     if state.is_active() {
                         active_torrents += 1;
@@ -86,10 +78,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
                         info!("Importing \"{}\" as \"{}\"", name, movie_name);
 
-                        let remote_path = torrent
-                            .content_path()
-                            .as_ref()
-                            .expect("Content path should be available at sync");
+                        let remote_path = torrent.get_content_path();
 
                         let local_path =
                             remote_path.replace(remote_download_path, local_download_path);
@@ -100,11 +89,14 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                         import_movie(&local_path, &dest_folder).await?;
 
                         if *config.delete_torrent_after_import() {
-                            qb.delete_torrent(hash.to_owned(), *config.delete_torrent_files())
-                                .await?;
+                            qb.delete_torrent(
+                                torrent.get_hash().to_owned(),
+                                *config.delete_torrent_files(),
+                            )
+                            .await?;
                         } else {
                             qb.set_category(
-                                hash.to_owned(),
+                                torrent.get_hash().to_owned(),
                                 config.category_after_import().to_owned(),
                             )
                             .await?;

@@ -1,4 +1,7 @@
-use crate::{models::sync_main_data::SyncMainData, Error, QbittorrentClient};
+use crate::{
+    models::{sync_main_data::SyncMainData, sync_result::SyncResult},
+    Error, QbittorrentClient,
+};
 
 #[derive(serde::Serialize)]
 struct Rid {
@@ -6,19 +9,17 @@ struct Rid {
 }
 
 impl QbittorrentClient {
-    pub async fn sync(&self) -> Result<SyncMainData, Error> {
+    pub async fn sync(&self) -> Result<SyncResult, Error> {
         let mut sync_data = self.sync_data.lock().await;
 
-        let sync: String = self
+        let sync: SyncMainData = self
             .http
             .get("/api/v2/sync/maindata")
             .query(&Rid {
                 rid: sync_data.sync_rid,
             })?
-            .recv_string()
+            .recv_json()
             .await?;
-
-        let sync: SyncMainData = serde_json::from_str(&sync).unwrap();
 
         sync_data.sync_rid = *sync.rid();
 
@@ -32,6 +33,6 @@ impl QbittorrentClient {
                 .update(sync);
         }
 
-        Ok(sync_data.sync_main_data.to_owned().unwrap())
+        Ok(sync_data.sync_main_data.to_owned().unwrap().into())
     }
 }

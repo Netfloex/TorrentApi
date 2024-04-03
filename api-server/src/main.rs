@@ -28,7 +28,7 @@ async fn rocket() -> _ {
             .add_filter_ignore_str("hyper")
             .add_filter_ignore_str("selectors")
             .add_filter_ignore_str("html5ever")
-            // .add_filter_ignore_str("rocket")
+            .add_filter_ignore_str("rocket::server")
             .add_filter_ignore_str("handlebars")
             .build(),
         TerminalMode::Mixed,

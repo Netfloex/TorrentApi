@@ -1,16 +1,9 @@
-use crate::{
-    models::category::{Categories, Category},
-    Error, QbittorrentClient,
-};
+use crate::{models::category::Category, Error, QbittorrentClient};
 
 impl QbittorrentClient {
     pub async fn categories(&self) -> Result<Vec<Category>, Error> {
-        let resp: Categories = self
-            .http
-            .get("/api/v2/torrents/categories")
-            .recv_json()
-            .await?;
+        let sync = self.sync().await?;
 
-        Ok(resp.categories())
+        Ok(sync.categories().clone())
     }
 }
