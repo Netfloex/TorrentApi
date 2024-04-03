@@ -41,8 +41,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
 
         debug!("Checking for torrents to import");
 
-        let sync = qb.sync().await?;
-        let torrents = sync.torrents();
+        let torrents = qb.torrents_sync().await?;
 
         let mut watching_torrents = 0;
         let mut active_torrents = 0;

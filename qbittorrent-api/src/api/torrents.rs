@@ -33,4 +33,10 @@ impl QbittorrentClient {
             }
         }
     }
+
+    pub async fn torrents_sync(&self) -> Result<Vec<Torrent>, Error> {
+        let sync = self.sync().await?;
+
+        Ok(sync.torrents().to_owned())
+    }
 }
