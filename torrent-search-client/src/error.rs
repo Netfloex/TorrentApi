@@ -7,7 +7,7 @@ pub enum ErrorKind {
     HttpRequestError(surf::Error),
     StatusCodeError(surf::Response),
     ParsingError(serde_json::Error),
-    ScrapingError(),
+    ScrapingError,
 }
 
 #[derive(Debug, Getters)]
@@ -42,7 +42,7 @@ impl error::Error for Error {
         match self.kind() {
             ErrorKind::HttpRequestError(_) => None,
             ErrorKind::ParsingError(e) => e.source(),
-            ErrorKind::ScrapingError() => None,
+            ErrorKind::ScrapingError => None,
             ErrorKind::StatusCodeError(_) => None,
         }
     }

@@ -130,15 +130,13 @@ impl TorrentProvider for Yts {
 
         let json: YtsSearchResponse = get_json(url, http).await?;
 
-        let yts_torrents: Vec<YtsTorrent> = json
+        let torrents: Vec<Torrent> = json
             .data
             .movies
             .unwrap_or_default()
             .into_iter()
-            .flat_map(Yts::movie_to_torrents)
+            .flat_map(|tor| Yts::movie_to_torrents(tor).into_iter().map(Torrent::from))
             .collect();
-
-        let torrents: Vec<Torrent> = yts_torrents.into_iter().map(Torrent::from).collect();
 
         Ok(torrents)
     }
@@ -155,5 +153,53 @@ impl TorrentProvider for Yts {
         let torrents: Vec<Torrent> = yts_torrents.into_iter().map(Torrent::from).collect();
 
         Ok(torrents)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Order;
+
+    use super::*;
+
+    #[test]
+    fn test_format_sort() {
+        assert_eq!(Yts::format_sort(&SortColumn::Added), "date_added");
+        assert_eq!(Yts::format_sort(&SortColumn::Leechers), "peers");
+        assert_eq!(Yts::format_sort(&SortColumn::Size), "");
+        assert_eq!(Yts::format_sort(&SortColumn::Seeders), "seeds");
+    }
+
+    #[test]
+    fn test_format_search_url() {
+        let search_options = SearchOptions::new(
+            "query".into(),
+            Category::Applications,
+            SortColumn::Seeders,
+            Order::Ascending,
+        );
+
+        let url = Yts::format_search_url(&search_options);
+        assert_eq!(
+            url.as_str(),
+            "https://yts.mx/api/v2/list_movies.json?query_term=query&sort_by=seeds&order_by=asc"
+        );
+    }
+
+    #[test]
+    fn test_format_movie_url() {
+        let movie_options = MovieOptions::new(
+            "tt1234567".into(),
+            None,
+            SortColumn::Seeders,
+            Order::Ascending,
+        );
+
+        let url = Yts::format_movie_url(&movie_options);
+
+        assert_eq!(
+            url.as_str(),
+            "https://yts.mx/api/v2/movie_details.json?imdb_id=tt1234567"
+        );
     }
 }

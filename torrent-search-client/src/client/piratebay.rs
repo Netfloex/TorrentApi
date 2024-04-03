@@ -120,3 +120,46 @@ impl TorrentProvider for PirateBay {
         Ok(torrents)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{Order, SortColumn};
+
+    use super::*;
+
+    #[test]
+    fn test_format_url() {
+        let search_options = SearchOptions::new(
+            "query".into(),
+            Category::Applications,
+            SortColumn::Seeders,
+            Order::Ascending,
+        );
+
+        let url = PirateBay::format_url(&search_options);
+        assert_eq!(url.as_str(), "https://apibay.org/q.php?q=query&cat=300");
+    }
+
+    #[test]
+    fn test_format_movie_url() {
+        let movie_options = MovieOptions::new(
+            "tt1234567".into(),
+            None,
+            SortColumn::Seeders,
+            Order::Ascending,
+        );
+
+        let url = PirateBay::format_movie_url(&movie_options);
+        assert_eq!(url.as_str(), "https://apibay.org/q.php?q=tt1234567");
+    }
+
+    #[test]
+    fn test_format_category() {
+        assert_eq!(PirateBay::format_category(&Category::All), "");
+        assert_eq!(PirateBay::format_category(&Category::Applications), "300");
+        assert_eq!(PirateBay::format_category(&Category::Audio), "100");
+        assert_eq!(PirateBay::format_category(&Category::Video), "200");
+        assert_eq!(PirateBay::format_category(&Category::Games), "400");
+        assert_eq!(PirateBay::format_category(&Category::Other), "600");
+    }
+}

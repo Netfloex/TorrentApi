@@ -158,7 +158,7 @@ impl TorrentProvider for X1137 {
         let no_results = parsed.select(&NO_RESULTS_SELECTOR).next().is_some();
         if torrents.is_empty() && !no_results {
             return Err(Error::new(
-                ErrorKind::ScrapingError(),
+                ErrorKind::ScrapingError,
                 "Could not find the table in the html response",
             ));
         }
