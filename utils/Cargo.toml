@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-url = "2.5.0"
+url = "2.5.2"
 surf = { version = "2.3.2", default-features = false }
-log = "0.4.21"
+log = "0.4.22"
 multimap = "0.10.0"
 getset = "0.1.2"

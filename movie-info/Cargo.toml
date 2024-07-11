@@ -4,24 +4,24 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-chrono = { version = "0.4.35", features = ["serde"] }
-serde = "1.0.197"
+chrono = { version = "0.4.38", features = ["serde"] }
+serde = "1.0.204"
 surf = { version = "2.3.2", features = [
 	"h1-client",
 	"encoding",
 ], default-features = false }
 utils = { path = "../utils", version = "0.1.0" }
-async-graphql = { version = "7.0.3", optional = true }
+async-graphql = { version = "7.0.6", optional = true }
 http-cache-surf = "0.12.1"
-lazy_static = "1.4.0"
-regex = "1.10.3"
-serde_json = "1.0.114"
-log = "0.4.21"
+lazy_static = "1.5.0"
+regex = "1.10.5"
+serde_json = "1.0.120"
+log = "0.4.22"
 getset = "0.1.2"
 
 [features]
 graphql = ["dep:async-graphql"]
 
 [dev-dependencies]
-lazy_static = "1.4.0"
-tokio = "1.36.0"
+lazy_static = "1.5.0"
+tokio = "1.38.0"
