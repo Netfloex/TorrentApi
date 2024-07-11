@@ -26,7 +26,7 @@ pub struct Torrent {
     eta: usize,
     f_l_piece_prio: bool,
     force_start: bool,
-    #[serde(alias = "infohash_v1")]
+    #[serde(rename = "infohash_v1")]
     hash: String,
     #[serde(deserialize_with = "ts_seconds")]
     last_activity: DateTime<Utc>,
