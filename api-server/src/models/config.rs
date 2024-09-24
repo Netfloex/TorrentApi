@@ -58,6 +58,9 @@ pub struct Config {
 
     #[serde_inline_default(30)]
     hide_movies_below_runtime: u16,
+
+    #[serde_inline_default(2)]
+    import_movie_max_depth: u8,
 }
 
 impl Config {
