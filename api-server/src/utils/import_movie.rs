@@ -1,5 +1,11 @@
 use crate::{
-    models::http_error::HttpErrorKind, r#static::media_file_extensions::MEDIA_FILE_EXTENSIONS,
+    models::http_error::HttpErrorKind,
+    r#static::{
+        media_file_extensions::MEDIA_FILE_EXTENSIONS,
+        subtitle_file_extensions::SUBTITLE_FILE_EXTENSIONS,
+        subtitle_language_map::create_subtitle_language_map,
+    },
+    utils::parse_subtitle_language::parse_subtitle_language,
 };
 use log::{debug, info};
 use std::{ffi::OsStr, path::PathBuf};
@@ -16,6 +22,8 @@ pub async fn import_movie(
         )));
     }
 
+    let mut subtitles = vec![];
+
     let movie = if !local_path.metadata()?.is_dir() {
         local_path.to_owned()
     } else {
@@ -24,14 +32,23 @@ pub async fn import_movie(
         let mut max_size = 0;
 
         while let Some(file) = files.next_entry().await? {
+            if file.file_type().await?.is_dir() {
+                continue;
+            }
+
             if let Some(ext) = file.path().extension().and_then(|s| s.to_str()) {
-                if MEDIA_FILE_EXTENSIONS.contains(&ext) && !file.path().is_dir() {
-                    let metadata = file.metadata().await?;
+                let metadata = file.metadata().await?;
+
+                if MEDIA_FILE_EXTENSIONS.contains(&ext) {
                     debug!("Found file: {:?}, {}b", file.path(), metadata.len());
                     if metadata.len() >= max_size {
                         max_size = metadata.len();
                         movie_file = Some(file);
                     }
+                } else if SUBTITLE_FILE_EXTENSIONS.contains(&ext) {
+                    debug!("Found subtitle: {:?}", file.path());
+
+                    subtitles.push(file);
                 }
             }
         }
@@ -44,13 +61,48 @@ pub async fn import_movie(
             ));
         }
     };
+
     fs::create_dir_all(&dest_folder).await?;
 
     let dest_file = dest_folder.join(movie.file_name().unwrap_or(OsStr::new("Unknown Movie")));
 
     info!("Copying to {:?}", dest_file);
-    fs::copy(movie, &dest_file).await?;
+    fs::hard_link(movie, &dest_file).await?;
     info!("Movie copied to: {:?}", dest_file);
+
+    // Copy subtitles
+    let subtitle_language_map = create_subtitle_language_map();
+    for subtitle in subtitles {
+        let subtitle_name = subtitle.file_name();
+        let subtitle_name = subtitle_name.to_string_lossy();
+        let path = subtitle.path();
+
+        let subtitle_ext = match path.extension().and_then(|ext| ext.to_str()) {
+            Some(ext) => ext,
+            None => continue,
+        };
+
+        let dest_file = match dest_file.file_stem().and_then(|d| d.to_str()) {
+            Some(stem) => stem,
+            None => continue,
+        };
+
+        let new_subtitle_path = parse_subtitle_language(
+            &subtitle_name,
+            subtitle_ext,
+            dest_file,
+            &subtitle_language_map,
+        );
+
+        debug!("Importing subtitle {} to {:?}", subtitle_name, dest_file);
+
+        if let Some(new_subtitle_path) = new_subtitle_path {
+            let dest_subtitle = dest_folder.join(new_subtitle_path);
+            info!("Copying subtitle to {:?}", dest_subtitle);
+            fs::hard_link(subtitle.path(), &dest_subtitle).await?;
+            info!("Subtitle copied to: {:?}", dest_subtitle);
+        }
+    }
 
     Ok(())
 }
