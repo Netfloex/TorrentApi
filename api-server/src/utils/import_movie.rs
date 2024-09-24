@@ -31,13 +31,13 @@ pub async fn import_movie(
     );
 
     info!("Copying to {:?}", movie_dest_file);
-    fs::hard_link(movie_files.movie(), &movie_dest_file).await?;
+    fs::copy(movie_files.movie(), &movie_dest_file).await?;
     info!("Movie copied to: {:?}", movie_dest_file);
 
     // Copy subtitles
     let subtitle_language_map = create_subtitle_language_map();
     for subtitle in movie_files.subtitles() {
-        let subtitle_name = match subtitle.file_name().and_then(|name| name.to_str()) {
+        let subtitle_stem = match subtitle.file_stem().and_then(|name| name.to_str()) {
             Some(name) => name,
             None => continue,
         };
@@ -47,25 +47,28 @@ pub async fn import_movie(
             None => continue,
         };
 
-        let dest_file = match movie_dest_file.file_stem().and_then(|d| d.to_str()) {
+        let target_base = match movie_dest_file.file_stem().and_then(|d| d.to_str()) {
             Some(stem) => stem,
             None => continue,
         };
 
         let new_subtitle_path = parse_subtitle_language(
-            subtitle_name,
+            subtitle_stem,
             subtitle_ext,
-            dest_file,
+            target_base,
             &subtitle_language_map,
         );
 
-        debug!("Importing subtitle {} to {:?}", subtitle_name, dest_file);
-
         if let Some(new_subtitle_path) = new_subtitle_path {
+            info!(
+                "Importing subtitle {} to as {}",
+                subtitle_stem, new_subtitle_path
+            );
+
             let dest_subtitle = dest_folder.join(new_subtitle_path);
-            info!("Copying subtitle to {:?}", dest_subtitle);
-            fs::hard_link(subtitle, &dest_subtitle).await?;
-            info!("Subtitle copied to: {:?}", dest_subtitle);
+            debug!("Copying subtitle to {:?}", dest_subtitle);
+            fs::copy(subtitle, &dest_subtitle).await?;
+            debug!("Subtitle copied to: {:?}", dest_subtitle);
         }
     }
 

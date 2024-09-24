@@ -13,6 +13,7 @@ use crate::{
     },
 };
 
+#[derive(Debug)]
 pub struct MovieFiles {
     movie: PathBuf,
     subtitles: Vec<PathBuf>,
@@ -94,5 +95,82 @@ impl MovieFiles {
 
     pub fn subtitles(&self) -> &Vec<PathBuf> {
         &self.subtitles
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Write;
+
+    use super::*;
+
+    use fs::{create_dir, File};
+    use tempdir::TempDir;
+
+    #[test]
+    fn test_get_folder_files() {
+        let temp_dir = TempDir::new("test_get_folder_files").unwrap();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        File::create(temp_dir_path.join("file1")).unwrap();
+        File::create(temp_dir_path.join("file2")).unwrap();
+        File::create(temp_dir_path.join("file3")).unwrap();
+
+        let folder_files_0 = MovieFiles::get_folder_files(&temp_dir_path, 0).unwrap();
+        let folder_files_1 = MovieFiles::get_folder_files(&temp_dir_path, 1).unwrap();
+        assert_eq!(folder_files_0.len(), 3);
+        assert_eq!(folder_files_1.len(), 3);
+
+        let subs_dir = temp_dir_path.join("Subs");
+        create_dir(&subs_dir).unwrap();
+
+        File::create(subs_dir.join("sub1")).unwrap();
+
+        let folder_files_0 = MovieFiles::get_folder_files(&temp_dir_path, 0).unwrap();
+        let folder_files_1 = MovieFiles::get_folder_files(&temp_dir_path, 1).unwrap();
+        assert_eq!(folder_files_0.len(), 3);
+        assert_eq!(folder_files_1.len(), 4);
+    }
+
+    #[test]
+    fn test_get_movie_files() {
+        let temp_dir = TempDir::new("test_get_movie_files").unwrap();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        let movie_path = temp_dir_path.join("movie.mp4");
+        File::create(&movie_path).unwrap();
+
+        let movie_files = MovieFiles::get_movie_files(&temp_dir_path, 1).unwrap();
+        assert_eq!(movie_files.movie(), &movie_path);
+        assert_eq!(movie_files.subtitles().len(), 0);
+
+        let subs_dir = temp_dir_path.join("Subs");
+        create_dir(&subs_dir).unwrap();
+
+        let subs_path = subs_dir.join("sub.srt");
+        File::create(&subs_path).unwrap();
+
+        let movie_files = MovieFiles::get_movie_files(&temp_dir_path, 1).unwrap();
+        assert_eq!(movie_files.movie(), &movie_path);
+        assert_eq!(movie_files.subtitles().len(), 1);
+        assert_eq!(movie_files.subtitles()[0], subs_path);
+    }
+
+    #[test]
+    fn test_get_larger_movie() {
+        let temp_dir = TempDir::new("test_get_larger_movie").unwrap();
+        let temp_dir_path = temp_dir.path().to_path_buf();
+
+        let empty_movie = temp_dir_path.join("movie.mp4");
+        File::create(&empty_movie).unwrap();
+
+        let larger_movie_path = temp_dir_path.join("larger_movie.mp4");
+        let mut larger_movie = File::create(&larger_movie_path).unwrap();
+
+        larger_movie.write_all(&[0; 100]).unwrap();
+
+        let movie_files = MovieFiles::get_movie_files(&temp_dir_path, 1).unwrap();
+        assert_eq!(movie_files.movie(), &larger_movie_path);
+        assert_eq!(movie_files.subtitles().len(), 0);
     }
 }
