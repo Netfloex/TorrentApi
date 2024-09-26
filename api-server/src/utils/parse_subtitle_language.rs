@@ -1,15 +1,13 @@
 use log::debug;
-use regex::Regex;
 use std::collections::HashMap;
 
-type LanguageAndFlags = String;
-type SubtitleNameRegex = Regex;
+use crate::models::serde_regex::SerdeRegex;
 
 pub fn parse_subtitle_language(
     subtitle_name: &str,
     subtitle_ext: &str,
     target_base: &str,
-    subtitle_language_map: &HashMap<LanguageAndFlags, SubtitleNameRegex>,
+    subtitle_language_map: &HashMap<String, SerdeRegex>,
 ) -> Option<String> {
     let subtitle_name = subtitle_name.to_lowercase();
     let mut output = String::from(target_base);
@@ -50,14 +48,25 @@ pub fn parse_subtitle_language(
 
 #[cfg(test)]
 mod tests {
-    use crate::r#static::subtitle_language_map::create_subtitle_language_map;
+
+    use regex::Regex;
 
     use super::*;
 
     #[tokio::test]
     async fn test_parse_subtitle_language() {
-        let subtitle_language_map: HashMap<LanguageAndFlags, SubtitleNameRegex> =
-            create_subtitle_language_map();
+        let subtitle_language_map: HashMap<String, SerdeRegex> = [
+            (
+                "en".to_string(),
+                Regex::new(r"^(english|eng|.*\.(en|eng))$").unwrap().into(),
+            ),
+            (
+                "nl".to_string(),
+                Regex::new(r"^(dutch|dut|nl|.*\.(nl|dut))$").unwrap().into(),
+            ),
+        ]
+        .into_iter()
+        .collect();
 
         assert_eq!(
             parse_subtitle_language(

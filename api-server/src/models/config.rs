@@ -1,4 +1,7 @@
-use std::{collections::HashSet, path::PathBuf};
+use std::{
+    collections::{HashMap, HashSet},
+    path::PathBuf,
+};
 
 use figment::{
     providers::{Env, Format, Yaml},
@@ -9,6 +12,8 @@ use log::{debug, error};
 use movie_info::Filters;
 use serde::{Deserialize, Serialize};
 use serde_inline_default::serde_inline_default;
+
+use super::serde_regex::SerdeRegex;
 
 #[serde_inline_default]
 #[derive(Debug, Serialize, Deserialize, Getters, Clone)]
@@ -22,7 +27,7 @@ pub struct QbittorrentConf {
 }
 
 #[serde_inline_default]
-#[derive(Debug, Serialize, Deserialize, Getters, Clone)]
+#[derive(Debug, Serialize, Deserialize, Getters)]
 #[get = "pub"]
 pub struct Config {
     qbittorrent: QbittorrentConf,
@@ -61,6 +66,9 @@ pub struct Config {
 
     #[serde_inline_default(2)]
     import_movie_max_depth: u8,
+
+    #[serde(default)]
+    subtitle_language_map: HashMap<String, SerdeRegex>,
 }
 
 impl Config {

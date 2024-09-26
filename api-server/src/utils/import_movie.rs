@@ -1,16 +1,16 @@
 use crate::{
-    models::{http_error::HttpErrorKind, movie_files::MovieFiles},
-    r#static::subtitle_language_map::create_subtitle_language_map,
+    models::{http_error::HttpErrorKind, movie_files::MovieFiles, serde_regex::SerdeRegex},
     utils::parse_subtitle_language::parse_subtitle_language,
 };
 use log::{debug, info};
-use std::{ffi::OsStr, path::PathBuf};
+use std::{collections::HashMap, ffi::OsStr, path::PathBuf};
 use tokio::fs::{self};
 
 pub async fn import_movie(
     local_path: &PathBuf,
     dest_folder: &PathBuf,
     max_depth: u8,
+    subtitle_language_map: &HashMap<String, SerdeRegex>,
 ) -> Result<(), HttpErrorKind> {
     if !local_path.try_exists()? {
         return Err(HttpErrorKind::TorrentNotFound(format!(
@@ -35,7 +35,6 @@ pub async fn import_movie(
     info!("Movie copied to: {:?}", movie_dest_file);
 
     // Copy subtitles
-    let subtitle_language_map = create_subtitle_language_map();
     for subtitle in movie_files.subtitles() {
         let subtitle_stem = match subtitle.file_stem().and_then(|name| name.to_str()) {
             Some(name) => name,
@@ -56,7 +55,7 @@ pub async fn import_movie(
             subtitle_stem,
             subtitle_ext,
             target_base,
-            &subtitle_language_map,
+            subtitle_language_map,
         );
 
         if let Some(new_subtitle_path) = new_subtitle_path {
@@ -78,9 +77,8 @@ pub async fn import_movie(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use tokio::{fs::File, io::AsyncWriteExt};
-
     use tempdir::TempDir;
+    use tokio::{fs::File, io::AsyncWriteExt};
 
     #[tokio::test]
     async fn test_import_movie() {
@@ -90,7 +88,9 @@ mod tests {
         File::create(&movie_path).await.unwrap();
 
         let dest_folder = tmp_dir_path.join("dest");
-        import_movie(&movie_path, &dest_folder, 1).await.unwrap();
+        import_movie(&movie_path, &dest_folder, 1, &HashMap::new())
+            .await
+            .unwrap();
 
         assert!(dest_folder.exists());
         assert!(dest_folder.join("movie.mp4").exists());
@@ -104,7 +104,7 @@ mod tests {
         File::create(&movie_path).await.unwrap();
 
         let dest_folder = tmp_dir_path.join("dest");
-        import_movie(&tmp_dir_path.to_owned(), &dest_folder, 1)
+        import_movie(&tmp_dir_path.to_owned(), &dest_folder, 1, &HashMap::new())
             .await
             .unwrap();
 
@@ -124,7 +124,7 @@ mod tests {
         larger_movie.write_all(&[0; 100]).await.unwrap();
 
         let dest_folder = tmp_dir_path.join("dest");
-        import_movie(&tmp_dir_path.to_owned(), &dest_folder, 1)
+        import_movie(&tmp_dir_path.to_owned(), &dest_folder, 1, &HashMap::new())
             .await
             .unwrap();
 

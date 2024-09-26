@@ -33,6 +33,7 @@ async-graphql = { version = "7.0.6", features = ["chrono"] }
 async-graphql-rocket = "7.0.6"
 getset = "0.1.2"
 log = "0.4.22"
+serde_regex = "1.1.0"
 
 [dev-dependencies]
 cargo-husky = { version = "1.5.0", default-features = false, features = [
