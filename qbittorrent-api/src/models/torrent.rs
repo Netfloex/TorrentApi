@@ -52,7 +52,7 @@ pub struct Torrent {
     super_seeding: bool,
     tags: String,
     time_active: usize,
-    total_size: u64,
+    total_size: i64,
     tracker: String,
     up_limit: i32,
     uploaded: u64,
