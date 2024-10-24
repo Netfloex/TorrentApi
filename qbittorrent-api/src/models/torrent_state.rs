@@ -42,6 +42,9 @@ pub enum TorrentState {
     CheckingResumeData,
     /// Torrent is moving to another location
     Moving,
+    /// Not in the wiki?
+    /// https://github.com/qbittorrent/qBittorrent/issues/21594
+    StoppedUP,
     /// Unknown status
     Unknown,
 }
