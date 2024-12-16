@@ -1,4 +1,5 @@
 use getset::Getters;
+use std::fmt::Display;
 
 #[derive(Debug)]
 
@@ -8,13 +9,17 @@ pub enum SearchOption {
     Sort,
 }
 
-impl ToString for SearchOption {
-    fn to_string(&self) -> String {
-        String::from(match self {
-            SearchOption::Category => "category",
-            SearchOption::Order => "order",
-            SearchOption::Sort => "sort",
-        })
+impl Display for SearchOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                SearchOption::Category => "category",
+                SearchOption::Order => "order",
+                SearchOption::Sort => "sort",
+            }
+        )
     }
 }
 

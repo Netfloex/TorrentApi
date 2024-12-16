@@ -52,7 +52,6 @@ pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {
 }
 
 #[cfg(test)]
-
 mod tests {
     use super::*;
     use crate::r#static::tests::matrix_torrents::TestMatrixTorrents;

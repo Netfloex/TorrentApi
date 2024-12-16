@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use surf::StatusCode;
 
 #[derive(Debug)]
@@ -14,18 +15,18 @@ pub enum ErrorKind {
     SerdeError(serde_json::Error),
 }
 
-impl ToString for ErrorKind {
-    fn to_string(&self) -> String {
+impl Display for ErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ErrorKind::HttpRequestError(error) => format!("RequestError: {}", error),
-            ErrorKind::IncorrectLogin => "IncorrectLogin".into(),
-            ErrorKind::TorrentAddError => "TorrentAddError".into(),
-            ErrorKind::BadParameters(param) => format!("Bad Parameter: {}", param),
-            ErrorKind::RequestError => "RequestError".into(),
-            ErrorKind::TorrentNotFound => "TorrentNotFound".into(),
-            ErrorKind::TorrentNotDownloading => "TorrentNotDownloading".into(),
-            ErrorKind::CategoryDoesNotExist => "CategoryDoesNotExist".into(),
-            ErrorKind::SerdeError(error) => format!("SerdeError: {}", error),
+            ErrorKind::HttpRequestError(error) => write!(f, "RequestError: {}", error),
+            ErrorKind::IncorrectLogin => write!(f, "IncorrectLogin"),
+            ErrorKind::TorrentAddError => write!(f, "TorrentAddError"),
+            ErrorKind::BadParameters(param) => write!(f, "Bad Parameter: {}", param),
+            ErrorKind::RequestError => write!(f, "RequestError"),
+            ErrorKind::TorrentNotFound => write!(f, "TorrentNotFound"),
+            ErrorKind::TorrentNotDownloading => write!(f, "TorrentNotDownloading"),
+            ErrorKind::CategoryDoesNotExist => write!(f, "CategoryDoesNotExist"),
+            ErrorKind::SerdeError(error) => write!(f, "SerdeError: {}", error),
         }
     }
 }
@@ -53,9 +54,9 @@ impl Error {
     }
 }
 
-impl ToString for Error {
-    fn to_string(&self) -> String {
-        format!("<{}>: {}", self.kind.to_string(), self.message)
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "<{}>: {}", self.kind, self.message)
     }
 }
 

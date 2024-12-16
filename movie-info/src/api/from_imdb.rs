@@ -13,7 +13,6 @@ impl MovieInfoClient {
 }
 
 #[cfg(test)]
-
 mod tests {
     use super::*;
     use lazy_static::lazy_static;

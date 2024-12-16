@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt::Display, str::FromStr};
 
 use super::invalid_option_error::{InvalidOptionError, SearchOption};
 
@@ -26,11 +26,15 @@ impl FromStr for Order {
     }
 }
 
-impl ToString for Order {
-    fn to_string(&self) -> String {
-        match self {
-            Order::Ascending => String::from("asc"),
-            Order::Descending => String::from("desc"),
-        }
+impl Display for Order {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Order::Ascending => "asc",
+                Order::Descending => "desc",
+            }
+        )
     }
 }

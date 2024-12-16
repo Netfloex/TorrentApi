@@ -1,13 +1,15 @@
+use std::fmt::Display;
+
 use surf::Error as SurfError;
 #[derive(Debug)]
 pub enum Error {
     RequestError(SurfError),
 }
 
-impl ToString for Error {
-    fn to_string(&self) -> String {
+impl Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Error::RequestError(error) => format!("RequestError: {}", error),
+            Error::RequestError(error) => write!(f, "RequestError: {}", error),
         }
     }
 }

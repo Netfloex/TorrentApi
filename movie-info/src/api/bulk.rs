@@ -1,10 +1,9 @@
-use std::collections::HashSet;
-
 use crate::{
     models::{movie_info::MovieInfo, tmdb_id::TmdbId},
     Error, MovieInfoClient,
 };
 use log::debug;
+use std::collections::HashSet;
 
 impl MovieInfoClient {
     pub async fn bulk(&self, tmdb_ids: &HashSet<TmdbId>) -> Result<Vec<MovieInfo>, Error> {
@@ -32,7 +31,6 @@ impl MovieInfoClient {
 }
 
 #[cfg(test)]
-
 mod tests {
     use super::*;
     use lazy_static::lazy_static;
