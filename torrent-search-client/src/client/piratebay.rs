@@ -6,12 +6,13 @@ use crate::{
     Provider, TorrentProvider,
 };
 use async_trait::async_trait;
-use derive_getters::Getters;
+use getset::Getters;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use surf::{Client, Url};
 
 #[derive(Deserialize, Debug, Getters)]
+#[get = "pub"]
 pub struct PirateBayTorrent {
     id: String,
     name: String,

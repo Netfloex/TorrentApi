@@ -1,8 +1,8 @@
-use derive_getters::Getters;
-
 use crate::{Order, SortColumn};
+use getset::Getters;
 
 #[derive(Getters)]
+#[get = "pub"]
 pub struct MovieOptions {
     imdb: String,
     title: Option<String>,

@@ -1,9 +1,9 @@
-use derive_setters::Setters;
+use getset::Setters;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 
 #[derive(Serialize, Deserialize, Debug, Setters, Default)]
-#[setters(strip_option = true)]
+#[set = "pub"]
 #[cfg_attr(feature = "graphql", derive(async_graphql::InputObject))]
 pub struct AddTorrentOptions {
     urls: String,

@@ -5,18 +5,14 @@ edition = "2021"
 
 [dependencies]
 utils = { path = "../utils", version = "0.1" }
-serde = "1.0.216"
-serde_json = "1.0.133"
-surf = { version = "2.3.2", features = [
-	"h1-client",
-	"encoding",
-], default-features = false }
-async-graphql = { version = "7.0.13", optional = true }
-chrono = "0.4.39"
-log = "0.4.22"
-getset = "0.1.3"
-derive_setters = "0.1.6"
-tokio = "1.42.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
+surf = { workspace = true }
+async-graphql = { workspace = true, optional = true }
+chrono = { workspace = true }
+log = { workspace = true }
+getset = { workspace = true }
+tokio = { workspace = true }
 
 [features]
 graphql = ["dep:async-graphql"]

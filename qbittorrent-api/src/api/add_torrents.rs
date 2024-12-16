@@ -10,7 +10,7 @@ impl QbittorrentClient {
         urls: &[String],
         mut options: AddTorrentOptions,
     ) -> Result<(), Error> {
-        options = options.urls(urls.join("\n"));
+        options.set_urls(urls.join("\n"));
         let body = Body::from_form(&options).unwrap();
         let resp = self
             .http

@@ -6,9 +6,10 @@ pub mod sort_column;
 
 use self::category::Category;
 use self::{order::Order, sort_column::SortColumn};
-use derive_getters::Getters;
+use getset::Getters;
 
 #[derive(Getters)]
+#[get = "pub"]
 pub struct SearchOptions {
     query: String,
     category: Category,

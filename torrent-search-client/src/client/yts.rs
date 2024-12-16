@@ -7,7 +7,7 @@ use crate::{
     Category, Provider, SortColumn, TorrentProvider,
 };
 use async_trait::async_trait;
-use derive_getters::Getters;
+use getset::Getters;
 use lazy_static::lazy_static;
 use serde::Deserialize;
 use surf::{Client, Url};
@@ -15,6 +15,7 @@ use surf::{Client, Url};
 use super::Error;
 
 #[derive(Deserialize, Debug, Getters)]
+#[get = "pub"]
 pub struct YtsTorrentResponse {
     size_bytes: u64,
     peers: usize,
@@ -45,6 +46,7 @@ struct YtsSearchResponse {
 }
 
 #[derive(Deserialize, Debug, Getters)]
+#[get = "pub"]
 pub struct YtsTorrent {
     data: YtsTorrentResponse,
     title: String,

@@ -1,4 +1,4 @@
-use derive_getters::Getters;
+use getset::Getters;
 
 #[derive(Debug)]
 
@@ -19,6 +19,7 @@ impl ToString for SearchOption {
 }
 
 #[derive(Getters)]
+#[get = "pub"]
 pub struct InvalidOptionError {
     option: SearchOption,
 }

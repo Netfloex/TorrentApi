@@ -14,9 +14,11 @@ pub async fn track_movie(
     let category = ctx.config().qbittorrent().category().to_string();
     let qb = ctx.qbittorrent_client();
 
-    let options = AddTorrentOptions::default()
-        .category(category)
-        .rename(format!("{} ({})", display_name, tmdb));
+    let mut options = AddTorrentOptions::default();
+
+    options
+        .set_category(Some(category))
+        .set_rename(Some(format!("{} ({})", display_name, tmdb)));
 
     qb.add_torrent(url, options).await?;
 

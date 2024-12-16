@@ -1,9 +1,10 @@
 // #[cfg(test)]
 use crate::{Codec, Quality, Source};
-use derive_getters::Getters;
+use getset::Getters;
 use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone, Getters)]
+#[get = "pub"]
 pub struct TestMatrixTorrent {
     name: String,
     codec: Codec,

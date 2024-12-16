@@ -1,6 +1,5 @@
+use getset::Getters;
 use std::{error, fmt};
-
-use derive_getters::Getters;
 
 #[derive(Debug)]
 pub enum ErrorKind {
@@ -11,6 +10,7 @@ pub enum ErrorKind {
 }
 
 #[derive(Debug, Getters)]
+#[get = "pub"]
 pub struct Error {
     kind: ErrorKind,
     message: String,

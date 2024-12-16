@@ -7,3 +7,22 @@ members = [
 	"movie-info",
 ]
 resolver = "2"
+
+
+[workspace.dependencies]
+serde = { version = "1.0.216", features = ["std", "derive"] }
+chrono = { version = "0.4.39", features = ["serde"] }
+serde_json = "1.0.133"
+tokio = "1.42.0"
+regex = "1.11.1"
+lazy_static = "1.5.0"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+async-graphql = { version = "7.0.13", features = ["chrono"] }
+getset = "0.1.3"
+log = "0.4.22"
+surf = { version = "2.3.2", features = [
+	"h1-client",
+	"encoding",
+], default-features = false }
+http-cache-surf = "0.14.0"
