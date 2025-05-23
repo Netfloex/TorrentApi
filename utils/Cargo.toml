@@ -7,5 +7,5 @@ edition = "2021"
 url = "2.5.4"
 surf = { workspace = true }
 log = { workspace = true }
-multimap = "0.10.0"
+multimap = "0.10.1"
 getset = { workspace = true }
