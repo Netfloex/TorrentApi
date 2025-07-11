@@ -4,7 +4,6 @@ mod models;
 mod utils;
 use ::utils::surf_logging::SurfLogging;
 pub use error::Error;
-use http_cache_surf::{CACacheManager, Cache, CacheMode, HttpCache, HttpCacheOptions};
 pub use models::filters::Filters;
 pub use models::movie_info::MovieInfo;
 pub use models::tmdb_id::TmdbId;
@@ -21,13 +20,7 @@ impl MovieInfoClient {
         let client: Client = config.try_into().unwrap();
 
         Self {
-            http: client
-                .with(Cache(HttpCache {
-                    mode: CacheMode::ForceCache,
-                    manager: CACacheManager::default(),
-                    options: HttpCacheOptions::default(),
-                }))
-                .with(SurfLogging),
+            http: client.with(SurfLogging),
         }
     }
 }

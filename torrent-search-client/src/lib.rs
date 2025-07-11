@@ -17,7 +17,6 @@ use client::TorrentProvider;
 pub use error::Error;
 pub use error::ErrorKind;
 use futures::future::join_all;
-use http_cache_surf::{CACacheManager, Cache, CacheMode, HttpCache, HttpCacheOptions};
 pub use movie_properties::codec::Codec;
 pub use movie_properties::quality::Quality;
 pub use movie_properties::source::Source;
@@ -121,13 +120,7 @@ impl TorrentClient {
 
     pub fn new() -> Self {
         Self {
-            http: Client::new()
-                .with(Cache(HttpCache {
-                    mode: CacheMode::ForceCache,
-                    manager: CACacheManager::default(),
-                    options: HttpCacheOptions::default(),
-                }))
-                .with(SurfLogging),
+            http: Client::new().with(SurfLogging),
         }
     }
 }
