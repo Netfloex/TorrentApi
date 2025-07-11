@@ -73,7 +73,7 @@ impl SearchTorrentsQuery {
                     }
                 }
                 Err(err) => {
-                    error!("Error:\n{:?}", err);
+                    error!("Error:\n{err:?}");
                     errors.push(ProviderError::new(
                         result.provider,
                         format!("{:?}: {}", err.kind(), err),

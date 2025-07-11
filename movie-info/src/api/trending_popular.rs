@@ -4,7 +4,7 @@ impl MovieInfoClient {
     async fn get(&self, path: &str, filters: Filters) -> Result<Vec<MovieInfo>, Error> {
         let mut movies: Vec<MovieInfo> = self
             .http
-            .get(format!("list/tmdb/{}", path))
+            .get(format!("list/tmdb/{path}"))
             .recv_json()
             .await?;
 

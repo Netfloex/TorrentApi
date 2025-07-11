@@ -9,7 +9,7 @@ pub async fn get_text(url: Url, http: &Client) -> Result<String, Error> {
     if !status.is_success() {
         return Err(Error::new(
             ErrorKind::StatusCodeError(response),
-            format!("Request to \"{}\" failed with {}", url, status),
+            format!("Request to \"{url}\" failed with {status}"),
         ));
     }
 

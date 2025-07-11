@@ -4,7 +4,7 @@ impl MovieInfoClient {
     pub async fn from_imdb(&self, imdb: &str) -> Result<Option<MovieInfo>, Error> {
         let movie: Vec<MovieInfo> = self
             .http
-            .get(format!("movie/imdb/{}", imdb))
+            .get(format!("movie/imdb/{imdb}"))
             .recv_json()
             .await?;
 

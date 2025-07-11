@@ -9,7 +9,7 @@ pub enum Error {
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Error::RequestError(error) => write!(f, "RequestError: {}", error),
+            Error::RequestError(error) => write!(f, "RequestError: {error}"),
         }
     }
 }

@@ -35,7 +35,7 @@ impl Filter {
             values: filter
                 .map(|x| FilterItem {
                     display: to_variant_name(&x).unwrap().to_owned(),
-                    name: format!("{:?}", x),
+                    name: format!("{x:?}"),
                 })
                 .collect(),
         }

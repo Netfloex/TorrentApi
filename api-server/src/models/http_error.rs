@@ -16,19 +16,19 @@ pub enum HttpErrorKind {
 
 impl HttpErrorKind {
     pub fn param(param: String) -> Self {
-        Self::InvalidParam(format!("Incorrect param: {}", param))
+        Self::InvalidParam(format!("Incorrect param: {param}"))
     }
     pub fn missing_query() -> Self {
         Self::MissingQuery("At least `imdb` or `query` must be defined.".into())
     }
     pub fn imdb_not_found(imdb: String) -> Self {
-        Self::ImdbNotFound(format!("IMDB ID not found: {}", imdb))
+        Self::ImdbNotFound(format!("IMDB ID not found: {imdb}"))
     }
 }
 
 impl Display for HttpErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 

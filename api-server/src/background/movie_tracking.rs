@@ -75,7 +75,7 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                     if let Some(movie) = movie {
                         let movie_name = movie.format();
 
-                        info!("Importing \"{}\" as \"{}\"", name, movie_name);
+                        info!("Importing {name:?} as {movie_name:?}");
 
                         let remote_path = torrent.get_content_path();
 
@@ -107,10 +107,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
                             .await?;
                         }
                     } else {
-                        warn!("No movie found for TMDB id: {}", tmdb);
+                        warn!("No movie found for TMDB id: {tmdb}");
                     }
                 } else {
-                    warn!("No TMDB id found for {}", name);
+                    warn!("No TMDB id found for {name}");
                 }
             }
         }
@@ -123,13 +123,10 @@ pub async fn movie_tracking(context: ContextPointer) -> Result<(), HttpErrorKind
             min_eta = *timeout_inactive;
             info!("No active torrents")
         } else {
-            info!(
-                "Watching {}/{} torrents",
-                active_torrents, watching_torrents
-            )
+            info!("Watching {active_torrents}/{watching_torrents} torrents")
         }
 
-        info!("Waiting: {}s", min_eta);
+        info!("Waiting: {min_eta}s");
         sleep(Duration::from_secs(min_eta as u64)).await;
     }
 }

@@ -18,15 +18,15 @@ pub enum ErrorKind {
 impl Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            ErrorKind::HttpRequestError(error) => write!(f, "RequestError: {}", error),
+            ErrorKind::HttpRequestError(error) => write!(f, "RequestError: {error}"),
             ErrorKind::IncorrectLogin => write!(f, "IncorrectLogin"),
             ErrorKind::TorrentAddError => write!(f, "TorrentAddError"),
-            ErrorKind::BadParameters(param) => write!(f, "Bad Parameter: {}", param),
+            ErrorKind::BadParameters(param) => write!(f, "Bad Parameter: {param}"),
             ErrorKind::RequestError => write!(f, "RequestError"),
             ErrorKind::TorrentNotFound => write!(f, "TorrentNotFound"),
             ErrorKind::TorrentNotDownloading => write!(f, "TorrentNotDownloading"),
             ErrorKind::CategoryDoesNotExist => write!(f, "CategoryDoesNotExist"),
-            ErrorKind::SerdeError(error) => write!(f, "SerdeError: {}", error),
+            ErrorKind::SerdeError(error) => write!(f, "SerdeError: {error}"),
         }
     }
 }
@@ -62,7 +62,7 @@ impl Display for Error {
 
 impl From<surf::Error> for Error {
     fn from(request_error: surf::Error) -> Self {
-        println!("{}", request_error);
+        println!("{request_error}");
         if request_error.status() == StatusCode::Unauthorized {
             return Self::new(ErrorKind::IncorrectLogin, "Incorrect login");
         }

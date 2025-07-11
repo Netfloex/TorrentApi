@@ -18,7 +18,7 @@ pub async fn track_movie(
 
     options
         .set_category(Some(category))
-        .set_rename(Some(format!("{} ({})", display_name, tmdb)));
+        .set_rename(Some(format!("{display_name} ({tmdb})")));
 
     qb.add_torrent(url, options).await?;
 

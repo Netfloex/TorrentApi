@@ -38,7 +38,7 @@ async fn rocket() -> _ {
 
     let config = get_config().unwrap_or_else(|e| {
         error!("Error missing required config");
-        error!("{}", e);
+        error!("{e}");
         process::exit(1);
     });
 

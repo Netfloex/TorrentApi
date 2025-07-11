@@ -101,7 +101,7 @@ pub fn get_config() -> Result<Config, Error> {
         std::process::exit(1);
     }
 
-    debug!("{:#?}", config);
+    debug!("{config:#?}");
 
     Ok(config)
 }

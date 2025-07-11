@@ -30,9 +30,9 @@ pub async fn import_movie(
             .unwrap_or(OsStr::new("Unknown Movie")),
     );
 
-    info!("Copying to {:?}", movie_dest_file);
+    info!("Copying to {movie_dest_file:?}");
     fs::copy(movie_files.movie(), &movie_dest_file).await?;
-    info!("Movie copied to: {:?}", movie_dest_file);
+    info!("Movie copied to: {movie_dest_file:?}");
 
     // Copy subtitles
     for subtitle in movie_files.subtitles() {
@@ -59,15 +59,12 @@ pub async fn import_movie(
         );
 
         if let Some(new_subtitle_path) = new_subtitle_path {
-            info!(
-                "Importing subtitle {} to as {}",
-                subtitle_stem, new_subtitle_path
-            );
+            info!("Importing subtitle {subtitle_stem} to as {new_subtitle_path}");
 
             let dest_subtitle = dest_folder.join(new_subtitle_path);
-            debug!("Copying subtitle to {:?}", dest_subtitle);
+            debug!("Copying subtitle to {dest_subtitle:?}");
             fs::copy(subtitle, &dest_subtitle).await?;
-            debug!("Subtitle copied to: {:?}", dest_subtitle);
+            debug!("Subtitle copied to: {dest_subtitle:?}");
         }
     }
 

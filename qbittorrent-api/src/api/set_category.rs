@@ -18,7 +18,7 @@ impl QbittorrentClient {
         } else {
             Err(Error::new(
                 ErrorKind::CategoryDoesNotExist,
-                format!("Category: \"{}\" does not exist", category),
+                format!("Category: {category:?} does not exist"),
             ))
         }
     }

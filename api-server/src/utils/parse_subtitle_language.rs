@@ -26,10 +26,7 @@ pub fn parse_subtitle_language(
         // target_base: MovieFile.2020
 
         if subtitle_name.starts_with(&target_base.to_lowercase()) {
-            debug!(
-                "Subtitle {} has the same base name as target file {}",
-                subtitle_name, target_base
-            );
+            debug!("Subtitle {subtitle_name} has the same base name as target file {target_base}");
             output.push('.');
             output.push_str(subtitle_ext);
             return Some(output);

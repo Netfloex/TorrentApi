@@ -46,7 +46,7 @@ pub fn is_title_match(movie_title: &str, og_torrent_title: &str) -> bool {
 
     let matches = match_perc > 0.8;
     if !matches {
-        debug!("Incorrect movie: {}", torrent_title)
+        debug!("Incorrect movie: {torrent_title}")
     }
     matches
 }

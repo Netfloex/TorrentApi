@@ -5,7 +5,7 @@ use crate::{
 
 impl MovieInfoClient {
     pub async fn from_tmdb(&self, tmdb: TmdbId) -> Result<Option<MovieInfo>, Error> {
-        let mut resp = self.http.get(format!("movie/{}", tmdb)).send().await?;
+        let mut resp = self.http.get(format!("movie/{tmdb}")).send().await?;
 
         if resp.status().is_client_error() {
             return Ok(None);

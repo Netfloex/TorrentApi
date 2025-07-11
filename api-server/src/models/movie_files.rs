@@ -71,7 +71,7 @@ impl MovieFiles {
                         movie_file = Some(file);
                     }
                 } else if SUBTITLE_FILE_EXTENSIONS.contains(&ext) {
-                    debug!("Found subtitle: {:?}", path);
+                    debug!("Found subtitle: {path:?}");
 
                     subtitles.push(path);
                 }

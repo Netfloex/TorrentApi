@@ -5,6 +5,6 @@ use log::error;
 
 pub async fn background(context: ContextPointer) {
     if let Err(error) = movie_tracking(context).await {
-        error!("MovieTracking error: {:?}", error);
+        error!("MovieTracking error: {error:?}");
     }
 }
