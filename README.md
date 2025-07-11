@@ -4,8 +4,8 @@ Torrent search api wrapper and parser for popular torrent sites.
 
 ### Packages
 
--   `api-server`: The http api for querying the search package
--   `torrent-search-client`: A rust crate for searching on popular torrent sites
+- `api-server`: The http api for querying the search package
+- `torrent-search-client`: A rust crate for searching on popular torrent sites
 
 ### Usage
 
@@ -71,7 +71,6 @@ curl localhost:8000/search?imdb=<imdb_id>
 
 ### Current Providers
 
--   BitSearch (bitsearch.to)
--   The Pirate Bay (apibay.org)
--   1337x (1337x.to)
--   Yts (yts.mx)
+- BitSearch (bitsearch.to)
+- The Pirate Bay (apibay.org)
+- Yts (yts.mx)

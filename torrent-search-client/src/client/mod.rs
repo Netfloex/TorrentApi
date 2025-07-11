@@ -12,8 +12,6 @@ use surf::Client;
 
 pub mod bitsearch;
 pub mod piratebay;
-#[path = "1337x.rs"]
-pub mod x1337;
 pub mod yts;
 
 pub struct ProviderResponse {
@@ -61,8 +59,6 @@ use strum_macros::EnumIter;
 pub enum Provider {
     #[cfg_attr(feature = "graphql", graphql(name = "PIRATEBAY"))]
     PirateBay,
-    #[serde(rename = "1337x")]
-    X1337,
     Yts,
     #[cfg_attr(feature = "graphql", graphql(name = "BITSEARCH"))]
     BitSearch,

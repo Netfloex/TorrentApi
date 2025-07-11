@@ -9,7 +9,6 @@ mod utils;
 use ::utils::surf_logging::SurfLogging;
 use client::bitsearch::BitSearch;
 use client::piratebay::PirateBay;
-use client::x1337::X1137;
 use client::yts::Yts;
 pub use client::Provider;
 use client::ProviderResponse;
@@ -67,7 +66,6 @@ impl TorrentClient {
 
         for provider in providers {
             match provider {
-                Provider::X1337 => futures.push(X1137::search_provider(search_options, &self.http)),
                 Provider::PirateBay => {
                     futures.push(PirateBay::search_provider(search_options, &self.http))
                 }
@@ -102,7 +100,6 @@ impl TorrentClient {
 
         for provider in providers {
             match provider {
-                Provider::X1337 => {}
                 Provider::PirateBay => {
                     futures.push(PirateBay::search_movies_provider(movie_options, &self.http))
                 }
