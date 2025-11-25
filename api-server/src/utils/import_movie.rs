@@ -119,6 +119,7 @@ mod tests {
         let mut larger_movie = File::create(&movie_path2).await.unwrap();
 
         larger_movie.write_all(&[0; 100]).await.unwrap();
+        larger_movie.flush().await.unwrap();
 
         let dest_folder = tmp_dir_path.join("dest");
         import_movie(&tmp_dir_path.to_owned(), &dest_folder, 1, &HashMap::new())
