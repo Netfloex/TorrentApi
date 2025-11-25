@@ -184,7 +184,7 @@ mod tests {
         let url = Yts::format_search_url(&search_options);
         assert_eq!(
             url.as_str(),
-            "https://yts.mx/api/v2/list_movies.json?query_term=query&sort_by=seeds&order_by=asc"
+            "https://yts.lt/api/v2/list_movies.json?query_term=query&sort_by=seeds&order_by=asc"
         );
     }
 
@@ -201,7 +201,7 @@ mod tests {
 
         assert_eq!(
             url.as_str(),
-            "https://yts.mx/api/v2/movie_details.json?imdb_id=tt1234567"
+            "https://yts.lt/api/v2/movie_details.json?imdb_id=tt1234567"
         );
     }
 }
