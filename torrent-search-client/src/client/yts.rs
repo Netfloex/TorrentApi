@@ -63,7 +63,7 @@ struct YtsMovieSearchResponse {
     data: YtsMovieSearchData,
 }
 
-const YTS_API: &str = "https://yts.mx/api/v2";
+const YTS_API: &str = "https://yts.lt/api/v2";
 lazy_static! {
     static ref YTS_URL: Url = YTS_API.parse().unwrap();
 }
