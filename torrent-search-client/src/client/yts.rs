@@ -1,4 +1,4 @@
-use std::vec;
+use std::{env, vec};
 
 use crate::{
     search_options::{movie_options::MovieOptions, SearchOptions},
@@ -79,8 +79,15 @@ impl Yts {
         }
     }
 
+    fn get_url() -> Url {
+        env::var("OVERRIDE_YTS_URL")
+            .ok()
+            .map(|url| Url::parse(&url).unwrap())
+            .unwrap_or_else(|| YTS_URL.clone())
+    }
+
     fn format_search_url(search_options: &SearchOptions) -> Url {
-        let mut url = YTS_URL.clone();
+        let mut url = Self::get_url();
 
         url.path_segments_mut().unwrap().push("list_movies.json");
 
@@ -93,7 +100,7 @@ impl Yts {
     }
 
     fn format_movie_url(movie_options: &MovieOptions) -> Url {
-        let mut url = YTS_URL.clone();
+        let mut url = Self::get_url();
 
         url.path_segments_mut().unwrap().push("movie_details.json");
 

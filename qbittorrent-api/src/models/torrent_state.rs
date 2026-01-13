@@ -45,6 +45,7 @@ pub enum TorrentState {
     /// Not in the wiki?
     /// https://github.com/qbittorrent/qBittorrent/issues/21594
     StoppedUP,
+    StoppedDL,
     /// Unknown status
     Unknown,
 }
